@@ -138,7 +138,7 @@ export default function Inventory() {
           />
           <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <Filter size={18} className="text-gray-400 min-w-max" />
-            {CATEGORIES.map(cat => (
+            {Array.from(new Set(['All', 'Groceries', 'Beverages', 'Dairy & Bakery', 'Snacks', 'Personal Care', 'Household', 'Electronics', 'Clothing', 'Jerseys', 'Gaming', ...products.map(p => p.category).filter(Boolean)])).map(cat => (
               <button 
                 key={cat}
                 onClick={() => setActiveCategory(cat)}

@@ -150,7 +150,7 @@ export default function Billing({ currentUser }) {
 
         {/* Categories Bar */}
         <div className="p-3 bg-white border-b border-gray-100 flex gap-2 overflow-x-auto">
-          {CATEGORIES.map((cat) => (
+          {Array.from(new Set(['All', 'Groceries', 'Beverages', 'Dairy & Bakery', 'Snacks', 'Personal Care', 'Household', 'Electronics', 'Clothing', 'Jerseys', 'Gaming', ...productsDB.map(p => p.category).filter(Boolean)])).map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
