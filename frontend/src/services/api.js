@@ -39,6 +39,7 @@ export const deleteProductFromDB = (id) => api.delete(`/inventory/${id}`);
 // ==========================================
 export const generateBill = (data) => api.post('/checkout', data);
 export const scanBarcodeApi = (barcode) => api.post('/barcode/scan', { barcode });
+export const sendWhatsAppBillApi = (data) => api.post('/notifications/whatsapp', data);
 export const fetchSalesHistory = () => api.get('/sales/history');
 export const fetchDashboardStats = () => api.get('/integration/dashboard');
 export const fetchEmployeeDashboardStats = (cashier = '') => api.get('/employee/dashboard-stats', { params: { cashier } });

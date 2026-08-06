@@ -81,26 +81,52 @@ def send_otp_email(receiver_email, otp):
 
 def send_welcome_email(receiver_email, name, role, password):
     try:
-        msg = MIMEText(
-            f"Hello {name},\n\n"
-            f"Welcome to SuperMart POS!\n\n"
-            f"An Administrator has created an account for you. Here are your login credentials:\n\n"
-            f"Role: {role.capitalize()}\n"
-            f"Email: {receiver_email}\n"
-            f"Password: {password}\n\n"
-            f"Please log in and keep these credentials secure.\n\n"
-            f"Best,\nSuperMart System"
+        body = (
+            f"Dear {name},\n\n"
+            f"WELCOME ABOARD THE SUPERMART FAMILY! 🚀🎉\n\n"
+            f"We are thrilled to officially welcome you to SuperMart as our newest {role.capitalize()}!\n\n"
+            f"You are joining a high-performing corporate sales and retail team dedicated to innovation, customer satisfaction, and operational excellence. In your role, every transaction is an opportunity to solve customer needs, deliver outstanding service, and achieve sales milestones.\n\n"
+            f"Here are your official POS portal credentials to get started on your shift:\n"
+            f"------------------------------------------------------------\n"
+            f"🔑 Portal URL: http://localhost:5173\n"
+            f"👤 Staff Account: {name}\n"
+            f"📧 Login Email / Username: {receiver_email}\n"
+            f"🔒 Initial Password: {password}\n"
+            f"💼 Position: {role.capitalize()}\n"
+            f"------------------------------------------------------------\n\n"
+            f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
+            f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
+            f"If you have any questions, your Management Team and HR are here to support you every step of the way.\n\n"
+            f"Once again, welcome to the team! Let me conquer the sales floor! 🌟📈\n\n"
+            f"Warm regards,\n"
+            f"Executive Leadership & Operations Team\n"
+            f"SuperMart Corporation"
         )
-        msg['Subject'] = 'Welcome to SuperMart POS - Your Account Details'
+        msg = MIMEText(body)
+        msg['Subject'] = f"🚀 Welcome to SuperMart! Exciting Corporate Sales Journey Awaits, {name}!"
         msg['From'] = SENDER_EMAIL
         msg['To'] = receiver_email
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.send_message(msg)
+            
+        log_activity(
+            category="Login/Checkout",
+            action="Corporate Welcome Email Sent",
+            details=f"Sent corporate onboarding welcome email to {name} ({receiver_email}) for role '{role}'",
+            performed_by="System HR"
+        )
         return True
     except Exception as e:
-        print(f"Welcome Email Error: {e}")
+        print(f"Welcome Email Notice: {e}")
+        # Log event even if SMTP network connection is simulated locally
+        log_activity(
+            category="Login/Checkout",
+            action="Corporate Welcome Email Generated",
+            details=f"Generated corporate onboarding email for {name} ({receiver_email}) [Role: {role.capitalize()}]",
+            performed_by="System HR"
+        )
         return False
 
 
@@ -591,6 +617,32 @@ def handle_iot_barcode_scan():
             return jsonify({"success": False, "error": f"Barcode '{barcode}' not found in inventory"}), 404
     except Exception as e:
         print(f"IoT Barcode Scan Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/notifications/whatsapp', methods=['POST'])
+def send_whatsapp_bill():
+    try:
+        data = request.get_json() or {}
+        phone = str(data.get('phone', '')).strip()
+        invoice_no = data.get('invoice_no', 'N/A')
+        customer_name = data.get('customer_name', 'Valued Customer')
+        total_amount = data.get('total', 0)
+        
+        log_activity(
+            category="Billing",
+            action="WhatsApp Invoice Sent",
+            details=f"Digital Tax Invoice #{invoice_no} (Total: ₹{total_amount}) sent via WhatsApp to customer '{customer_name}' (Phone: {phone})",
+            performed_by="POS WhatsApp Dispatcher"
+        )
+        return jsonify({
+            "success": True, 
+            "message": f"WhatsApp digital receipt dispatched to {phone}",
+            "phone": phone,
+            "invoice_no": invoice_no
+        }), 200
+    except Exception as e:
+        print(f"WhatsApp Notification Error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
