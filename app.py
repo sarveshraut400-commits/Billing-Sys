@@ -124,17 +124,15 @@ def login():
         if not matched_emp:
             matched_emp = next((e for e in employees_db if e.get('role') == role), None)
             
-        if matched_emp:
-            matched_emp['lastLogin'] = now_str
-            matched_emp['isOnline'] = True
-            matched_emp['status'] = 'online'
-        else:
-            for emp in employees_db:
-                if emp.get('role') == role:
-                    emp['lastLogin'] = now_str
-                    emp['isOnline'] = True
-                    emp['status'] = 'online'
-                    break
+        for emp in employees_db:
+            if matched_emp and (emp.get('id') == matched_emp.get('id') or emp.get('email') == matched_emp.get('email')):
+                emp['lastLogin'] = now_str
+                emp['isOnline'] = True
+                emp['status'] = 'online'
+            else:
+                emp['isOnline'] = False
+                emp['status'] = 'offline'
+                
         save_employees()
         
         user_name = matched_emp.get('name') if matched_emp else role.capitalize()
@@ -313,15 +311,21 @@ def send_admin_otp():
 
 @app.route('/api/auth/employees', methods=['GET'])
 def get_employees():
+    global employees_db
+    if os.path.exists(EMPLOYEES_FILE):
+        try:
+            with open(EMPLOYEES_FILE, 'r') as f:
+                employees_db = json.load(f)
+        except Exception:
+            pass
+
     conn = get_db_connection()
     cursor = conn.cursor()
     
     enriched_employees = []
     for emp in employees_db:
-        emp_role = emp.get('role', 'employee')
         emp_name = emp.get('name', '')
         
-        # Query latest login timestamp specifically for this individual user
         cursor.execute("""
             SELECT timestamp, action FROM activity_logs 
             WHERE category = 'Login/Checkout' 
