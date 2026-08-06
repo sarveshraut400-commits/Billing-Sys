@@ -40,6 +40,15 @@ export default function Billing({ currentUser }) {
 
   const addToCart = (product) => {
     const existing = cart.find(item => item.id === product.id);
+    const currentQty = existing ? existing.qty : 0;
+    if (product.stock <= 0) {
+      alert(`⚠️ ${product.name} is Out of Stock!`);
+      return;
+    }
+    if (currentQty + 1 > product.stock) {
+      alert(`⚠️ Cannot add more. Available stock for ${product.name} is ${product.stock} units.`);
+      return;
+    }
     if (existing) {
       setCart(cart.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item));
     } else {
@@ -50,6 +59,11 @@ export default function Billing({ currentUser }) {
   const updateQty = (id, newQty) => {
     if (newQty <= 0) {
       setCart(cart.filter(item => item.id !== id));
+      return;
+    }
+    const product = productsDB.find(p => p.id === id);
+    if (product && newQty > product.stock) {
+      alert(`⚠️ Maximum available stock for ${product.name} is ${product.stock} units.`);
       return;
     }
     setCart(cart.map(item => item.id === id ? { ...item, qty: newQty } : item));

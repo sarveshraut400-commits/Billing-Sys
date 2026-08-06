@@ -541,11 +541,14 @@ def checkout():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/barcode/scan', methods=['POST'])
+@app.route('/api/barcode/scan', methods=['GET', 'POST'])
 def handle_iot_barcode_scan():
     try:
-        data = request.get_json() or {}
-        barcode = str(data.get('barcode', '')).strip()
+        if request.method == 'GET':
+            barcode = str(request.args.get('barcode', '')).strip()
+        else:
+            data = request.get_json(silent=True) or {}
+            barcode = str(data.get('barcode', '') or request.args.get('barcode', '')).strip()
         
         if not barcode:
             return jsonify({"success": False, "error": "No barcode provided"}), 400
