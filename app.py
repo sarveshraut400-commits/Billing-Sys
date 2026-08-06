@@ -516,6 +516,56 @@ def checkout():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/barcode/scan', methods=['POST'])
+def handle_iot_barcode_scan():
+    try:
+        data = request.get_json() or {}
+        barcode = str(data.get('barcode', '')).strip()
+        
+        if not barcode:
+            return jsonify({"success": False, "error": "No barcode provided"}), 400
+            
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM products WHERE barcode = ?", (barcode,))
+        product = cursor.fetchone()
+        conn.close()
+        
+        if not product:
+            product = next((p for p in inventory_db if str(p.get('barcode')).strip() == barcode), None)
+            
+        if product:
+            p_dict = dict(product) if not isinstance(product, dict) else product
+            log_activity(
+                category="Billing",
+                action="IoT Barcode Scanned",
+                details=f"IoT Scanner scanned barcode '{barcode}' -> Match: {p_dict.get('name') or p_dict.get('product_name')}",
+                performed_by="IoT Scanner"
+            )
+            return jsonify({
+                "success": True,
+                "product": {
+                    "id": p_dict.get('id'),
+                    "barcode": p_dict.get('barcode'),
+                    "name": p_dict.get('name') or p_dict.get('product_name'),
+                    "price": float(p_dict.get('price', 0)),
+                    "stock": int(p_dict.get('stock', 0)),
+                    "category": p_dict.get('category', 'General')
+                }
+            }), 200
+        else:
+            log_activity(
+                category="Inventory",
+                action="Unknown Barcode Scanned",
+                details=f"IoT Scanner scanned unregistered barcode '{barcode}'",
+                performed_by="IoT Scanner"
+            )
+            return jsonify({"success": False, "error": f"Barcode '{barcode}' not found in inventory"}), 404
+    except Exception as e:
+        print(f"IoT Barcode Scan Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route('/api/sales/history', methods=['GET'])
 def get_sales_history():
     try:

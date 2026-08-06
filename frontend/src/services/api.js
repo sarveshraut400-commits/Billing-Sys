@@ -38,6 +38,7 @@ export const deleteProductFromDB = (id) => api.delete(`/inventory/${id}`);
 // 4. BILLING & DASHBOARD
 // ==========================================
 export const generateBill = (data) => api.post('/checkout', data);
+export const scanBarcodeApi = (barcode) => api.post('/barcode/scan', { barcode });
 export const fetchSalesHistory = () => api.get('/sales/history');
 export const fetchDashboardStats = () => api.get('/integration/dashboard');
 export const fetchRecentInvoices = () => api.get('/invoices/recent');

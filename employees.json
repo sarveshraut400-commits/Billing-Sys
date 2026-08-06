@@ -5,21 +5,25 @@
         "email": "systemdefault96@gmail.com",
         "role": "admin",
         "lastLogin": "2026-08-06 07:23 PM",
-        "isOnline": true,
-        "status": "online"
+        "isOnline": false,
+        "status": "offline"
     },
     {
         "id": "36bfb9e5",
         "name": "Kertick",
         "email": "kertick@gmail.com",
         "role": "employee",
-        "lastLogin": "Never"
+        "lastLogin": "2026-08-06 07:29 PM",
+        "isOnline": true,
+        "status": "online"
     },
     {
         "id": "4bc5e64c",
         "name": "Pars",
         "email": "pars@gmail.com",
         "role": "employee",
-        "lastLogin": "Never"
+        "lastLogin": "2026-08-06 07:29 PM",
+        "isOnline": true,
+        "status": "online"
     }
 ]

@@ -72,8 +72,11 @@ export default function AdminDashboard() {
             <span className="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm">
               Live DB Stream
             </span>
+            <span className="text-xs bg-cyan-100 text-cyan-800 font-bold px-2.5 py-1 rounded-md border border-cyan-200 flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-cyan-500 animate-pulse"></span> IoT Scanner Online
+            </span>
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Real-time store performance, revenue metrics, and live system activity</p>
+          <p className="text-sm text-gray-500 mt-1">Real-time IoT billing system server medium • Live POS sales, inventory, and hardware logs</p>
         </div>
 
         {/* Live Controls */}
