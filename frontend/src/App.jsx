@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { StoreProvider } from './context/StoreContext';
+import { StoreProvider } from './Context/StoreContext';
 
 import Sidebar from './components/layout/Sidebar';
 import Home from './pages/Home';
