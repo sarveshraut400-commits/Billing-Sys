@@ -134,6 +134,7 @@ def forgot_password():
     
     if email_sent:
         masked_email = user['email'][0] + "***" + user['email'][user['email'].find('@'):]
+        log_activity("Login/Checkout", "Password Reset Requested", f"OTP sent to {masked_email} for role '{role}'", performed_by=role.capitalize())
         return jsonify({"success": True, "message": f"OTP sent to {masked_email}"}), 200
     return jsonify({"error": "Failed to send email. Check backend credentials."}), 500
 
@@ -149,6 +150,7 @@ def reset_password():
         user['password'] = new_password
         user['otp'] = None
         save_users() # Save new password to file permanently!
+        log_activity("Login/Checkout", "Password Reset", f"Password successfully updated for role '{role}'", performed_by=role.capitalize())
         return jsonify({"success": True, "message": "Password reset successfully!"}), 200
     return jsonify({"error": "Invalid OTP"}), 400
 
@@ -254,6 +256,7 @@ def send_admin_otp():
     
     email_sent = send_otp_email(admin_user['email'], otp)
     if email_sent:
+        log_activity("Login/Checkout", "Admin OTP Sent", "OTP generated and sent to Admin email", performed_by="System")
         return jsonify({"success": True, "message": "OTP sent to Admin"}), 200
     return jsonify({"error": "Failed to send OTP to Admin"}), 500
 
@@ -288,6 +291,7 @@ def add_employee():
     if email:
         send_welcome_email(email, name, role, raw_password)
         
+    log_activity("Login/Checkout", "Employee Registered", f"Added new employee '{name}' ({email}) with role '{role}'", performed_by="Admin")
     return jsonify(new_emp), 201
 
 @app.route('/api/auth/employees/<emp_id>', methods=['PUT'])
@@ -318,6 +322,7 @@ def edit_employee(emp_id):
                 save_users()
             
             save_employees()
+            log_activity("Login/Checkout", "Employee Updated", f"Updated employee '{emp['name']}' details (Role: {emp['role']})", performed_by="Admin")
             return jsonify(emp), 200
             
     return jsonify({"error": "Employee not found"}), 404
@@ -325,9 +330,11 @@ def edit_employee(emp_id):
 @app.route('/api/auth/employees/<emp_id>', methods=['DELETE'])
 def delete_employee(emp_id):
     global employees_db
+    deleted_emp = next((e for e in employees_db if str(e['id']) == str(emp_id)), None)
+    emp_name = deleted_emp['name'] if deleted_emp else emp_id
     employees_db = [e for e in employees_db if str(e['id']) != str(emp_id)]
     save_employees()
-    log_activity("Login/Checkout", "Employee Deleted", f"Removed employee ID {emp_id}", performed_by="Admin")
+    log_activity("Login/Checkout", "Employee Deleted", f"Removed employee '{emp_name}' (ID: {emp_id})", performed_by="Admin")
     return jsonify({"success": True}), 200
 
 
