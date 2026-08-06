@@ -13,8 +13,6 @@ import Reports from './pages/Reports/Reports';
 import Settings from './pages/Settings/Settings';
 import SalesHistory from './pages/Sales/SalesHistory';
 import Activity from './pages/Activity/Activity';
-import EmployeeSales from './pages/Sales/EmployeeSales';
-import ProductLookup from './pages/Inventory/ProductLookup';
 import { logoutUser } from './services/api';
 
 export default function App() {
@@ -85,10 +83,6 @@ export default function App() {
                         <Route path="/admin-dashboard" element={currentUserRole === 'admin' ? <AdminDashboard /> : <Navigate to="/employee-dashboard" />} />
                         <Route path="/employee-dashboard" element={currentUserRole === 'employee' ? <EmployeeDashboard currentUser={currentUser} /> : <Navigate to="/admin-dashboard" />} />
                         <Route path="/billing" element={<Billing currentUser={currentUser} />} />
-                        
-                        {/* Employee Sub-routes */}
-                        <Route path="/employee-sales" element={<EmployeeSales currentUser={currentUser} />} />
-                        <Route path="/product-lookup" element={<ProductLookup />} />
 
                         {/* Admin-Only */}
                         {currentUserRole === 'admin' && (

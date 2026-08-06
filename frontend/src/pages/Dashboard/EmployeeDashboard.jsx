@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   ShoppingCart, Search, Clock, DollarSign, TrendingUp, RefreshCw, 
-  CheckCircle2, AlertTriangle, Eye, Printer, X, Barcode, ShieldCheck, User
+  CheckCircle2, AlertTriangle, Eye, Printer, X, Barcode, ShieldCheck, User, Package, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { fetchEmployeeDashboardStats } from '../../services/api';
+import { fetchEmployeeDashboardStats, scanBarcodeApi, fetchInventory } from '../../services/api';
 
 export default function EmployeeDashboard({ currentUser }) {
   const navigate = useNavigate();
@@ -19,6 +19,14 @@ export default function EmployeeDashboard({ currentUser }) {
   const [isAutoRefresh, setIsAutoRefresh] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [lastSynced, setLastSynced] = useState(new Date());
+
+  // Price Checker Modal States
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [scannedBarcode, setScannedBarcode] = useState('');
+  const [matchedProduct, setMatchedProduct] = useState(null);
+  const [catalogItems, setCatalogItems] = useState([]);
+  const [catalogSearch, setCatalogSearch] = useState('');
+  const [isSearchingCatalog, setIsSearchingCatalog] = useState(false);
 
   const timerRef = useRef(null);
   const staffName = currentUser?.name || 'Staff Member';
@@ -56,6 +64,43 @@ export default function EmployeeDashboard({ currentUser }) {
       setLastSynced(new Date());
     }
   };
+
+  const openPriceCheckerModal = async () => {
+    setIsSearchModalOpen(true);
+    setScannedBarcode('');
+    setMatchedProduct(null);
+    setIsSearchingCatalog(true);
+    try {
+      const res = await fetchInventory();
+      if (res.data && Array.isArray(res.data.items)) {
+        setCatalogItems(res.data.items);
+      }
+    } catch (err) {
+      console.warn("Catalog fetch error:", err);
+    } finally {
+      setIsSearchingCatalog(false);
+    }
+  };
+
+  const handleBarcodeLookup = async (e) => {
+    if (e) e.preventDefault();
+    if (!scannedBarcode) return;
+    try {
+      const res = await scanBarcodeApi(scannedBarcode);
+      if (res.data && res.data.product) {
+        setMatchedProduct(res.data.product);
+      }
+    } catch (err) {
+      alert(`Barcode ${scannedBarcode} not found in catalog.`);
+    }
+  };
+
+  const filteredCatalog = catalogItems.filter(item => {
+    const name = (item.name || '').toLowerCase();
+    const code = (item.barcode || '').toString();
+    const q = catalogSearch.toLowerCase();
+    return name.includes(q) || code.includes(q);
+  });
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen space-y-6">
@@ -101,7 +146,7 @@ export default function EmployeeDashboard({ currentUser }) {
         </div>
       </div>
 
-      {/* Quick Action Large Buttons - Theme Matched */}
+      {/* Action Shortcut Buttons */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <button 
           onClick={() => navigate('/billing')}
@@ -122,7 +167,7 @@ export default function EmployeeDashboard({ currentUser }) {
         </button>
 
         <button 
-          onClick={() => navigate('/product-lookup')}
+          onClick={openPriceCheckerModal}
           className="bg-white border-2 border-emerald-600 p-6 rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-between group"
         >
           <div className="flex items-center gap-4 text-left">
@@ -135,7 +180,7 @@ export default function EmployeeDashboard({ currentUser }) {
             </div>
           </div>
           <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold px-3 py-1.5 rounded-lg">
-            Search →
+            Open Checker →
           </span>
         </button>
       </div>
@@ -199,7 +244,7 @@ export default function EmployeeDashboard({ currentUser }) {
 
       </div>
 
-      {/* Live Recent Transactions Stream Table */}
+      {/* Live Recent Transactions Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -315,6 +360,102 @@ export default function EmployeeDashboard({ currentUser }) {
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PRICE & STOCK CHECKER MODAL */}
+      {isSearchModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative border border-gray-100">
+            <button 
+              onClick={() => setIsSearchModalOpen(false)} 
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-2xl font-black text-gray-800 mb-1 flex items-center gap-2">
+              <Search className="text-emerald-600" size={24} /> Product & Price Checker
+            </h2>
+            <p className="text-xs text-gray-500 mb-4">Scan or search any product to verify price, stock count, and catalog details</p>
+
+            {/* Barcode Form */}
+            <form onSubmit={handleBarcodeLookup} className="flex gap-2 mb-4">
+              <div className="relative flex-1">
+                <input 
+                  type="text" 
+                  placeholder="Scan IoT barcode or type number (e.g. 8901030700010)..."
+                  value={scannedBarcode}
+                  onChange={(e) => setScannedBarcode(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  autoFocus
+                />
+                <Barcode size={18} className="absolute left-3 top-3 text-gray-400" />
+              </div>
+              <button type="submit" className="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700 transition">
+                Check Barcode
+              </button>
+            </form>
+
+            {/* Scanned Highlight Card */}
+            {matchedProduct && (
+              <div className="bg-emerald-50 border-2 border-emerald-500 p-4 rounded-xl mb-4 flex justify-between items-center">
+                <div>
+                  <span className="text-xs font-bold text-emerald-800 uppercase">Barcode Match Found</span>
+                  <h3 className="text-xl font-black text-gray-900">{matchedProduct.name}</h3>
+                  <span className="text-xs text-gray-500 block font-mono">Barcode: {matchedProduct.barcode}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-black text-emerald-600">₹{matchedProduct.price}</span>
+                  <span className="text-xs font-bold block text-gray-700">Stock: {matchedProduct.stock} units</span>
+                </div>
+              </div>
+            )}
+
+            {/* Text Search Catalog Filter */}
+            <div className="mb-3">
+              <input 
+                type="text" 
+                placeholder="Or type product name to search..."
+                value={catalogSearch}
+                onChange={(e) => setCatalogSearch(e.target.value)}
+                className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs focus:outline-none"
+              />
+            </div>
+
+            <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-xl">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-gray-100 text-gray-600 font-bold sticky top-0">
+                  <tr>
+                    <th className="p-2.5">Barcode</th>
+                    <th className="p-2.5">Product Name</th>
+                    <th className="p-2.5">Price</th>
+                    <th className="p-2.5 text-right">Stock</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredCatalog.length > 0 ? (
+                    filteredCatalog.map((item) => (
+                      <tr key={item.id} className="hover:bg-emerald-50/30">
+                        <td className="p-2.5 font-mono text-gray-600">{item.barcode}</td>
+                        <td className="p-2.5 font-bold text-gray-800">{item.name}</td>
+                        <td className="p-2.5 font-black text-emerald-700">₹{item.price}</td>
+                        <td className="p-2.5 text-right font-bold text-gray-700">{item.stock}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="4" className="p-4 text-center text-gray-400">No items found matching your search.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <button onClick={() => setIsSearchModalOpen(false)} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 font-bold text-xs rounded-xl">
+                Close Checker
               </button>
             </div>
           </div>

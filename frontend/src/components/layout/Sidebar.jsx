@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, Package, Users, ShoppingCart, 
-  FileBarChart, Settings, Activity, Receipt, FileText, Search
+  FileBarChart, Settings, Activity, FileText
 } from 'lucide-react';
 
 export default function Sidebar({ role }) {
@@ -10,11 +10,7 @@ export default function Sidebar({ role }) {
     { name: 'Dashboard', path: `/${role}-dashboard`, icon: <LayoutDashboard size={20} /> },
     ...(role === 'admin' 
       ? [{ name: 'Sales History & Receipts', path: '/sales-history', icon: <FileText size={20} /> }]
-      : [
-          { name: 'Billing (POS)', path: '/billing', icon: <ShoppingCart size={20} /> },
-          { name: 'My Shift Sales', path: '/employee-sales', icon: <FileText size={20} /> },
-          { name: 'Product & Stock Search', path: '/product-lookup', icon: <Search size={20} /> }
-        ]
+      : [{ name: 'Billing (POS)', path: '/billing', icon: <ShoppingCart size={20} /> }]
     ),
     { name: 'Inventory', path: '/inventory', icon: <Package size={20} />, adminOnly: true },
     { name: 'Employees', path: '/employees', icon: <Users size={20} />, adminOnly: true },
