@@ -109,23 +109,36 @@ def send_welcome_email(receiver_email, name, role, password):
 # ==========================================
 @app.route('/api/auth/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    role = data.get('role')
+    data = request.get_json() or {}
+    role = data.get('role', 'employee')
     password = data.get('password')
+    email = data.get('email', '').strip().lower()
     
     user = users_db.get(role)
     if user and user['password'] == password:
         now_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
         
-        # Update last login and online status in employees database
-        for emp in employees_db:
-            if emp.get('role') == role or (role == 'admin' and emp.get('role') == 'admin') or (role == 'employee' and emp.get('role') == 'employee'):
-                emp['lastLogin'] = now_str
-                emp['isOnline'] = True
-                emp['status'] = 'online'
+        matched_emp = None
+        if email:
+            matched_emp = next((e for e in employees_db if e.get('email', '').lower() == email), None)
+        if not matched_emp:
+            matched_emp = next((e for e in employees_db if e.get('role') == role), None)
+            
+        if matched_emp:
+            matched_emp['lastLogin'] = now_str
+            matched_emp['isOnline'] = True
+            matched_emp['status'] = 'online'
+        else:
+            for emp in employees_db:
+                if emp.get('role') == role:
+                    emp['lastLogin'] = now_str
+                    emp['isOnline'] = True
+                    emp['status'] = 'online'
+                    break
         save_employees()
         
-        log_activity("Login/Checkout", f"{role.capitalize()} Login", f"{role.capitalize()} user authenticated & started active session", performed_by=role.capitalize())
+        user_name = matched_emp.get('name') if matched_emp else role.capitalize()
+        log_activity("Login/Checkout", f"{role.capitalize()} Login", f"User '{user_name}' authenticated & started active session", performed_by=user_name)
         return jsonify({"success": True, "role": role}), 200
     return jsonify({"error": "Invalid password"}), 401
 
@@ -133,15 +146,26 @@ def login():
 def logout():
     data = request.get_json() or {}
     role = data.get('role', 'employee')
+    email = data.get('email', '').strip().lower()
     
-    now_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
-    for emp in employees_db:
-        if emp.get('role') == role or (role == 'admin' and emp.get('role') == 'admin') or (role == 'employee' and emp.get('role') == 'employee'):
-            emp['isOnline'] = False
-            emp['status'] = 'offline'
-            
+    matched_emp = None
+    if email:
+        matched_emp = next((e for e in employees_db if e.get('email', '').lower() == email), None)
+    if not matched_emp:
+        matched_emp = next((e for e in employees_db if e.get('role') == role and e.get('isOnline')), None)
+        
+    if matched_emp:
+        matched_emp['isOnline'] = False
+        matched_emp['status'] = 'offline'
+    else:
+        for emp in employees_db:
+            if emp.get('role') == role:
+                emp['isOnline'] = False
+                emp['status'] = 'offline'
+                
     save_employees()
-    log_activity("Login/Checkout", f"{role.capitalize()} Logout", f"{role.capitalize()} user signed out of the POS system", performed_by=role.capitalize())
+    user_name = matched_emp.get('name') if matched_emp else role.capitalize()
+    log_activity("Login/Checkout", f"{role.capitalize()} Logout", f"User '{user_name}' signed out of the POS system", performed_by=user_name)
     return jsonify({"success": True, "message": "Logged out successfully"}), 200
 
 @app.route('/api/auth/forgot-password', methods=['POST'])
@@ -297,25 +321,20 @@ def get_employees():
         emp_role = emp.get('role', 'employee')
         emp_name = emp.get('name', '')
         
-        # Query latest login timestamp from SQLite activity_logs for this user/role
+        # Query latest login timestamp specifically for this individual user
         cursor.execute("""
             SELECT timestamp, action FROM activity_logs 
             WHERE category = 'Login/Checkout' 
-            AND (performed_by LIKE ? OR action LIKE ?) 
+            AND (performed_by LIKE ? OR details LIKE ?) 
             ORDER BY id DESC LIMIT 1
-        """, (f"%{emp_role}%", f"%{emp_role}%"))
+        """, (f"%{emp_name}%", f"%{emp_name}%"))
         
         last_log = cursor.fetchone()
-        
         last_login_time = emp.get('lastLogin', 'Never')
-        is_online = emp.get('isOnline', False) or emp.get('status') == 'online'
-        
         if last_log:
             last_login_time = last_log['timestamp']
-            if 'Login' in last_log['action']:
-                is_online = True
-            elif 'Logout' in last_log['action']:
-                is_online = False
+            
+        is_online = bool(emp.get('isOnline', False) and emp.get('status') == 'online')
 
         emp_copy = dict(emp)
         emp_copy['lastLogin'] = last_login_time

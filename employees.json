@@ -4,9 +4,9 @@
         "name": "System",
         "email": "systemdefault96@gmail.com",
         "role": "admin",
-        "lastLogin": "2026-08-06 07:23 PM",
-        "isOnline": false,
-        "status": "offline"
+        "lastLogin": "2026-08-06 07:34 PM",
+        "isOnline": true,
+        "status": "online"
     },
     {
         "id": "36bfb9e5",
@@ -14,8 +14,8 @@
         "email": "kertick@gmail.com",
         "role": "employee",
         "lastLogin": "2026-08-06 07:29 PM",
-        "isOnline": true,
-        "status": "online"
+        "isOnline": false,
+        "status": "offline"
     },
     {
         "id": "4bc5e64c",
@@ -23,7 +23,7 @@
         "email": "pars@gmail.com",
         "role": "employee",
         "lastLogin": "2026-08-06 07:29 PM",
-        "isOnline": true,
-        "status": "online"
+        "isOnline": false,
+        "status": "offline"
     }
 ]
