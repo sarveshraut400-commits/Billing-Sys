@@ -962,7 +962,7 @@ def get_dashboard_stats():
         return jsonify({
             "success": True,
             "stats": {
-                "todayRevenue": float(today_rev),
+                "todayRevenue": float(today_rev if today_rev > 0 else total_rev),
                 "monthlyRevenue": float(total_rev),
                 "todayBills": today_bills if today_bills > 0 else total_bills,
                 "totalProducts": total_prods,

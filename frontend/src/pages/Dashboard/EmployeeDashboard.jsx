@@ -192,7 +192,7 @@ export default function EmployeeDashboard({ currentUser }) {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between hover:shadow-md transition">
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Shift Sales Total</p>
-            <h3 className="text-3xl font-black text-emerald-600 mt-1">₹{stats.todaySales.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            <h3 className="text-3xl font-black text-emerald-600 mt-1">₹{(stats?.todaySales || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             <span className="text-xs text-gray-500 font-semibold mt-1.5 block">Live SQLite sync</span>
           </div>
           <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
@@ -204,7 +204,7 @@ export default function EmployeeDashboard({ currentUser }) {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between hover:shadow-md transition">
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Invoices Generated</p>
-            <h3 className="text-3xl font-black text-gray-900 mt-1">{stats.todayBills}</h3>
+            <h3 className="text-3xl font-black text-gray-900 mt-1">{stats?.todayBills || 0}</h3>
             <span className="text-xs text-blue-600 font-bold mt-1.5 block">Shift POS sales</span>
           </div>
           <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100">
@@ -216,7 +216,7 @@ export default function EmployeeDashboard({ currentUser }) {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between hover:shadow-md transition">
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Avg Transaction</p>
-            <h3 className="text-3xl font-black text-gray-900 mt-1">₹{stats.avgSale.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+            <h3 className="text-3xl font-black text-gray-900 mt-1">₹{(stats?.avgSale || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             <span className="text-xs text-indigo-600 font-bold mt-1.5 block">Per customer bill</span>
           </div>
           <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100">
@@ -233,7 +233,7 @@ export default function EmployeeDashboard({ currentUser }) {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
               </span>
-              <h3 className="text-2xl font-extrabold text-cyan-900">{stats.iotStatus}</h3>
+              <h3 className="text-2xl font-extrabold text-cyan-900">{stats?.iotStatus || 'Online'}</h3>
             </div>
             <span className="text-xs text-cyan-700 font-semibold mt-1.5 block">Ready for barcode scans</span>
           </div>

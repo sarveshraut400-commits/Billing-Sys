@@ -115,9 +115,9 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between hover:shadow-md transition">
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Today's Sales</p>
-            <h3 className="text-3xl font-black text-gray-900 mt-1">₹{stats.todayRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+            <h3 className="text-3xl font-black text-gray-900 mt-1">₹{(stats?.todayRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
             <span className="text-xs text-emerald-600 font-bold flex items-center gap-1 mt-1.5">
-              <TrendingUp size={14} /> Total: ₹{stats.monthlyRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              <TrendingUp size={14} /> Total: ₹{(stats?.monthlyRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </span>
           </div>
           <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between hover:shadow-md transition">
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Completed Invoices</p>
-            <h3 className="text-3xl font-black text-gray-900 mt-1">{stats.todayBills}</h3>
+            <h3 className="text-3xl font-black text-gray-900 mt-1">{stats?.todayBills || 0}</h3>
             <span className="text-xs text-blue-600 font-bold mt-1.5 block">Live POS Sales</span>
           </div>
           <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100">
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between hover:shadow-md transition">
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Inventory</p>
-            <h3 className="text-3xl font-black text-gray-900 mt-1">{stats.totalProducts}</h3>
+            <h3 className="text-3xl font-black text-gray-900 mt-1">{stats?.totalProducts || 0}</h3>
             <span className="text-xs text-indigo-600 font-bold mt-1.5 block">Catalog Items</span>
           </div>
           <div className="p-4 bg-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100">
@@ -154,8 +154,8 @@ export default function AdminDashboard() {
           <div>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Low Stock & Staff</p>
             <div className="flex items-baseline gap-3 mt-1">
-              <h3 className="text-3xl font-black text-rose-600">{stats.lowStock} <span className="text-xs text-gray-400 font-normal">low</span></h3>
-              <h3 className="text-2xl font-bold text-emerald-600">{stats.onlineEmployees}/{stats.totalEmployees} <span className="text-xs text-gray-400 font-normal">online</span></h3>
+              <h3 className="text-3xl font-black text-rose-600">{stats?.lowStock || 0} <span className="text-xs text-gray-400 font-normal">low</span></h3>
+              <h3 className="text-2xl font-bold text-emerald-600">{stats?.onlineEmployees || 0}/{stats?.totalEmployees || 0} <span className="text-xs text-gray-400 font-normal">online</span></h3>
             </div>
             <span className="text-xs text-gray-500 font-semibold mt-1.5 block">Real-time alerts</span>
           </div>
