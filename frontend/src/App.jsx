@@ -12,9 +12,22 @@ import EmployeeManagement from './pages/Employees/EmployeeManagement';
 import Reports from './pages/Reports/Reports';
 import Settings from './pages/Settings/Settings';
 import Activity from './pages/Activity/Activity';
+import { logoutUser } from './services/api';
 
 export default function App() {
   const [currentUserRole, setCurrentUserRole] = useState(''); // Empty = Not logged in
+
+  const handleLogout = async () => {
+    try {
+      if (currentUserRole) {
+        await logoutUser({ role: currentUserRole });
+      }
+    } catch (e) {
+      console.warn("Logout log warning:", e);
+    } finally {
+      setCurrentUserRole('');
+    }
+  };
 
   return (
     <StoreProvider>
@@ -39,8 +52,8 @@ export default function App() {
                         Logged in as: <span className="font-bold text-gray-800">{currentUserRole.toUpperCase()}</span>
                       </div>
                       <button 
-                        onClick={() => setCurrentUserRole('')} 
-                        className="px-4 py-2 bg-red-50 text-red-600 rounded text-sm font-bold hover:bg-red-100 transition"
+                        onClick={handleLogout} 
+                        className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition border border-red-200"
                       >
                         Log Out
                       </button>
@@ -62,9 +75,9 @@ export default function App() {
                             <Route path="/settings" element={<Settings />} />
                           </>
                         )}
-                        
-                        {/* Fallback */}
-                        <Route path="*" element={<Navigate to={`/${currentUserRole}-dashboard`} replace />} />
+
+                        {/* Catch-all redirect */}
+                        <Route path="*" element={<Navigate to={currentUserRole === 'admin' ? "/admin-dashboard" : "/employee-dashboard"} replace />} />
                       </Routes>
                     </main>
                   </div>

@@ -9,6 +9,8 @@ import io
 import json
 import os
 
+from datetime import datetime
+
 # Database helper functions
 from database import get_db_connection, log_activity
 
@@ -113,9 +115,34 @@ def login():
     
     user = users_db.get(role)
     if user and user['password'] == password:
-        log_activity("Login/Checkout", f"{role.capitalize()} Login", f"{role.capitalize()} user authenticated successfully", performed_by=role.capitalize())
+        now_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+        
+        # Update last login and online status in employees database
+        for emp in employees_db:
+            if emp.get('role') == role or (role == 'admin' and emp.get('role') == 'admin') or (role == 'employee' and emp.get('role') == 'employee'):
+                emp['lastLogin'] = now_str
+                emp['isOnline'] = True
+                emp['status'] = 'online'
+        save_employees()
+        
+        log_activity("Login/Checkout", f"{role.capitalize()} Login", f"{role.capitalize()} user authenticated & started active session", performed_by=role.capitalize())
         return jsonify({"success": True, "role": role}), 200
     return jsonify({"error": "Invalid password"}), 401
+
+@app.route('/api/auth/logout', methods=['POST'])
+def logout():
+    data = request.get_json() or {}
+    role = data.get('role', 'employee')
+    
+    now_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+    for emp in employees_db:
+        if emp.get('role') == role or (role == 'admin' and emp.get('role') == 'admin') or (role == 'employee' and emp.get('role') == 'employee'):
+            emp['isOnline'] = False
+            emp['status'] = 'offline'
+            
+    save_employees()
+    log_activity("Login/Checkout", f"{role.capitalize()} Logout", f"{role.capitalize()} user signed out of the POS system", performed_by=role.capitalize())
+    return jsonify({"success": True, "message": "Logged out successfully"}), 200
 
 @app.route('/api/auth/forgot-password', methods=['POST'])
 def forgot_password():
@@ -262,7 +289,42 @@ def send_admin_otp():
 
 @app.route('/api/auth/employees', methods=['GET'])
 def get_employees():
-    return jsonify(employees_db), 200
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    enriched_employees = []
+    for emp in employees_db:
+        emp_role = emp.get('role', 'employee')
+        emp_name = emp.get('name', '')
+        
+        # Query latest login timestamp from SQLite activity_logs for this user/role
+        cursor.execute("""
+            SELECT timestamp, action FROM activity_logs 
+            WHERE category = 'Login/Checkout' 
+            AND (performed_by LIKE ? OR action LIKE ?) 
+            ORDER BY id DESC LIMIT 1
+        """, (f"%{emp_role}%", f"%{emp_role}%"))
+        
+        last_log = cursor.fetchone()
+        
+        last_login_time = emp.get('lastLogin', 'Never')
+        is_online = emp.get('isOnline', False) or emp.get('status') == 'online'
+        
+        if last_log:
+            last_login_time = last_log['timestamp']
+            if 'Login' in last_log['action']:
+                is_online = True
+            elif 'Logout' in last_log['action']:
+                is_online = False
+
+        emp_copy = dict(emp)
+        emp_copy['lastLogin'] = last_login_time
+        emp_copy['isOnline'] = is_online
+        emp_copy['status'] = 'online' if is_online else 'offline'
+        enriched_employees.append(emp_copy)
+        
+    conn.close()
+    return jsonify(enriched_employees), 200
 
 @app.route('/api/auth/employees', methods=['POST'])
 def add_employee():

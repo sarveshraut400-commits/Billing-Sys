@@ -14,6 +14,7 @@ const api = axios.create({
 // 1. AUTHENTICATION & SECURITY
 // ==========================================
 export const loginUser = (data) => api.post('/auth/login', data);
+export const logoutUser = (data) => api.post('/auth/logout', data);
 export const requestPasswordReset = (data) => api.post('/auth/forgot-password', data);
 export const resetPassword = (data) => api.post('/auth/reset-password', data);
 
