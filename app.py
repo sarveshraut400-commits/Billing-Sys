@@ -22,8 +22,7 @@ from reportlab.pdfgen import canvas
 import openpyxl
 
 app = Flask(__name__)
-# This is mandatory so React (port 5173) can talk to Flask (port 5000)
-CORS(app) 
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True) 
 
 INVOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'invoices')
 os.makedirs(INVOICES_DIR, exist_ok=True) 
