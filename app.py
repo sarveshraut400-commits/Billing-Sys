@@ -383,28 +383,26 @@ def reset_password():
 INVENTORY_FILE = 'inventory.json'
 default_inventory = [] # Relying on your generated inventory.json
 
-if os.path.exists(INVENTORY_FILE):
-    with open(INVENTORY_FILE, 'r') as f:
-        inventory_db = json.load(f)
-else:
-    inventory_db = default_inventory
-    with open(INVENTORY_FILE, 'w') as f:
-        json.dump(inventory_db, f, indent=4)
-
-def save_inventory():
-    with open(INVENTORY_FILE, 'w') as f:
-        json.dump(inventory_db, f, indent=4)
-
-@app.route('/api/inventory', methods=['GET'])
-def get_inventory():
+def load_inventory_from_disk():
     global inventory_db
     if os.path.exists(INVENTORY_FILE):
         try:
-            with open(INVENTORY_FILE, 'r') as f:
+            with open(INVENTORY_FILE, 'r', encoding='utf-8') as f:
                 inventory_db = json.load(f)
         except Exception as e:
             print(f"Error loading inventory.json: {e}")
-    return jsonify({"items": inventory_db}), 200
+    return inventory_db
+
+def save_inventory():
+    with open(INVENTORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(inventory_db, f, indent=4)
+
+load_inventory_from_disk()
+
+@app.route('/api/inventory', methods=['GET'])
+def get_inventory():
+    items = load_inventory_from_disk()
+    return jsonify({"items": items}), 200
 
 @app.route('/api/inventory', methods=['POST'])
 def add_inventory():

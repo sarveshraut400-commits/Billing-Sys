@@ -26,8 +26,10 @@ export default function Inventory() {
       // FIX: Check for response.data.items from the Python backend
       if (response.data && response.data.items) {
         setProducts(response.data.items);
+        localStorage.setItem('global_inventory', JSON.stringify(response.data.items));
       } else if (Array.isArray(response.data)) {
         setProducts(response.data);
+        localStorage.setItem('global_inventory', JSON.stringify(response.data));
       }
     } catch (error) {
       const savedLocal = localStorage.getItem('global_inventory');
