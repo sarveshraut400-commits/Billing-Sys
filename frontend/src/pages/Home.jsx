@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, User, Store, Receipt, Lock, ChevronLeft, AlertCircle, Mail, KeyRound, Loader2 } from 'lucide-react';
+import { ShieldCheck, User, Store, Receipt, Lock, ChevronLeft, AlertCircle, Mail, KeyRound, Loader2, AtSign } from 'lucide-react';
 import { loginUser, requestPasswordReset, resetPassword } from '../services/api';
 
 export default function Home({ onLogin }) {
@@ -8,6 +8,7 @@ export default function Home({ onLogin }) {
   const [activeRole, setActiveRole] = useState(null);
   
   // States
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +26,7 @@ export default function Home({ onLogin }) {
   };
 
   const resetForms = () => {
+    setUsernameOrEmail('');
     setPassword('');
     setOtp('');
     setNewPassword('');
@@ -40,9 +42,14 @@ export default function Home({ onLogin }) {
     setIsLoading(true);
     
     try {
-      const response = await loginUser({ role: activeRole, password });
+      const response = await loginUser({ username: usernameOrEmail, password, role: activeRole });
       if (response.data && response.data.success) {
-        onLogin(activeRole);
+        const userObj = response.data.user || {
+          role: activeRole,
+          name: usernameOrEmail ? usernameOrEmail.split('@')[0] : (activeRole === 'admin' ? 'System' : 'Employee'),
+          email: usernameOrEmail.includes('@') ? usernameOrEmail : `${usernameOrEmail || activeRole}@store.com`
+        };
+        onLogin(userObj);
         setTimeout(() => navigate(activeRole === 'admin' ? '/admin-dashboard' : '/employee-dashboard'), 10);
         return;
       }
@@ -53,18 +60,19 @@ export default function Home({ onLogin }) {
         return;
       }
 
-      // Offline / Local fallback if backend is offline or starting
+      // Offline / Local fallback if backend is starting
+      let matchedName = activeRole === 'admin' ? 'System' : (usernameOrEmail || 'Staff');
       if (activeRole === 'admin' && (password === 'admin123' || password === 'admin')) {
-        onLogin('admin');
+        onLogin({ role: 'admin', name: matchedName, email: 'systemdefault96@gmail.com' });
         setTimeout(() => navigate('/admin-dashboard'), 10);
         return;
-      } else if (activeRole === 'employee' && (password === '1234' || password === 'emp123' || password === 'employee' || password === '123')) {
-        onLogin('employee');
+      } else if (activeRole === 'employee' && (password === '1234' || password === 'emp123' || password === '123')) {
+        onLogin({ role: 'employee', name: matchedName, email: `${matchedName.toLowerCase()}@gmail.com` });
         setTimeout(() => navigate('/employee-dashboard'), 10);
         return;
       }
 
-      setError('Invalid password. Default Admin password: admin123 | Employee: 1234');
+      setError('Invalid username or password.');
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +117,7 @@ export default function Home({ onLogin }) {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white">
-      {/* Left Side: Branding (DMart Green) */}
+      {/* Left Side: Branding */}
       <div className="md:w-1/2 bg-green-700 text-white flex flex-col justify-center items-center p-12 relative overflow-hidden">
         <div className="z-10 text-center">
           <Store size={64} className="mx-auto mb-6 text-green-100" />
@@ -136,7 +144,7 @@ export default function Home({ onLogin }) {
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
             <p className="text-gray-500 mt-2">
-              {!activeRole ? 'Please select your role to continue' : isForgotPassword ? 'Secure Password Reset' : 'Enter your password to access the terminal'}
+              {!activeRole ? 'Please select your role to continue' : isForgotPassword ? 'Secure Password Reset' : 'Enter your credentials to access the terminal'}
             </p>
           </div>
 
@@ -148,7 +156,7 @@ export default function Home({ onLogin }) {
                   <div className="bg-indigo-50 p-4 rounded-lg text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors"><ShieldCheck size={32} /></div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">Administrator</h3>
-                    <p className="text-sm text-gray-500 mt-1">Manage store, inventory, and reports</p>
+                    <p className="text-sm text-gray-500 mt-1">Manage store, inventory, employees & reports</p>
                   </div>
                 </div>
               </button>
@@ -158,14 +166,14 @@ export default function Home({ onLogin }) {
                   <div className="bg-green-50 p-4 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors"><User size={32} /></div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">Staff Member</h3>
-                    <p className="text-sm text-gray-500 mt-1">Access POS and billing terminal</p>
+                    <p className="text-sm text-gray-500 mt-1">Access POS, barcode billing & terminal</p>
                   </div>
                 </div>
               </button>
             </div>
           )}
 
-          {/* VIEW 2: Standard Login */}
+          {/* VIEW 2: Standard Login with Username & Password */}
           {activeRole && !isForgotPassword && (
             <div className="animate-in fade-in slide-in-from-left-4 duration-300 bg-white p-8 border-2 border-gray-200 rounded-xl shadow-lg">
               <div className="flex items-center gap-4 mb-6 border-b pb-4">
@@ -179,35 +187,73 @@ export default function Home({ onLogin }) {
               </div>
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
+                {/* Username / Email Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Username or Email</label>
+                  <div className="relative">
+                    <AtSign size={20} className="absolute left-3 top-3 text-gray-400" />
+                    <input 
+                      type="text" 
+                      value={usernameOrEmail} 
+                      onChange={(e) => setUsernameOrEmail(e.target.value)} 
+                      placeholder={activeRole === 'admin' ? "admin or systemdefault96@gmail.com" : "e.g. Kertick or kertick@gmail.com"} 
+                      className={`w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 ${activeRole === 'admin' ? 'focus:ring-indigo-500 border-indigo-200' : 'focus:ring-green-500 border-green-200'}`} 
+                      autoFocus 
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                   <div className="relative">
                     <Lock size={20} className="absolute left-3 top-3 text-gray-400" />
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter password..." className={`w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 ${activeRole === 'admin' ? 'focus:ring-indigo-500 border-indigo-200' : 'focus:ring-green-500 border-green-200'}`} autoFocus />
+                    <input 
+                      type="password" 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)} 
+                      placeholder="Enter password..." 
+                      className={`w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 ${activeRole === 'admin' ? 'focus:ring-indigo-500 border-indigo-200' : 'focus:ring-green-500 border-green-200'}`} 
+                    />
                   </div>
                 </div>
 
-                {error && <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg text-sm font-medium"><AlertCircle size={16} /> {error}</div>}
+                {error && (
+                  <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg text-sm font-medium">
+                    <AlertCircle size={16} /> {error}
+                  </div>
+                )}
 
                 <div className="flex justify-end">
-                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-sm text-gray-500 hover:text-gray-800 font-medium">Forgot Password?</button>
+                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-sm text-gray-500 hover:text-gray-800 font-medium">
+                    Forgot Password?
+                  </button>
                 </div>
 
-                <button type="submit" disabled={isLoading} className={`w-full text-white font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 ${activeRole === 'admin' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-green-600 hover:bg-green-700'}`}>
+                <button 
+                  type="submit" 
+                  disabled={isLoading} 
+                  className={`w-full text-white font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 ${activeRole === 'admin' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-green-600 hover:bg-green-700'}`}
+                >
                   {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Unlock Terminal'}
                 </button>
               </form>
-              <button onClick={() => setActiveRole(null)} className="mt-4 w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"><ChevronLeft size={16} /> Back to roles</button>
+              
+              <button 
+                onClick={() => setActiveRole(null)} 
+                className="mt-4 w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"
+              >
+                <ChevronLeft size={16} /> Back to roles
+              </button>
             </div>
           )}
 
           {/* VIEW 3: Forgot Password Flow */}
           {activeRole && isForgotPassword && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300 bg-white p-8 border-2 border-gray-200 rounded-xl shadow-lg">
-              
               {resetStep === 1 ? (
                 <form onSubmit={handleRequestOTP} className="space-y-4">
-                  <p className="text-sm text-gray-600 mb-4">Click below to send a secure One-Time Password (OTP) to the registered email address for the <strong>{activeRole}</strong> account.</p>
+                  <p className="text-sm text-gray-600 mb-4">Click below to send a One-Time Password (OTP) to the registered email for the <strong>{activeRole}</strong> account.</p>
                   
                   {error && <div className="text-red-600 bg-red-50 p-3 rounded-lg text-sm font-medium flex gap-2 items-center"><AlertCircle size={16}/> {error}</div>}
                   {successMessage && <div className="text-emerald-600 bg-emerald-50 p-3 rounded-lg text-sm font-medium">{successMessage}</div>}
@@ -229,17 +275,17 @@ export default function Home({ onLogin }) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
                     <div className="relative">
                       <KeyRound size={20} className="absolute left-3 top-3 text-gray-400" />
-                      <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" className="w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500" required />
+                      <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password..." className="w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500" required />
                     </div>
                   </div>
-                  
-                  <button type="submit" disabled={isLoading} className="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition flex justify-center items-center gap-2 mt-4">
-                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Save New Password'}
+
+                  <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
+                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Update Password'}
                   </button>
                 </form>
               )}
 
-              <button onClick={() => resetForms()} className="mt-6 w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"><ChevronLeft size={16} /> Back to Login</button>
+              <button onClick={() => setIsForgotPassword(false)} className="mt-4 w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"><ChevronLeft size={16} /> Back to login</button>
             </div>
           )}
 

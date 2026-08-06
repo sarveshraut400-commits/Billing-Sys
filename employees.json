@@ -5,8 +5,8 @@
         "email": "systemdefault96@gmail.com",
         "role": "admin",
         "lastLogin": "2026-08-06 19:40:10",
-        "isOnline": true,
-        "status": "online"
+        "isOnline": false,
+        "status": "offline"
     },
     {
         "id": "36bfb9e5",
