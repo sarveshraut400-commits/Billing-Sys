@@ -547,6 +547,86 @@ def get_sales_history():
         return jsonify([]), 200
 
 
+@app.route('/api/integration/dashboard', methods=['GET'])
+def get_dashboard_stats():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        
+        # Today's Revenue & Bills
+        cursor.execute("SELECT SUM(total_bill) FROM bills WHERE date = ?", (today_str,))
+        today_rev = cursor.fetchone()[0] or 0.0
+        
+        cursor.execute("SELECT SUM(total_bill) FROM bills")
+        total_rev = cursor.fetchone()[0] or 0.0
+        
+        cursor.execute("SELECT COUNT(*) FROM bills WHERE date = ?", (today_str,))
+        today_bills = cursor.fetchone()[0] or 0
+        
+        cursor.execute("SELECT COUNT(*) FROM bills")
+        total_bills = cursor.fetchone()[0] or 0
+        
+        # Inventory Stats
+        global inventory_db
+        total_prods = len(inventory_db)
+        low_stock = sum(1 for p in inventory_db if int(p.get('stock', 0)) <= int(p.get('lowStockAlert', 5)))
+        
+        # Employee Stats
+        global employees_db
+        total_emps = len(employees_db)
+        online_emps = sum(1 for e in employees_db if e.get('isOnline') or e.get('status') == 'online')
+        
+        # Revenue trend chart data (past 7 days)
+        cursor.execute("SELECT date, SUM(total_bill) FROM bills GROUP BY date ORDER BY date DESC LIMIT 7")
+        raw_chart = cursor.fetchall()
+        chart_data = []
+        for row in reversed(raw_chart):
+            d_label = row[0] if row[0] else 'Today'
+            chart_data.append({"name": d_label, "revenue": float(row[1] or 0.0)})
+            
+        if not chart_data:
+            chart_data = [
+                {"name": "Today", "revenue": float(today_rev)}
+            ]
+            
+        # Recent Sales (Top 5)
+        cursor.execute("SELECT * FROM bills ORDER BY id DESC LIMIT 5")
+        recent_sales = [dict(row) for row in cursor.fetchall()]
+        
+        # Recent Activity Logs (Top 5)
+        cursor.execute("SELECT * FROM activity_logs ORDER BY id DESC LIMIT 5")
+        recent_activity = [dict(row) for row in cursor.fetchall()]
+        
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "stats": {
+                "todayRevenue": float(today_rev),
+                "monthlyRevenue": float(total_rev),
+                "todayBills": today_bills if today_bills > 0 else total_bills,
+                "totalProducts": total_prods,
+                "lowStock": low_stock,
+                "totalEmployees": total_emps,
+                "onlineEmployees": online_emps
+            },
+            "chartData": chart_data,
+            "recentSales": recent_sales,
+            "recentActivity": recent_activity
+        }), 200
+    except Exception as e:
+        print(f"Dashboard Stats Error: {e}")
+        return jsonify({
+            "success": False,
+            "stats": {
+                "todayRevenue": 0, "monthlyRevenue": 0, "todayBills": 0, "totalProducts": 0, "lowStock": 0, "totalEmployees": 0, "onlineEmployees": 0
+            },
+            "chartData": [], "recentSales": [], "recentActivity": []
+        }), 200
+
+
 # ==========================================
 # 4. LIVE REPORTS & EXPORT ENDPOINTS
 # ==========================================
