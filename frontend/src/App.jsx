@@ -13,6 +13,8 @@ import Reports from './pages/Reports/Reports';
 import Settings from './pages/Settings/Settings';
 import SalesHistory from './pages/Sales/SalesHistory';
 import Activity from './pages/Activity/Activity';
+import EmployeeSales from './pages/Sales/EmployeeSales';
+import ProductLookup from './pages/Inventory/ProductLookup';
 import { logoutUser } from './services/api';
 
 export default function App() {
@@ -66,7 +68,7 @@ export default function App() {
                     <header className="bg-white p-4 shadow-sm flex justify-between items-center z-10 border-b">
                       <div className="text-gray-600 font-medium text-sm">
                         Logged in as: <span className="font-bold text-gray-900">{currentUserName}</span> 
-                        <span className="ml-2 text-xs bg-gray-100 text-gray-600 font-bold px-2 py-0.5 rounded border border-gray-200 uppercase">
+                        <span className="ml-2 text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200 uppercase">
                           {currentUserRole}
                         </span>
                       </div>
@@ -84,6 +86,10 @@ export default function App() {
                         <Route path="/employee-dashboard" element={currentUserRole === 'employee' ? <EmployeeDashboard currentUser={currentUser} /> : <Navigate to="/admin-dashboard" />} />
                         <Route path="/billing" element={<Billing currentUser={currentUser} />} />
                         
+                        {/* Employee Sub-routes */}
+                        <Route path="/employee-sales" element={<EmployeeSales currentUser={currentUser} />} />
+                        <Route path="/product-lookup" element={<ProductLookup />} />
+
                         {/* Admin-Only */}
                         {currentUserRole === 'admin' && (
                           <>

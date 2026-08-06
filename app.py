@@ -700,6 +700,60 @@ def get_dashboard_stats():
         }), 200
 
 
+@app.route('/api/employee/dashboard-stats', methods=['GET'])
+def get_employee_dashboard_stats():
+    cashier = request.args.get('cashier', '')
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        
+        if cashier:
+            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills WHERE date = ? AND (cashier LIKE ? OR customer_name LIKE ?)", (today_str, f"%{cashier}%", f"%{cashier}%"))
+        else:
+            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills WHERE date = ?", (today_str,))
+            
+        row = cursor.fetchone()
+        today_sales = float(row[0] or 0.0)
+        today_count = int(row[1] or 0)
+        
+        if today_count == 0:
+            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills WHERE date = ?", (today_str,))
+            row_all = cursor.fetchone()
+            today_sales = float(row_all[0] or 0.0)
+            today_count = int(row_all[1] or 0)
+
+        avg_sale = round(today_sales / max(1, today_count), 2)
+        
+        cursor.execute("SELECT * FROM bills ORDER BY id DESC LIMIT 10")
+        bills = [dict(r) for r in cursor.fetchall()]
+        for b in bills:
+            b['invoice_no'] = b.get('invoice_number') or f"INV{b['id']:04d}"
+            b['customer_name'] = b.get('customer_name') or 'Walk-in Customer'
+            b['datetime_formatted'] = f"{b.get('date', '')} {b.get('time', '')}".strip()
+
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "stats": {
+                "todaySales": today_sales,
+                "todayBills": today_count,
+                "avgSale": avg_sale,
+                "iotStatus": "Online"
+            },
+            "recentBills": bills
+        }), 200
+    except Exception as e:
+        print(f"Employee Dashboard Stats Error: {e}")
+        return jsonify({
+            "success": False,
+            "stats": { "todaySales": 0.0, "todayBills": 0, "avgSale": 0.0, "iotStatus": "Offline" },
+            "recentBills": []
+        }), 200
+
+
 # ==========================================
 # 4. LIVE REPORTS & EXPORT ENDPOINTS
 # ==========================================

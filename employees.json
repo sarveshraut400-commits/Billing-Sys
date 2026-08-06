@@ -13,9 +13,9 @@
         "name": "Kertick",
         "email": "kertick@gmail.com",
         "role": "employee",
-        "lastLogin": "2026-08-06 07:29 PM",
-        "isOnline": false,
-        "status": "offline"
+        "lastLogin": "2026-08-06 07:45 PM",
+        "isOnline": true,
+        "status": "online"
     },
     {
         "id": "4bc5e64c",
