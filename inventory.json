@@ -4,543 +4,714 @@
         "barcode": "8901030700010",
         "name": "Fortune Sunlite Sunflower Oil 1L",
         "category": "Groceries",
-        "price": 145.0,
+        "price": 145,
         "stock": 45,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=400",
-        "specifications": "• 100% Refined Sunflower Oil\n• Rich in Vitamin E & Omega 6\n• 1 Liter Pouch"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fm.media-amazon.com%2Fimages%2FI%2F816gJXzYHmL._SL1500_.jpg&f=1&nofb=1&ipt=c7d5ac5467e1157bf8a8810c3799dfb8233a1142417b3b4d34ac610dbae27c89",
+        "specifications": "\u00e2\u20ac\u00a2 100% Refined Sunflower Oil\n\u00e2\u20ac\u00a2 Rich in Vitamin E & Omega 6\n\u00e2\u20ac\u00a2 1 Liter Pouch"
     },
     {
         "id": "2",
         "barcode": "8901725181123",
         "name": "India Gate Basmati Rice Feast 5kg",
         "category": "Groceries",
-        "price": 499.0,
+        "price": 499,
         "stock": 28,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400",
-        "specifications": "• Aged Premium Basmati Rice\n• Extra Long Grain & Aromatic\n• 5kg Master Bag"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.-hFkgfgOckkJlkqZFsG7fwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=b3ed58981dd87a08a4326c7d5fc233a1fcfcc8c3628a782bcbc63ebec0a363f3&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Aged Premium Basmati Rice\n\u00e2\u20ac\u00a2 Extra Long Grain & Aromatic\n\u00e2\u20ac\u00a2 5kg Master Bag"
     },
     {
         "id": "3",
         "barcode": "8901058000451",
         "name": "Aashirvaad Shuddh Chakki Atta 10kg",
         "category": "Groceries",
-        "price": 420.0,
+        "price": 420,
         "stock": 35,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
-        "specifications": "• 100% Whole Wheat Flour\n• Zero Maida Added\n• 10kg Bag"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.2eBSaMmlJNEZWJgkORmTNAHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=ad9621d729d311a32f24cba0580d19b47782ba85c0e292856e18d53fdf538093&ipo=images",
+        "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"
     },
     {
         "id": "4",
         "barcode": "8901058852104",
         "name": "Tata Salt Vacuum Evaporated 1kg",
         "category": "Groceries",
-        "price": 28.0,
+        "price": 28,
         "stock": 80,
         "lowStockAlert": 15,
-        "imageUrl": "https://images.unsplash.com/photo-1518110168401-f2877ee2e88b?w=400",
-        "specifications": "• Vacuum Evaporated Iodized Salt\n• Purity Guaranteed\n• 1kg Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.G37S0oDjwEKGbtVmpi6G1QHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=f1dc538dbf53fd640abf990a46fa07d1ea7d9259b48c81e22e30fdfd5d894271&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Vacuum Evaporated Iodized Salt\n\u00e2\u20ac\u00a2 Purity Guaranteed\n\u00e2\u20ac\u00a2 1kg Pack"
     },
     {
         "id": "5",
         "barcode": "8901030300101",
         "name": "Tata Sampann Unpolished Toor Dal 1kg",
         "category": "Groceries",
-        "price": 165.0,
+        "price": 165,
         "stock": 40,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400",
-        "specifications": "• High Protein Unpolished Pulses\n• No Artificial Colors\n• 1kg Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.pBh4XuSn2fzfiJpSRUzJBwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=cb05eefb98794a3553b0077994aa676210749c3d44ee080c8b29fb3340d88523&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 High Protein Unpolished Pulses\n\u00e2\u20ac\u00a2 No Artificial Colors\n\u00e2\u20ac\u00a2 1kg Pack"
     },
     {
         "id": "6",
         "barcode": "8901030300102",
         "name": "Catch Super Garam Masala 100g",
         "category": "Groceries",
-        "price": 85.0,
+        "price": 85,
         "stock": 50,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400",
-        "specifications": "• Authentic Aromatic Spice Blend\n• Sealed Freshness Pack\n• 100g Box"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.3gTofsDvf5YYLsU4kENO4QHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=1b1fce778a711ff66cd2ed4dc6b48c8b100ce38e2c3f6db8f0e8848f9ff608f1&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Authentic Aromatic Spice Blend\n\u00e2\u20ac\u00a2 Sealed Freshness Pack\n\u00e2\u20ac\u00a2 100g Box"
     },
     {
         "id": "7",
         "barcode": "8901030300103",
         "name": "Madhur Pure Sugar 5kg",
         "category": "Groceries",
-        "price": 240.0,
+        "price": 240,
         "stock": 30,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=400",
-        "specifications": "• 100% Refined Sulphur Free Sugar\n• Clean Small Crystals\n• 5kg Bag"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.kihCHJZMmtFh8YLBAx2kcwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=e6e08b1ee984a078842934120637901adc14e868f932fea0ca4a475786bca0b3&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 100% Refined Sulphur Free Sugar\n\u00e2\u20ac\u00a2 Clean Small Crystals\n\u00e2\u20ac\u00a2 5kg Bag"
     },
     {
         "id": "8",
         "barcode": "8901030300104",
         "name": "Saffola Gold Edible Cooking Oil 5L",
         "category": "Groceries",
-        "price": 890.0,
+        "price": 890,
         "stock": 15,
         "lowStockAlert": 4,
-        "imageUrl": "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=400",
-        "specifications": "• Pro Healthy Heart Dual Seed Blend\n• High Antioxidant Tech\n• 5L Can"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.ZP0RwL0hALWMHlIYUoxgsgHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=0b11d3e6e47c51afab149ddbec9cc77fabb1ca8d5883fef92b1261bd9ebae898&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Pro Healthy Heart Dual Seed Blend\n\u00e2\u20ac\u00a2 High Antioxidant Tech\n\u00e2\u20ac\u00a2 5L Can"
     },
     {
         "id": "9",
         "barcode": "8901030300050",
         "name": "Amul Pasteurised Butter 500g",
         "category": "Dairy & Bakery",
-        "price": 275.0,
+        "price": 275,
         "stock": 18,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",
-        "specifications": "• Utterly Butterly Delicious\n• Keep Refrigerated\n• 500g Brick"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.OjEYcSK5-05Z_ULZSUEejgHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=452168de92ef3327aa302c90fa66909e979bd641ba046a8f755d26eca28de5b7&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Utterly Butterly Delicious\n\u00e2\u20ac\u00a2 Keep Refrigerated\n\u00e2\u20ac\u00a2 500g Brick"
     },
     {
         "id": "10",
         "barcode": "8901030300105",
         "name": "Amul Taaza Toned Milk 1L",
         "category": "Dairy & Bakery",
-        "price": 68.0,
+        "price": 68,
         "stock": 60,
         "lowStockAlert": 15,
-        "imageUrl": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
-        "specifications": "• Homogenised Toned Milk\n• Long Shelf Life Tetra Pak\n• 1 Liter Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.sp1JIIb-elqGERgBxtPxFQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=8028bc7c3cc25707fef9c4070b364a9e6c1958ad67a9b318582d7c6f9dee5dd8&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Homogenised Toned Milk\n\u00e2\u20ac\u00a2 Long Shelf Life Tetra Pak\n\u00e2\u20ac\u00a2 1 Liter Pack"
     },
     {
         "id": "11",
         "barcode": "8901030300106",
         "name": "Amul Masti Spiced Dahi 400g",
         "category": "Dairy & Bakery",
-        "price": 45.0,
+        "price": 45,
         "stock": 30,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",
-        "specifications": "• Rich & Creamy Natural Curd\n• Hygienically Sealed Cup\n• 400g Container"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.i-Nwb1gHiefW6lpWA59s1wHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=b3ba811666842fed8366398522816af6e24778557ae3e78f19e16e7e68420ca7&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Rich & Creamy Natural Curd\n\u00e2\u20ac\u00a2 Hygienically Sealed Cup\n\u00e2\u20ac\u00a2 400g Container"
     },
     {
         "id": "12",
         "barcode": "8901030300107",
         "name": "Britannia Whole Wheat Sandwich Bread 400g",
         "category": "Dairy & Bakery",
-        "price": 50.0,
+        "price": 50,
         "stock": 25,
         "lowStockAlert": 6,
-        "imageUrl": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
-        "specifications": "• 100% Whole Wheat Sliced Bread\n• Fresh Baked Daily\n• 400g Loaf"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.UTwU-eg7UPpg7Wh6nzc6bAHaNf%3Fr%3D0%26pid%3DApi&f=1&ipt=743077fc276563a3444d9e92bb14e7aab44efc4d31adae803850d58d76d13b39&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 100% Whole Wheat Sliced Bread\n\u00e2\u20ac\u00a2 Fresh Baked Daily\n\u00e2\u20ac\u00a2 400g Loaf"
     },
     {
         "id": "13",
         "barcode": "8901030300108",
         "name": "Amul Processed Cheese Blocks 200g",
         "category": "Dairy & Bakery",
-        "price": 135.0,
+        "price": 135,
         "stock": 22,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",
-        "specifications": "• Premium Cheddar Cheese Block\n• Great for Sandwiches & Pizza\n• 200g Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.giWr2iprsoWJYpH9NSSzBwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=3292e7a7daa11bc46aaffda71891d12ee609df561a5b8f8e02851f5240c0f5c4&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Premium Cheddar Cheese Block\n\u00e2\u20ac\u00a2 Great for Sandwiches & Pizza\n\u00e2\u20ac\u00a2 200g Pack"
     },
     {
         "id": "14",
         "barcode": "8901030300109",
         "name": "Mother Dairy Paneer Fresh 200g",
         "category": "Dairy & Bakery",
-        "price": 90.0,
+        "price": 90,
         "stock": 35,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",
-        "specifications": "• Rich Milk Cottage Cheese\n• Soft & Fresh Texture\n• 200g Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.rhN74ampmJGOLWcYonjiygHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=fcc2dd031372ad4e0b96118279949af123ec91f9f22b24106002ea9a620ed34e&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Rich Milk Cottage Cheese\n\u00e2\u20ac\u00a2 Soft & Fresh Texture\n\u00e2\u20ac\u00a2 200g Pack"
     },
     {
         "id": "15",
         "barcode": "8901058852104",
         "name": "Nestle Maggi 2-Minute Masala Noodles 12-Pack",
         "category": "Snacks",
-        "price": 168.0,
+        "price": 168,
         "stock": 60,
         "lowStockAlert": 15,
-        "imageUrl": "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=400",
-        "specifications": "• India's Favorite Instant Noodles\n• Includes Tastemaker Sachet\n• Family Saver Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.mu2myj2OylLfDd9DlWXxDAAAAA%3Fr%3D0%26pid%3DApi&f=1&ipt=9702a033291033f3f6af444a572efab5c072a306ec65e443aaf017d7e02f2757&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 India's Favorite Instant Noodles\n\u00e2\u20ac\u00a2 Includes Tastemaker Sachet\n\u00e2\u20ac\u00a2 Family Saver Pack"
     },
     {
         "id": "16",
         "barcode": "8901207000100",
         "name": "Lay's India's Magic Masala Chips 50g",
         "category": "Snacks",
-        "price": 20.0,
+        "price": 20,
         "stock": 100,
         "lowStockAlert": 20,
-        "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
-        "specifications": "• Crispy Potato Chips with Spices\n• Trans-Fat Free\n• 50g Sachet"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.zHjha1CWmBPN4-0vpvIvrAHaJ4%3Fr%3D0%26pid%3DApi&f=1&ipt=10585d5eb8807b4453e324cecc2f0069465e679e1a216dbb08225b838bbd6e8d&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Crispy Potato Chips with Spices\n\u00e2\u20ac\u00a2 Trans-Fat Free\n\u00e2\u20ac\u00a2 50g Sachet"
     },
     {
         "id": "17",
         "barcode": "8901207000101",
         "name": "Kurkure Masala Munch 90g",
         "category": "Snacks",
-        "price": 20.0,
+        "price": 20,
         "stock": 90,
         "lowStockAlert": 15,
-        "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
-        "specifications": "• Crunchy Tedhe Medhe Snacks\n• Indian Spices Flavour\n• 90g Bag"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.xFjN5lT2nhEEHTaksjpiwgHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=343b677afd48c7f77abf1293862623bd3be7abba5f25e89c5b5328766fc5847a&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Crunchy Tedhe Medhe Snacks\n\u00e2\u20ac\u00a2 Indian Spices Flavour\n\u00e2\u20ac\u00a2 90g Bag"
     },
     {
         "id": "18",
         "barcode": "8901234005011",
         "name": "Cadbury Dairy Milk Silk Chocolate 150g",
         "category": "Snacks",
-        "price": 175.0,
+        "price": 175,
         "stock": 32,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",
-        "specifications": "• Rich, Smooth & Creamy Chocolate\n• Melts in the Mouth\n• 150g Bar"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.MpXFqdTjHxMLvr5fHM8pOAHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=f2d25a1588a0a917532f6e50c6914a14e24f17d3624894a55738eecd8db74268&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Rich, Smooth & Creamy Chocolate\n\u00e2\u20ac\u00a2 Melts in the Mouth\n\u00e2\u20ac\u00a2 150g Bar"
     },
     {
         "id": "19",
         "barcode": "8901234005012",
         "name": "Oreo Chocolate Cream Biscuit 120g",
         "category": "Snacks",
-        "price": 35.0,
+        "price": 35,
         "stock": 75,
         "lowStockAlert": 15,
-        "imageUrl": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
-        "specifications": "• Twist, Lick & Dunk Cookie\n• Rich Chocolate Cream\n• 120g Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.0_Cp1T9qlmCOp3rm7xDl7wHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=19d88abef52fd857ace95a3294a405307c450f84e73c01c1ffff10ea2ccaeb4a&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Twist, Lick & Dunk Cookie\n\u00e2\u20ac\u00a2 Rich Chocolate Cream\n\u00e2\u20ac\u00a2 120g Pack"
     },
     {
         "id": "20",
         "barcode": "8901234005013",
         "name": "Britannia Good Day Cashew Cookies 200g",
         "category": "Snacks",
-        "price": 50.0,
+        "price": 50,
         "stock": 50,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
-        "specifications": "• Loaded with Real Cashew Nuts\n• Rich Butter Biscuits\n• 200g Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.pZh_iCpPHX_nRV9kTHDcOAHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=eae35a76e16d7c53987af9be1008b46a9ff2a8e43fda35cbf0b1e944e16bb7d3&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Loaded with Real Cashew Nuts\n\u00e2\u20ac\u00a2 Rich Butter Biscuits\n\u00e2\u20ac\u00a2 200g Pack"
     },
     {
         "id": "21",
         "barcode": "8901234005014",
         "name": "Haldiram's Nagpur Bhujia Sev 350g",
         "category": "Snacks",
-        "price": 110.0,
+        "price": 110,
         "stock": 40,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
-        "specifications": "• Spicy Crispy Gram Flour Strings\n• Authentic Rajasthani Recipe\n• 350g Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.mdLT4Vjy3yFiWpHJ5TYcgQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=327402c2eac40f83271fceacfcc696bd59c30bc2b50261e3153273f23d1297c8&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Spicy Crispy Gram Flour Strings\n\u00e2\u20ac\u00a2 Authentic Rajasthani Recipe\n\u00e2\u20ac\u00a2 350g Pack"
     },
     {
         "id": "22",
         "barcode": "8901234005015",
         "name": "Pringles Sour Cream & Onion 107g",
         "category": "Snacks",
-        "price": 125.0,
+        "price": 125,
         "stock": 25,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
-        "specifications": "• Stacked Potato Crisps\n• Zesty Sour Cream Flavour\n• Canister Container"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.0XDVNecCkSUG3J_fL111tgHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=10e8acad1d5bb99aa81a5644fdd0d108616bd3c037e6bbbcb78fb05b25e76d16&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Stacked Potato Crisps\n\u00e2\u20ac\u00a2 Zesty Sour Cream Flavour\n\u00e2\u20ac\u00a2 Canister Container"
     },
     {
         "id": "23",
         "barcode": "8901764012011",
         "name": "Coca-Cola Original Taste 1.5L",
         "category": "Beverages",
-        "price": 85.0,
+        "price": 85,
         "stock": 50,
         "lowStockAlert": 12,
-        "imageUrl": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400",
-        "specifications": "• Refreshing Carbonated Soft Drink\n• Serve Chilled\n• 1.5 Liter PET Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.RrvNLCBe3IK-pSFwkyMrPQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=268332712c9d7d1c53f9935807a22c5a45f1a6c119e9b848c5dfd46071e1d73b&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Refreshing Carbonated Soft Drink\n\u00e2\u20ac\u00a2 Serve Chilled\n\u00e2\u20ac\u00a2 1.5 Liter PET Bottle"
     },
     {
         "id": "24",
         "barcode": "8901764012012",
         "name": "Pepsi Soft Drink 750ml",
         "category": "Beverages",
-        "price": 45.0,
+        "price": 45,
         "stock": 60,
         "lowStockAlert": 15,
-        "imageUrl": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400",
-        "specifications": "• Bold Refreshing Cola Taste\n• 750ml PET Bottle\n• Best Served Chilled"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.a35cAA97_W1kyg-NoMIXVwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=200e37748bd3412621dccdff3c1e8a39b323703271f5c87d0054426cec957d09&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Bold Refreshing Cola Taste\n\u00e2\u20ac\u00a2 750ml PET Bottle\n\u00e2\u20ac\u00a2 Best Served Chilled"
     },
     {
         "id": "25",
         "barcode": "8901491100014",
         "name": "Tropicana 100% Real Orange Juice 1L",
         "category": "Beverages",
-        "price": 135.0,
+        "price": 135,
         "stock": 24,
         "lowStockAlert": 6,
-        "imageUrl": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400",
-        "specifications": "• 100% Pressed Orange Juice\n• No Added Sugar or Preservatives\n• 1 Liter Tetra Pak"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.588-Fm9tzd0odYAfL-caTQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=be1a0b6285725b2cc72f0b8f19ba60e488aefefed73cdd396f0cf97d75dccc55&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 100% Pressed Orange Juice\n\u00e2\u20ac\u00a2 No Added Sugar or Preservatives\n\u00e2\u20ac\u00a2 1 Liter Tetra Pak"
     },
     {
         "id": "26",
         "barcode": "9002490100070",
         "name": "Red Bull Energy Drink 250ml",
         "category": "Beverages",
-        "price": 125.0,
+        "price": 125,
         "stock": 40,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400",
-        "specifications": "• Vitalizes Body and Mind\n• High Caffeine Content\n• 250ml Can"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.z9qswG2OR7KhmfAitSjygQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=2ab176b26d77e93a54da10c0420f94d5744ea631d2f4911ae9fde559c0ea28ec&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Vitalizes Body and Mind\n\u00e2\u20ac\u00a2 High Caffeine Content\n\u00e2\u20ac\u00a2 250ml Can"
     },
     {
         "id": "27",
         "barcode": "8901030800020",
         "name": "Nescafe Classic Instant Coffee Powder 100g",
         "category": "Beverages",
-        "price": 340.0,
+        "price": 340,
         "stock": 30,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=400",
-        "specifications": "• 100% Pure Coffee Soluble Granules\n• Glass Jar Packaging\n• 100g Jar"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.fTeIaO19e40K-GXiEiTT-QHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=1ee5b69b446a927e0bb91251e2dec2732b96156b99596eded56abb19afa393d0&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 100% Pure Coffee Soluble Granules\n\u00e2\u20ac\u00a2 Glass Jar Packaging\n\u00e2\u20ac\u00a2 100g Jar"
     },
     {
         "id": "28",
         "barcode": "8901030800021",
         "name": "Brooke Bond Red Label Tea 500g",
         "category": "Beverages",
-        "price": 280.0,
+        "price": 280,
         "stock": 45,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400",
-        "specifications": "• Strong CTC Black Tea Leaf\n• Rich Aroma & Flavor\n• 500g Box"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.3Q9Ln4ArFbRFEFHTX_BgFQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=55faa0ced66ec5b7f06e39f95eeb6357ea019904132957afb60767475993f733&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Strong CTC Black Tea Leaf\n\u00e2\u20ac\u00a2 Rich Aroma & Flavor\n\u00e2\u20ac\u00a2 500g Box"
     },
     {
         "id": "29",
         "barcode": "8901030800022",
         "name": "Sprite Lemon-Lime Soft Drink 2L",
         "category": "Beverages",
-        "price": 95.0,
+        "price": 95,
         "stock": 35,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400",
-        "specifications": "• Clear Crisp Lemon Lime Refreshment\n• Zero Caffeine\n• 2 Liter Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.iZl7hVJxYLReD_RAYcXX_gHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=b36f61700f72d55053725316beba772f1d6f4a8bc595e5c9177b4260ef89716a&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Clear Crisp Lemon Lime Refreshment\n\u00e2\u20ac\u00a2 Zero Caffeine\n\u00e2\u20ac\u00a2 2 Liter Bottle"
     },
     {
         "id": "30",
         "barcode": "8901030800023",
         "name": "Kinley Packaged Mineral Water 1L",
         "category": "Beverages",
-        "price": 20.0,
+        "price": 20,
         "stock": 120,
         "lowStockAlert": 25,
-        "imageUrl": "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=400",
-        "specifications": "• Added Minerals Pure Drinking Water\n• Reverse Osmosis Treated\n• 1L Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.1Qt_WIWUjfsLXoEwbRzUBwHaJQ%3Fr%3D0%26pid%3DApi&f=1&ipt=f1c0dd82ce7490595fc2113ebd05e540af53ec995c85f3d04ec54952aef5fe5d&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Added Minerals Pure Drinking Water\n\u00e2\u20ac\u00a2 Reverse Osmosis Treated\n\u00e2\u20ac\u00a2 1L Bottle"
     },
     {
         "id": "31",
         "barcode": "8901396001014",
         "name": "Dettol Original Liquid Handwash 250ml",
         "category": "Personal Care",
-        "price": 99.0,
+        "price": 99,
         "stock": 42,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-        "specifications": "• 99.9% Germ Protection\n• Pump Dispenser Bottle\n• 250ml Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.mjPuBMgXqm2Jg_nbNKP2QQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=1df36c1a7fa3fdb36e4f0719304acea6c8fe3bf5fdf7a37938fea96d9c39833f&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 99.9% Germ Protection\n\u00e2\u20ac\u00a2 Pump Dispenser Bottle\n\u00e2\u20ac\u00a2 250ml Bottle"
     },
     {
         "id": "32",
         "barcode": "8901030100010",
         "name": "Dove Cream Beauty Bathing Bar 100g (Pack of 3)",
         "category": "Personal Care",
-        "price": 195.0,
+        "price": 195,
         "stock": 20,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1607006482602-76ca97ac1a2b?w=400",
-        "specifications": "• 1/4 Moisturizing Cream\n• Soft & Smooth Skin\n• 3 x 100g Bars"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.1vaupUPJQO9pMGrqqVFyHAHaF7%3Fr%3D0%26pid%3DApi&f=1&ipt=e1b9f714facf094f49ed7431b4703e9c3c8d2aac3da7f04144d8384407226737&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 1/4 Moisturizing Cream\n\u00e2\u20ac\u00a2 Soft & Smooth Skin\n\u00e2\u20ac\u00a2 3 x 100g Bars"
     },
     {
         "id": "33",
         "barcode": "8901030999010",
         "name": "Head & Shoulders Anti-Dandruff Shampoo 340ml",
         "category": "Personal Care",
-        "price": 310.0,
+        "price": 310,
         "stock": 16,
         "lowStockAlert": 4,
-        "imageUrl": "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400",
-        "specifications": "• Up to 100% Dandruff Free Hair\n• Smooth & Silky Formula\n• 340ml Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.6HDNHxbrEKQ2JILEadejYwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=63c9ef198126aef0c0428ed73a5b9b03297519ea01f52b612d06264531931dd3&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Up to 100% Dandruff Free Hair\n\u00e2\u20ac\u00a2 Smooth & Silky Formula\n\u00e2\u20ac\u00a2 340ml Bottle"
     },
     {
         "id": "34",
         "barcode": "8901030999011",
         "name": "Colgate Strong Teeth Toothpaste 200g",
         "category": "Personal Care",
-        "price": 115.0,
+        "price": 115,
         "stock": 50,
         "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=400",
-        "specifications": "• Amino Shakti Calcium Formula\n• Stronger White Teeth\n• 200g Tube"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.WcCmZoQZQvlSaA4-_WfAKAHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=ef456c20870276a6a2dd023de4d40a5c3f06bc960ae73e72421588487e424636&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Amino Shakti Calcium Formula\n\u00e2\u20ac\u00a2 Stronger White Teeth\n\u00e2\u20ac\u00a2 200g Tube"
     },
     {
         "id": "35",
         "barcode": "8901030999012",
         "name": "Nivea Soft Light Moisturiser Cream 200ml",
         "category": "Personal Care",
-        "price": 299.0,
+        "price": 299,
         "stock": 18,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400",
-        "specifications": "• Enriched with Vitamin E & Jojoba Oil\n• Non-Greasy Fast Absorption\n• 200ml Tub"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.6sJgZNnSApMZ5ZxQIc1gWwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=140392e3d287a6c701bbaf6ef86d44792437d5dc8c73e865eacd1e04f8e3661a&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Enriched with Vitamin E & Jojoba Oil\n\u00e2\u20ac\u00a2 Non-Greasy Fast Absorption\n\u00e2\u20ac\u00a2 200ml Tub"
     },
     {
         "id": "36",
         "barcode": "8901030999013",
         "name": "Gillette Mach3 Turbo Razor + 2 Cartridges",
         "category": "Personal Care",
-        "price": 450.0,
+        "price": 450,
         "stock": 12,
         "lowStockAlert": 3,
-        "imageUrl": "https://images.unsplash.com/photo-1585232351009-aa87416fca90?w=400",
-        "specifications": "• 3 Stronger-Than-Steel Blades\n• Lubricating Strip Indicator\n• Ergonomic Handle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.YmRnsNynWpGl9Vf1wJgJ9gHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=2e12202131e975d516250ad75fafa54387e9ebaf956e2a289d5e3665d4d2a5a9&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 3 Stronger-Than-Steel Blades\n\u00e2\u20ac\u00a2 Lubricating Strip Indicator\n\u00e2\u20ac\u00a2 Ergonomic Handle"
     },
     {
         "id": "37",
         "barcode": "8901030999014",
         "name": "Pond's White Beauty Face Wash 100g",
         "category": "Personal Care",
-        "price": 165.0,
+        "price": 165,
         "stock": 25,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400",
-        "specifications": "• Advanced Vitamin B3 Formula\n• Deep Cleansing Spotless Glow\n• 100g Tube"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.ceYa7re4jZbKeq3fVh-5kwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=95127ec7dd1d79d01263173e4b3dcb4b8dee6eee98b2273233e1ffefe69d9dfd&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Advanced Vitamin B3 Formula\n\u00e2\u20ac\u00a2 Deep Cleansing Spotless Glow\n\u00e2\u20ac\u00a2 100g Tube"
     },
     {
         "id": "38",
         "barcode": "8901060001020",
         "name": "Surf Excel Easy Wash Detergent Powder 1kg",
         "category": "Household",
-        "price": 140.0,
+        "price": 140,
         "stock": 25,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-        "specifications": "• Superior Stain Removal Formula\n• Safe on Fabric & Colors\n• 1kg Pack"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.k-wrRlrr1zk-pqe2s6VT4wHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=4848e93e6cb30ce991bf051766aeabdfc979a323aa839c682bec9c6c7d211652&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Superior Stain Removal Formula\n\u00e2\u20ac\u00a2 Safe on Fabric & Colors\n\u00e2\u20ac\u00a2 1kg Pack"
     },
     {
         "id": "39",
         "barcode": "8901030777010",
         "name": "Lizol Disinfectant Surface Floor Cleaner 1L",
         "category": "Household",
-        "price": 215.0,
+        "price": 215,
         "stock": 22,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-        "specifications": "• Kills 99.9% Germs & Bacteria\n• Citrus Fresh Fragrance\n• 1 Liter Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.VSFfjjhuLwAfwb6TKakxRQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=5c9875ad4316f7aa2536adad3b6b5aab350b10788d095978665900e0c4fa0312&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Kills 99.9% Germs & Bacteria\n\u00e2\u20ac\u00a2 Citrus Fresh Fragrance\n\u00e2\u20ac\u00a2 1 Liter Bottle"
     },
     {
         "id": "40",
         "barcode": "8901030777011",
         "name": "Vim Dishwash Liquid Gel Lemon 500ml",
         "category": "Household",
-        "price": 120.0,
+        "price": 120,
         "stock": 35,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-        "specifications": "• Power of 100 Lemons\n• Degreases Tough Utensil Oil\n• 500ml Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.KyZuDr1SFCdrJhrLA7Y9DQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=92ae4550cfcad747094d17be3270a2688c31dcc6dd21cc8e39891c369bd584b6&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Power of 100 Lemons\n\u00e2\u20ac\u00a2 Degreases Tough Utensil Oil\n\u00e2\u20ac\u00a2 500ml Bottle"
     },
     {
         "id": "41",
         "barcode": "8901030777012",
         "name": "Harpic Power Plus Toilet Cleaner 1L",
         "category": "Household",
-        "price": 195.0,
+        "price": 195,
         "stock": 28,
         "lowStockAlert": 6,
-        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-        "specifications": "• 10x Max Stain Removal\n• Disinfects & Freshens\n• 1 Liter Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.iSr1ptXpqeu8xoeM_3zoVAHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=44be687da0be90e8a891ac843d92d50a7f759aa01ce220ad3e7107eda2d4369d&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 10x Max Stain Removal\n\u00e2\u20ac\u00a2 Disinfects & Freshens\n\u00e2\u20ac\u00a2 1 Liter Bottle"
     },
     {
         "id": "42",
         "barcode": "8901030777013",
-        "name": "Goodknight Gold Flash Mosquito Repellent Refill 2-Pack", "category": "Household", "price": 160.0, "stock": 30, "lowStockAlert": 6, "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400", "specifications": "• Automatic Vapor Release Tech\n• Protects Against Mosquitoes\n• Twin Refill Pack"
+        "name": "Goodknight Gold Flash Mosquito Repellent Refill 2-Pack",
+        "category": "Household",
+        "price": 160,
+        "stock": 30,
+        "lowStockAlert": 6,
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.smQIko1uvY52OjjqHEMLFgHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=7fbcfe2ed25bd56e383d0a257921ec607c6211e2ee3367da7f84780b542af960&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Automatic Vapor Release Tech\n\u00e2\u20ac\u00a2 Protects Against Mosquitoes\n\u00e2\u20ac\u00a2 Twin Refill Pack"
     },
     {
         "id": "43",
         "barcode": "8901030777014",
         "name": "Colin Glass & Household Cleaner 500ml",
         "category": "Household",
-        "price": 105.0,
+        "price": 105,
         "stock": 20,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-        "specifications": "• Ultra Shine Glass Formula\n• Spray Bottle\n• 500ml Bottle"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.Cml9J2tys2XBKXoeU5yyOQHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=44c85b356cddbc52dd7565e27eb01d3170b2f23eaa8f9a51cce2c565784f1a41&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Ultra Shine Glass Formula\n\u00e2\u20ac\u00a2 Spray Bottle\n\u00e2\u20ac\u00a2 500ml Bottle"
     },
     {
         "id": "44",
         "barcode": "0978550770120",
         "name": "Logitech Wireless Optical Mouse M185",
         "category": "Electronics",
-        "price": 799.0,
+        "price": 799,
         "stock": 14,
         "lowStockAlert": 3,
-        "imageUrl": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=400",
-        "specifications": "• 2.4GHz Plug & Play Wireless Nano Receiver\n• 12-Month Battery Life\n• Compatible with Windows/Mac"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%2Fid%2FOIP.LO4PJYnSZ2D59tAS01S6LwHaGk%3Fr%3D0%26pid%3DApi&f=1&ipt=1cec370be3e650fb1700e4fc530322554bd1c57a1928d9102634c0c126916b86&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 2.4GHz Plug & Play Wireless Nano Receiver\n\u00e2\u20ac\u00a2 12-Month Battery Life\n\u00e2\u20ac\u00a2 Compatible with Windows/Mac"
     },
     {
         "id": "45",
         "barcode": "8904250001015",
         "name": "USB Laser Barcode Scanner Cable 1.5m",
         "category": "Electronics",
-        "price": 1250.0,
+        "price": 1250,
         "stock": 10,
         "lowStockAlert": 2,
-        "imageUrl": "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=400",
-        "specifications": "• Plug & Play POS Scanner Cable\n• High Speed Laser Decoding\n• 1.5 Meter Rugged Cable"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.z9L1C3Nlo2KkCND9zKAyVwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=7db08e6a41dd27e1efc768fe7d1f505cb2cb06b0f8c88b76487efcfec12eb83d&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Plug & Play POS Scanner Cable\n\u00e2\u20ac\u00a2 High Speed Laser Decoding\n\u00e2\u20ac\u00a2 1.5 Meter Rugged Cable"
     },
     {
         "id": "46",
         "barcode": "8904250005051",
         "name": "Duracell Chota Power AA Batteries (Pack of 4)",
         "category": "Electronics",
-        "price": 160.0,
+        "price": 160,
         "stock": 38,
         "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1619725002198-6a689b72f41d?w=400",
-        "specifications": "• Up to 10x Longer Lasting Power\n• Leak-Proof Construction\n• Pack of 4 Batteries"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.20UDxBG7Ji9hpFxuas-r8QHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=79b32372f9bbf55c0ee38abf66f2eeffc5f91a4056595b0933598bab873203d2&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Up to 10x Longer Lasting Power\n\u00e2\u20ac\u00a2 Leak-Proof Construction\n\u00e2\u20ac\u00a2 Pack of 4 Batteries"
     },
     {
         "id": "47",
         "barcode": "8904250005052",
         "name": "boAt Dual Port USB Fast Wall Charger 18W",
         "category": "Electronics",
-        "price": 499.0,
+        "price": 499,
         "stock": 15,
         "lowStockAlert": 4,
-        "imageUrl": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400",
-        "specifications": "• Quick Charge 3.0 Compatible\n• Overheat Protection Circuit\n• Dual USB Outlets"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.w2YPGolx_4e5_5rMMi-T8wHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=353192b86d7c8d2c1726eb6e87f90cde75ebb0e396a4f6c27510b15345a10e6d&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Quick Charge 3.0 Compatible\n\u00e2\u20ac\u00a2 Overheat Protection Circuit\n\u00e2\u20ac\u00a2 Dual USB Outlets"
     },
     {
         "id": "48",
         "barcode": "8904250005053",
         "name": "JBL GO 2 Portable Wireless Bluetooth Speaker",
         "category": "Electronics",
-        "price": 1899.0,
+        "price": 1899,
         "stock": 8,
         "lowStockAlert": 2,
-        "imageUrl": "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400",
-        "specifications": "• IPX7 Waterproof Body\n• 5 Hours Playtime\n• Built-in Noise Cancelling Mic"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.POx1hwVfyuvft1chx_ALXwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=7e39911860036111cf1d718c6674115794f35e6417a3111d456c3b836b778666&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 IPX7 Waterproof Body\n\u00e2\u20ac\u00a2 5 Hours Playtime\n\u00e2\u20ac\u00a2 Built-in Noise Cancelling Mic"
     },
     {
         "id": "49",
         "barcode": "8901030444010",
         "name": "Classic Crewneck White Cotton T-Shirt",
         "category": "Clothing",
-        "price": 499.0,
+        "price": 499,
         "stock": 25,
         "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
-        "specifications": "• 100% Combed Cotton\n• Pre-Shrunk Breathable Fabric\n• Machine Washable"
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.NZHDRlHsT1S7bVRPps9NNQHaHu%3Fr%3D0%26pid%3DApi&f=1&ipt=dfa19db5b372f3666efca9a7f239a3d9e9a00db80729438ddb9c7f9b8e93eeba&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 100% Combed Cotton\n\u00e2\u20ac\u00a2 Pre-Shrunk Breathable Fabric\n\u00e2\u20ac\u00a2 Machine Washable"
     },
     {
         "id": "50",
         "barcode": "8901030444011",
         "name": "SuperMart Executive Cotton Apron",
         "category": "Clothing",
-        "price": 299.0,
+        "price": 299,
         "stock": 30,
         "lowStockAlert": 6,
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.4Iw21qBDNLHjq1NkXUTfGwAAAA%3Fr%3D0%26pid%3DApi&f=1&ipt=3bf73f4af86fdda1ef0b02f59bb44324074b5e1267570651dbd43120eab15135&ipo=images",
+        "specifications": "\u00e2\u20ac\u00a2 Store Staff Duty Apron\n\u00e2\u20ac\u00a2 Adjustable Neck Strap & Front Pockets\n\u00e2\u20ac\u00a2 Durable Washable Canvas"
+    },
+    {
+        "id": "51",
+        "barcode": "8901030444012",
+        "name": "Men's Slim Fit Stretch Denim Jeans",
+        "category": "Clothing",
+        "price": 1299.0,
+        "stock": 25,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1542272604-780c96856592?w=400",
+        "specifications": "\u2022 98% Cotton 2% Elastane\n\u2022 Premium Indigo Wash\n\u2022 Machine Wash"
+    },
+    {
+        "id": "52",
+        "barcode": "8901030444013",
+        "name": "Men's Casual Printed Cotton Shirt",
+        "category": "Clothing",
+        "price": 899.0,
+        "stock": 30,
+        "lowStockAlert": 6,
+        "imageUrl": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
+        "specifications": "\u2022 100% Soft Breathable Cotton\n\u2022 Full Sleeves Curved Hem\n\u2022 Regular Fit"
+    },
+    {
+        "id": "53",
+        "barcode": "8901030444014",
+        "name": "Women's Floral Cotton Kurti & Pants Set",
+        "category": "Clothing",
+        "price": 1199.0,
+        "stock": 20,
+        "lowStockAlert": 4,
+        "imageUrl": "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400",
+        "specifications": "\u2022 Pure Handloom Cotton\n\u2022 Elegant Block Print Design\n\u2022 Includes Matching Trousers"
+    },
+    {
+        "id": "54",
+        "barcode": "8901030444015",
+        "name": "Unisex Heavyweight Fleece Pullover Hoodie",
+        "category": "Clothing",
+        "price": 1499.0,
+        "stock": 18,
+        "lowStockAlert": 4,
         "imageUrl": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400",
-        "specifications": "• Store Staff Duty Apron\n• Adjustable Neck Strap & Front Pockets\n• Durable Washable Canvas"
+        "specifications": "\u2022 350 GSM Thermal Fleece\n\u2022 Kangaroo Pocket & Drawstring Hood\n\u2022 Super Cozy Warmth"
+    },
+    {
+        "id": "55",
+        "barcode": "8901030444016",
+        "name": "Women's High-Waist Skinny Fit Jeans",
+        "category": "Clothing",
+        "price": 1399.0,
+        "stock": 22,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400",
+        "specifications": "\u2022 Super Stretch Denim Fabric\n\u2022 High Rise Ankle Length\n\u2022 Form Fitting Comfort"
+    },
+    {
+        "id": "56",
+        "barcode": "8901030444017",
+        "name": "Men's Pique Polo Neck Cotton T-Shirt",
+        "category": "Clothing",
+        "price": 699.0,
+        "stock": 35,
+        "lowStockAlert": 8,
+        "imageUrl": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
+        "specifications": "\u2022 100% Combed Cotton Pique\n\u2022 Ribbed Collar & Cuffs\n\u2022 Smart Casual Style"
+    },
+    {
+        "id": "57",
+        "barcode": "8901030444018",
+        "name": "Kids Printed Cotton Nightwear Pyjama Set",
+        "category": "Clothing",
+        "price": 499.0,
+        "stock": 40,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400",
+        "specifications": "\u2022 Ultra-Soft Organic Cotton\n\u2022 Fun Cartoon Prints\n\u2022 Elastic Waistband"
+    },
+    {
+        "id": "58",
+        "barcode": "8901030444019",
+        "name": "Athletic Quick-Dry Gym & Running Shorts",
+        "category": "Clothing",
+        "price": 599.0,
+        "stock": 28,
+        "lowStockAlert": 6,
+        "imageUrl": "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400",
+        "specifications": "\u2022 Moisture-Wicking Polyester Fabric\n\u2022 Zippered Phone Pockets\n\u2022 Breathable Mesh Liner"
+    },
+    {
+        "id": "59",
+        "barcode": "8901030444020",
+        "name": "Formal Slim Fit Chino Trousers",
+        "category": "Clothing",
+        "price": 1099.0,
+        "stock": 24,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400",
+        "specifications": "\u2022 Premium Stretch Twill Cotton\n\u2022 Wrinkle-Resistant Finish\n\u2022 Perfect for Office Wear"
+    },
+    {
+        "id": "60",
+        "barcode": "8901030444021",
+        "name": "SuperMart Executive Staff Duty Polo",
+        "category": "Clothing",
+        "price": 399.0,
+        "stock": 50,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+        "specifications": "\u2022 Official SuperMart Retail Staff Shirt\n\u2022 Embroidered Chest Emblem\n\u2022 Durable Washable Cotton"
+    },
+    {
+        "id": "61",
+        "barcode": "8901030444022",
+        "name": "Women's Casual Oversized Graphic Tee",
+        "category": "Clothing",
+        "price": 599.0,
+        "stock": 30,
+        "lowStockAlert": 6,
+        "imageUrl": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400",
+        "specifications": "\u2022 100% Heavyweight Cotton\n\u2022 Trendy Streetwear Drop Shoulder\n\u2022 Bio-Washed Fabric"
+    },
+    {
+        "id": "62",
+        "barcode": "8901030444023",
+        "name": "Men's Lightweight Zip-Up Windbreaker Jacket",
+        "category": "Clothing",
+        "price": 1799.0,
+        "stock": 15,
+        "lowStockAlert": 3,
+        "imageUrl": "https://images.unsplash.com/photo-1544441893-675973e31985?w=400",
+        "specifications": "\u2022 Water-Repellent Nylon Shell\n\u2022 Adjustable Hood & Cuffs\n\u2022 Compact Travel Packable"
+    },
+    {
+        "id": "63",
+        "barcode": "8901030444024",
+        "name": "Women's High-Waist Workout Yoga Leggings",
+        "category": "Clothing",
+        "price": 799.0,
+        "stock": 25,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400",
+        "specifications": "\u2022 4-Way Stretch Squat-Proof Fabric\n\u2022 Hidden Waistband Pocket\n\u2022 Breathable Fit"
+    },
+    {
+        "id": "64",
+        "barcode": "8901030444025",
+        "name": "Unisex Cotton Ankle Cushion Socks (Pack of 3)",
+        "category": "Clothing",
+        "price": 299.0,
+        "stock": 60,
+        "lowStockAlert": 15,
+        "imageUrl": "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=400",
+        "specifications": "\u2022 Terry Cushion Sole Comfort\n\u2022 Anti-Odor Technology\n\u2022 3 Pairs Multi-Pack"
+    },
+    {
+        "id": "65",
+        "barcode": "8901030444026",
+        "name": "Men's Classic Linen Blend Short Sleeve Shirt",
+        "category": "Clothing",
+        "price": 999.0,
+        "stock": 20,
+        "lowStockAlert": 4,
+        "imageUrl": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
+        "specifications": "\u2022 Premium Linen Cotton Blend\n\u2022 Breathable Summer Resort Wear\n\u2022 Spread Collar"
     }
 ]
