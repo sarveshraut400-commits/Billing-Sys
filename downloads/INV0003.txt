@@ -1,0 +1,6 @@
+Invoice: INV0003
+Bill ID: 3
+Customer: Rahul Sharma
+Grand Total: ₹2592.0
+Items:
+  Arduino Uno x 2 = ₹2400.0

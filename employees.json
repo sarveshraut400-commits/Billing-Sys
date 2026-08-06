@@ -1,0 +1,16 @@
+[
+    {
+        "id": "1",
+        "name": "System",
+        "email": "systemdefault96@gmail.com",
+        "role": "admin",
+        "lastLogin": "Today, 09:00 AM"
+    },
+    {
+        "id": "36bfb9e5",
+        "name": "Kertick",
+        "email": "kertick@gmail.com",
+        "role": "employee",
+        "lastLogin": "Never"
+    }
+]

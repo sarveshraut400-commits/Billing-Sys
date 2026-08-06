@@ -1,0 +1,101 @@
+[
+    {
+        "id": "1",
+        "barcode": "1001",
+        "name": "Organic Whole Wheat Bread",
+        "category": "Groceries",
+        "price": 45,
+        "stock": 20,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
+        "specifications": "\u2022 100% Whole Wheat\n\u2022 No Preservatives\n\u2022 400g Pack"
+    },
+    {
+        "id": "2",
+        "barcode": "1002",
+        "name": "Farm Fresh Eggs (1 Dozen)",
+        "category": "Groceries",
+        "price": 80,
+        "stock": 45,
+        "lowStockAlert": 10,
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ffeatheredfarmlife.com%2Fwp-content%2Fuploads%2F2025%2F06%2Fegg-tooth-chicken-1024x683.jpg&f=1&nofb=1&ipt=a89f8df808375f4efc196b789d0741b743c391da6687a42bf17219f14fadf36c",
+        "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"
+    },
+    {
+        "id": "3",
+        "barcode": "2001",
+        "name": "Premium Dark Roast Coffee",
+        "category": "Beverages",
+        "price": 350,
+        "stock": 30,
+        "lowStockAlert": 8,
+        "imageUrl": "https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=400",
+        "specifications": "\u2022 100% Arabica Beans\n\u2022 Net Weight: 250g\n\u2022 Resealable Pack"
+    },
+    {
+        "id": "4",
+        "barcode": "2002",
+        "name": "Fresh Orange Juice",
+        "category": "Beverages",
+        "price": 120,
+        "stock": 15,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400",
+        "specifications": "\u2022 100% Real Juice\n\u2022 No Added Sugar\n\u2022 1 Liter"
+    },
+    {
+        "id": "5",
+        "barcode": "3001",
+        "name": "Lays",
+        "category": "Snacks",
+        "price": 20,
+        "stock": 100,
+        "lowStockAlert": 20,
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi5.walmartimages.com%2Fasr%2F491b2423-3bfc-4ff9-b41a-7ed2db3341ca_1.5641efa50f08924cfe53bfeba6e2b3f4.jpeg&f=1&nofb=1&ipt=971d23f86417bff476b687c347359b198210aaaf66c1b5cd043d316046c7a9f1",
+        "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"
+    },
+    {
+        "id": "6",
+        "barcode": "3002",
+        "name": "Kelogg's Chocos",
+        "category": "Snacks",
+        "price": 120,
+        "stock": 25,
+        "lowStockAlert": 5,
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP._Bu8QDsiamiGCLQphUahkwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=f135f3caf65cbe2e756cca72389cdd87cca192cce8f7b50fcbc4374f3c8c829f&ipo=images",
+        "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"
+    },
+    {
+        "id": "7",
+        "barcode": "4001",
+        "name": "Logitech Wireless Mouse",
+        "category": "Electronics",
+        "price": 850,
+        "stock": 12,
+        "lowStockAlert": 3,
+        "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.22NM2hWYl1A5H0gn-agxTgHaHZ%3Fpid%3DApi&f=1&ipt=e34692c990f1ed1bc47b69dc81b67245af4277a9af44929961d264974c4035b1&ipo=images",
+        "specifications": "\u2022 Wireless / Plug & Play\n\u2022 Ergonomic Design\n\u2022 Compatible with Windows/Mac"
+    },
+    {
+        "id": "8",
+        "barcode": "4002",
+        "name": "Sony Over-Ear Headphones",
+        "category": "Electronics",
+        "price": 2500,
+        "stock": 8,
+        "lowStockAlert": 2,
+        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400",
+        "specifications": "\u2022 Noise Cancelling\n\u2022 Bluetooth 5.0\n\u2022 30-Hour Playtime"
+    },
+    {
+        "id": "9",
+        "barcode": "5001",
+        "name": "Classic White Cotton T-Shirt",
+        "category": "Clothing",
+        "price": 499,
+        "stock": 40,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+        "specifications": "\u2022 100% Cotton\n\u2022 Size: Large\n\u2022 Machine Washable"
+    }
+]

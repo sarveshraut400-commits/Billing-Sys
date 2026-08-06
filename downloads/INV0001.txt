@@ -1,0 +1,3 @@
+Invoice: INV0001
+Bill ID: 1
+Customer: Rahul Sharma

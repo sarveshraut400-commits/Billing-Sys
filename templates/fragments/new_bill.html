@@ -1,0 +1,31 @@
+<div class="bg-white p-8 rounded-xl shadow-sm border border-cyan-100 animate-fade-in-up">
+    <h2 class="text-2xl font-bold text-cyan-900 mb-6 flex items-center">
+        <i class="fas fa-file-invoice-dollar text-cyan-500 mr-3"></i> Create New Bill
+    </h2>
+    
+    <!-- Notice we point this form to your master checkout endpoint! -->
+    <form hx-post="/api/checkout" hx-target="#workspace" class="space-y-5">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-cyan-800 mb-1">Customer Name</label>
+                <input type="text" name="customer_name" class="w-full p-2 border border-cyan-200 rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-cyan-800 mb-1">Phone Number (WhatsApp)</label>
+                <input type="text" name="phone" class="w-full p-2 border border-cyan-200 rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-cyan-800 mb-1">Scan or Add Product ID</label>
+            <input type="text" placeholder="e.g. PRD-001" class="w-full p-2 border border-cyan-200 rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none">
+        </div>
+
+        <!-- Hidden input to mimic the JSON array your backend expects for items -->
+        <input type="hidden" name="items" value='[{"product_id": 1, "quantity": 1}]'>
+
+        <button type="submit" class="w-full bg-cyan-600 text-white font-bold py-3 rounded-lg hover:bg-cyan-500 transition shadow-md">
+            Generate Bill & Send WhatsApp
+        </button>
+    </form>
+</div>
