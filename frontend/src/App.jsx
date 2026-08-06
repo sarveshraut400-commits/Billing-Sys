@@ -59,7 +59,7 @@ export default function App() {
               !currentUserRole ? (
                 <Navigate to="/" replace />
               ) : (
-                <div className="flex min-h-screen bg-gray-100">
+                <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
                   <Sidebar role={currentUserRole} />
                   
                   <div className="flex-1 flex flex-col h-screen overflow-hidden">
