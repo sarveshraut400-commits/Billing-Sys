@@ -487,14 +487,16 @@ def checkout():
         time_str = datetime.now().strftime("%H:%M:%S")
         invoice_number = f"INV{random.randint(1000, 9999)}"
         
+        cashier = data.get('cashier') or data.get('performed_by') or 'Pars'
+        
         # Save into SQLite database (billing.db)
         conn = get_db_connection()
         cursor = conn.cursor()
         
         cursor.execute("""
-            INSERT INTO bills (customer_name, email, phone, total_bill, date, time, invoice_number)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (customer_name, email, phone, total_bill, date_str, time_str, invoice_number))
+            INSERT INTO bills (customer_name, email, phone, total_bill, date, time, invoice_number, cashier)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (customer_name, email, phone, total_bill, date_str, time_str, invoice_number, cashier))
         
         bill_id = cursor.lastrowid
         
@@ -514,7 +516,7 @@ def checkout():
             category="Billing",
             action="Invoice Generated (POS Sale)",
             details=f"Invoice #{invoice_number} created for ₹{total_bill:,.2f} ({len(bill_products)} items) - Customer: {customer_name}",
-            performed_by="Staff"
+            performed_by=cashier
         )
         
         # Log inventory stock reduction
@@ -710,16 +712,20 @@ def get_employee_dashboard_stats():
         today_str = datetime.now().strftime("%Y-%m-%d")
         
         if cashier:
-            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills WHERE date = ? AND (cashier LIKE ? OR customer_name LIKE ?)", (today_str, f"%{cashier}%", f"%{cashier}%"))
+            cursor.execute("""
+                SELECT SUM(total_bill), COUNT(*) FROM bills 
+                WHERE (date = ? OR date IS NULL) 
+                AND (cashier LIKE ? OR cashier IS NULL OR cashier = '' OR customer_name LIKE ?)
+            """, (today_str, f"%{cashier}%", f"%{cashier}%"))
         else:
-            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills WHERE date = ?", (today_str,))
+            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills")
             
         row = cursor.fetchone()
         today_sales = float(row[0] or 0.0)
         today_count = int(row[1] or 0)
         
         if today_count == 0:
-            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills WHERE date = ?", (today_str,))
+            cursor.execute("SELECT SUM(total_bill), COUNT(*) FROM bills")
             row_all = cursor.fetchone()
             today_sales = float(row_all[0] or 0.0)
             today_count = int(row_all[1] or 0)

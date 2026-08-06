@@ -5,7 +5,7 @@
         "name": "Organic Whole Wheat Bread",
         "category": "Groceries",
         "price": 45,
-        "stock": 20,
+        "stock": 19,
         "lowStockAlert": 5,
         "imageUrl": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
         "specifications": "\u2022 100% Whole Wheat\n\u2022 No Preservatives\n\u2022 400g Pack"
@@ -16,7 +16,7 @@
         "name": "Farm Fresh Eggs (1 Dozen)",
         "category": "Groceries",
         "price": 80,
-        "stock": 44,
+        "stock": 43,
         "lowStockAlert": 10,
         "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ffeatheredfarmlife.com%2Fwp-content%2Fuploads%2F2025%2F06%2Fegg-tooth-chicken-1024x683.jpg&f=1&nofb=1&ipt=a89f8df808375f4efc196b789d0741b743c391da6687a42bf17219f14fadf36c",
         "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"
@@ -60,7 +60,7 @@
         "name": "Kelogg's Chocos",
         "category": "Snacks",
         "price": 120,
-        "stock": 25,
+        "stock": 24,
         "lowStockAlert": 5,
         "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP._Bu8QDsiamiGCLQphUahkwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=f135f3caf65cbe2e756cca72389cdd87cca192cce8f7b50fcbc4374f3c8c829f&ipo=images",
         "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"

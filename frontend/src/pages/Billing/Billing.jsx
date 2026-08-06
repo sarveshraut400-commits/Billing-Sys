@@ -4,7 +4,7 @@ import { fetchProducts, generateBill } from '../../services/api';
 
 const CATEGORIES = ['All', 'Groceries', 'Beverages', 'Electronics', 'Clothing', 'Snacks', 'Other'];
 
-export default function Billing() {
+export default function Billing({ currentUser }) {
   const [productsDB, setProductsDB] = useState([]);
   const [cart, setCart] = useState([]);
   const [barcodeInput, setBarcodeInput] = useState('');
@@ -16,7 +16,6 @@ export default function Billing() {
   const loadProducts = async () => {
     try {
       const response = await fetchProducts();
-      // FIX: Check for response.data.items
       if (response.data && response.data.items) {
         setProductsDB(response.data.items);
       } else if (Array.isArray(response.data)) {
@@ -30,7 +29,7 @@ export default function Billing() {
 
   const handleBarcodeScan = (e) => {
     e.preventDefault();
-    const product = productsDB.find(p => p.barcode === barcodeInput);
+    const product = productsDB.find(p => String(p.barcode) === String(barcodeInput));
     if (product) {
       addToCart(product);
       setBarcodeInput(''); 
@@ -63,14 +62,15 @@ export default function Billing() {
   const handleGenerateBill = async () => {
     if (cart.length === 0) return;
     try {
-      await generateBill({ cart, customer, total });
+      await generateBill({ cart, customer, total, cashier: currentUser?.name || 'Pars' });
       alert(`✅ Invoice Generated! Total: ₹${total.toFixed(2)}`);
     } catch (error) {
       alert(`✅ Invoice Generated! Total: ₹${total.toFixed(2)}`);
+    } finally {
+      setCart([]);
+      setCustomer({ name: '', phone: '' });
+      loadProducts();
     }
-    setCart([]);
-    setCustomer({ name: '', phone: '' });
-    loadProducts();
   };
 
   // Filter products by category

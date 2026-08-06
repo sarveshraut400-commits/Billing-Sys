@@ -85,9 +85,14 @@ def create_tables():
             total_bill REAL,
             date TEXT,
             time TEXT,
-            invoice_number TEXT UNIQUE
+            invoice_number TEXT UNIQUE,
+            cashier TEXT
         )
     ''')
+    try:
+        conn.execute("ALTER TABLE bills ADD COLUMN cashier TEXT")
+    except Exception:
+        pass
     conn.execute('''
         CREATE TABLE IF NOT EXISTS bill_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
