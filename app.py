@@ -296,14 +296,10 @@ def login():
         if not matched_emp:
             matched_emp = next((e for e in employees_db if e.get('role') == role), None)
             
-        for emp in employees_db:
-            if matched_emp and (emp.get('id') == matched_emp.get('id') or emp.get('email') == matched_emp.get('email')):
-                emp['lastLogin'] = now_str
-                emp['isOnline'] = True
-                emp['status'] = 'online'
-            else:
-                emp['isOnline'] = False
-                emp['status'] = 'offline'
+        if matched_emp:
+            matched_emp['lastLogin'] = now_str
+            matched_emp['isOnline'] = True
+            matched_emp['status'] = 'online'
                 
         save_employees()
         
