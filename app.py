@@ -339,6 +339,122 @@ def delete_employee(emp_id):
 
 
 # ==========================================
+# 3.5. POS BILLING & CHECKOUT ENDPOINT
+# ==========================================
+@app.route('/api/checkout', methods=['POST'])
+def checkout():
+    try:
+        data = request.get_json() or {}
+        
+        # Support both 'cart' (from Billing.jsx) and 'items' (from API clients)
+        raw_items = data.get('cart') or data.get('items') or []
+        customer_info = data.get('customer') or {}
+        
+        if isinstance(customer_info, dict):
+            customer_name = customer_info.get('name') or data.get('customer_name') or 'Walk-in Customer'
+            phone = customer_info.get('phone') or data.get('phone') or ''
+            email = customer_info.get('email') or data.get('email') or ''
+        else:
+            customer_name = data.get('customer_name') or 'Walk-in Customer'
+            phone = data.get('phone') or ''
+            email = data.get('email') or ''
+
+        if not raw_items:
+            return jsonify({"success": False, "error": "Cart is empty"}), 400
+
+        total_bill = float(data.get('total') or data.get('grand_total') or 0.0)
+        
+        bill_products = []
+        calc_subtotal = 0.0
+        
+        global inventory_db
+        
+        for item in raw_items:
+            p_id = str(item.get('id') or item.get('product_id'))
+            qty = int(item.get('qty') or item.get('quantity') or 1)
+            p_name = item.get('name') or item.get('product_name') or 'Product'
+            price = float(item.get('price') or 0.0)
+            
+            amount = price * qty
+            calc_subtotal += amount
+            
+            bill_products.append({
+                "product_id": p_id,
+                "name": p_name,
+                "price": price,
+                "quantity": qty,
+                "amount": amount
+            })
+            
+            # Deduct stock in memory and inventory.json
+            for p in inventory_db:
+                if str(p.get('id')) == p_id:
+                    current_stock = int(p.get('stock', 0))
+                    p['stock'] = max(0, current_stock - qty)
+                    
+        save_inventory()
+        
+        if total_bill <= 0:
+            total_bill = calc_subtotal * 0.95
+            
+        from datetime import datetime
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        time_str = datetime.now().strftime("%H:%M:%S")
+        invoice_number = f"INV{random.randint(1000, 9999)}"
+        
+        # Save into SQLite database (billing.db)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            INSERT INTO bills (customer_name, email, phone, total_bill, date, time, invoice_number)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (customer_name, email, phone, total_bill, date_str, time_str, invoice_number))
+        
+        bill_id = cursor.lastrowid
+        
+        for prod in bill_products:
+            cursor.execute("""
+                INSERT INTO bill_items (bill_id, product_id, product_name, price, quantity, amount)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (bill_id, prod['product_id'], prod['name'], prod['price'], prod['quantity'], prod['amount']))
+            
+            cursor.execute("UPDATE products SET stock = stock - ? WHERE id = ? OR barcode = ?", (prod['quantity'], prod['product_id'], prod['product_id']))
+            
+        conn.commit()
+        conn.close()
+        
+        # LOG TO LIVE DATABASE ACTIVITY LOGS
+        log_activity(
+            category="Billing",
+            action="Invoice Generated (POS Sale)",
+            details=f"Invoice #{invoice_number} created for ₹{total_bill:,.2f} ({len(bill_products)} items) - Customer: {customer_name}",
+            performed_by="Staff"
+        )
+        
+        # Log inventory stock reduction
+        items_summary = ", ".join([f"{p['name']} (x{p['quantity']})" for p in bill_products[:3]])
+        log_activity(
+            category="Inventory",
+            action="Stock Reduced (POS Sale)",
+            details=f"Stock deducted for sold items: {items_summary}",
+            performed_by="POS System"
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Bill generated successfully",
+            "invoice_number": invoice_number,
+            "bill_id": bill_id,
+            "total": total_bill
+        }), 201
+
+    except Exception as e:
+        print(f"Checkout Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ==========================================
 # 4. LIVE REPORTS & EXPORT ENDPOINTS
 # ==========================================
 @app.route('/api/reports/logs', methods=['GET'])

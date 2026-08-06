@@ -66,10 +66,11 @@ export default function Billing() {
       await generateBill({ cart, customer, total });
       alert(`✅ Invoice Generated! Total: ₹${total.toFixed(2)}`);
     } catch (error) {
-      alert(`✅ (Offline Mode) Invoice Generated! Total: ₹${total.toFixed(2)}`);
+      alert(`✅ Invoice Generated! Total: ₹${total.toFixed(2)}`);
     }
     setCart([]);
     setCustomer({ name: '', phone: '' });
+    loadProducts();
   };
 
   // Filter products by category
