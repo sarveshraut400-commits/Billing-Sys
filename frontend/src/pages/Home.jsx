@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, User, Store, Receipt, Lock, ChevronLeft, AlertCircle, Mail, KeyRound, Loader2, AtSign } from 'lucide-react';
+import { 
+  ShieldCheck, User, Store, Lock, ChevronLeft, AlertCircle, 
+  AtSign, KeyRound, Loader2, Sparkles, Cpu, MessageSquare, Database, ArrowRight, CheckCircle2
+} from 'lucide-react';
 import { loginUser, requestPasswordReset, resetPassword } from '../services/api';
 
 export default function Home({ onLogin }) {
   const navigate = useNavigate();
   const [activeRole, setActiveRole] = useState(null);
   
-  // States
+  // Login State
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Password Reset States
+  // Password Reset State
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const [resetStep, setResetStep] = useState(1); // 1 = Request OTP, 2 = Enter OTP & New Password
+  const [resetStep, setResetStep] = useState(1);
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
@@ -34,6 +37,13 @@ export default function Home({ onLogin }) {
     setSuccessMessage('');
     setIsForgotPassword(false);
     setResetStep(1);
+  };
+
+  const fillQuickCredentials = (role, user, pass) => {
+    setActiveRole(role);
+    setUsernameOrEmail(user);
+    setPassword(pass);
+    setError('');
   };
 
   const handleLoginSubmit = async (e) => {
@@ -60,7 +70,7 @@ export default function Home({ onLogin }) {
         return;
       }
 
-      // Offline / Local fallback if backend is starting
+      // Offline / Fallback credentials
       let matchedName = activeRole === 'admin' ? 'System' : (usernameOrEmail || 'Staff');
       if (activeRole === 'admin' && (password === 'admin123' || password === 'admin')) {
         onLogin({ role: 'admin', name: matchedName, email: 'systemdefault96@gmail.com' });
@@ -72,7 +82,7 @@ export default function Home({ onLogin }) {
         return;
       }
 
-      setError('Invalid username or password.');
+      setError('Invalid username or password credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +92,6 @@ export default function Home({ onLogin }) {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
     try {
       const response = await requestPasswordReset({ role: activeRole });
       setSuccessMessage(response.data.message);
@@ -98,16 +107,10 @@ export default function Home({ onLogin }) {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
     try {
-      const response = await resetPassword({ role: activeRole, otp, newPassword });
-      setSuccessMessage(response.data.message);
-      setTimeout(() => {
-        setIsForgotPassword(false);
-        setResetStep(1);
-        setPassword('');
-        setSuccessMessage('');
-      }, 2000);
+      await resetPassword({ role: activeRole, otp, newPassword });
+      setSuccessMessage('Password reset successfully! Log in with your new password.');
+      setTimeout(() => resetForms(), 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid OTP.');
     } finally {
@@ -116,181 +119,314 @@ export default function Home({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-white">
-      {/* Left Side: Branding */}
-      <div className="md:w-1/2 bg-green-700 text-white flex flex-col justify-center items-center p-12 relative overflow-hidden">
-        <div className="z-10 text-center">
-          <Store size={64} className="mx-auto mb-6 text-green-100" />
-          <h1 className="text-5xl font-extrabold tracking-tight mb-4">SuperMart POS</h1>
-          <p className="text-green-200 text-xl font-medium">Fast, Reliable, and Smart Billing.</p>
-        </div>
-        <div className="mt-16 bg-white/10 p-6 rounded-xl border border-white/20 backdrop-blur-sm w-72 flex flex-col items-center shadow-2xl z-10">
-          <Receipt size={48} className="mb-4 text-green-100" />
-          <div className="w-full bg-white text-green-900 rounded p-4 shadow-inner animate-pulse">
-            <div className="w-full h-2 bg-gray-200 rounded mb-3"></div>
-            <div className="w-3/4 h-2 bg-gray-200 rounded mb-3"></div>
-            <div className="w-1/2 h-2 bg-gray-200 rounded mb-5"></div>
-            <div className="w-full h-8 bg-green-600 rounded"></div>
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden font-sans">
+      
+      {/* Dynamic Ambient Background Glow Effect */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-1/2 -right-40 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      {/* Top Navbar */}
+      <header className="p-6 max-w-7xl w-full mx-auto flex justify-between items-center z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-xl shadow-lg text-slate-950 font-black text-xl">
+            <Store size={26} />
+          </div>
+          <div>
+            <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+              SuperMart POS <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">Enterprise v1.0</span>
+            </h1>
+            <p className="text-xs text-slate-400">IoT Retail Operations & Automated Billing System</p>
           </div>
         </div>
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-green-800 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
-      </div>
 
-      {/* Right Side: Auth Flow */}
-      <div className="md:w-1/2 flex items-center justify-center p-8 bg-gray-50 relative overflow-hidden">
-        <div className="w-full max-w-md space-y-8 relative">
-          
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-            <p className="text-gray-500 mt-2">
-              {!activeRole ? 'Please select your role to continue' : isForgotPassword ? 'Secure Password Reset' : 'Enter your credentials to access the terminal'}
-            </p>
-          </div>
+        {/* Live System Badges */}
+        <div className="hidden md:flex items-center gap-3 text-xs">
+          <span className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-slate-300 flex items-center gap-1.5 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+            IoT Scanner API Active
+          </span>
+          <span className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-slate-300 flex items-center gap-1.5 font-medium">
+            <Database size={14} className="text-teal-400" />
+            SQLite Database Connected
+          </span>
+        </div>
+      </header>
 
-          {/* VIEW 1: Role Selection */}
-          {!activeRole && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-              <button onClick={() => handleRoleSelect('admin')} className="w-full group relative flex items-center justify-between p-6 bg-white border-2 border-gray-200 rounded-xl hover:border-indigo-600 hover:shadow-lg transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="bg-indigo-50 p-4 rounded-lg text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors"><ShieldCheck size={32} /></div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">Administrator</h3>
-                    <p className="text-sm text-gray-500 mt-1">Manage store, inventory, employees & reports</p>
-                  </div>
-                </div>
-              </button>
-
-              <button onClick={() => handleRoleSelect('employee')} className="w-full group relative flex items-center justify-between p-6 bg-white border-2 border-gray-200 rounded-xl hover:border-green-600 hover:shadow-lg transition-all text-left">
-                <div className="flex items-center gap-4">
-                  <div className="bg-green-50 p-4 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors"><User size={32} /></div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800">Staff Member</h3>
-                    <p className="text-sm text-gray-500 mt-1">Access POS, barcode billing & terminal</p>
-                  </div>
-                </div>
-              </button>
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-8 flex flex-col items-center justify-center z-10">
+        
+        {!activeRole ? (
+          /* HERO LANDING PAGE - ROLE SELECTION */
+          <div className="w-full space-y-10 animate-in fade-in duration-300">
+            
+            <div className="text-center max-w-3xl mx-auto space-y-4">
+              <span className="px-4 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold uppercase tracking-wider rounded-full inline-flex items-center gap-2">
+                <Sparkles size={14} /> Retail Operations Terminal
+              </span>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-100 tracking-tight leading-tight">
+                Empowering Smart Retail & <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">IoT Billing</span>
+              </h2>
+              <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+                Select your portal to log in. Access live sales tracking, automated WhatsApp digital invoices, hardware barcode scanning, and catalog management.
+              </p>
             </div>
-          )}
 
-          {/* VIEW 2: Standard Login with Username & Password */}
-          {activeRole && !isForgotPassword && (
-            <div className="animate-in fade-in slide-in-from-left-4 duration-300 bg-white p-8 border-2 border-gray-200 rounded-xl shadow-lg">
-              <div className="flex items-center gap-4 mb-6 border-b pb-4">
-                <div className={`p-3 rounded-lg text-white ${activeRole === 'admin' ? 'bg-indigo-600' : 'bg-green-600'}`}>
-                  {activeRole === 'admin' ? <ShieldCheck size={24} /> : <User size={24} />}
+            {/* Quick-Fill One-Click Demo Credentials Pills */}
+            <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800 p-4 rounded-2xl max-w-xl mx-auto text-center space-y-2">
+              <span className="text-xs text-slate-400 font-semibold block">⚡ Quick Demo Login Accounts (Click to auto-fill)</span>
+              <div className="flex flex-wrap justify-center gap-2">
+                <button 
+                  onClick={() => fillQuickCredentials('admin', 'admin', 'admin123')}
+                  className="px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold hover:bg-emerald-500/30 transition flex items-center gap-1.5"
+                >
+                  <ShieldCheck size={14} /> Admin (admin / admin123)
+                </button>
+                <button 
+                  onClick={() => fillQuickCredentials('employee', 'Pars', '1234')}
+                  className="px-3 py-1.5 bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-xl text-xs font-bold hover:bg-cyan-500/30 transition flex items-center gap-1.5"
+                >
+                  <User size={14} /> Cashier Pars (Pars / 1234)
+                </button>
+                <button 
+                  onClick={() => fillQuickCredentials('employee', 'Kertick', '1234')}
+                  className="px-3 py-1.5 bg-teal-500/20 border border-teal-500/30 text-teal-300 rounded-xl text-xs font-bold hover:bg-teal-500/30 transition flex items-center gap-1.5"
+                >
+                  <User size={14} /> Sales Kertick (Kertick / 1234)
+                </button>
+              </div>
+            </div>
+
+            {/* Portal Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              
+              {/* Admin Portal Card */}
+              <div 
+                onClick={() => handleRoleSelect('admin')}
+                className="group bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-8 rounded-3xl cursor-pointer transition-all duration-300 transform hover:-translate-y-1 shadow-2xl relative overflow-hidden flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition text-emerald-400">
+                  <ShieldCheck size={120} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800 capitalize">{activeRole} Login</h3>
-                  <p className="text-xs text-gray-500">Authentication Required</p>
+                  <div className="p-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 w-fit rounded-2xl mb-6 group-hover:scale-110 transition">
+                    <ShieldCheck size={36} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Admin Dashboard</h3>
+                  <p className="text-slate-400 text-xs leading-relaxed">
+                    Full store control: live 5s revenue charts, employee shift management, GST tax setup, activity audit logs, and database backup downloads.
+                  </p>
+                </div>
+                <div className="mt-8 flex items-center justify-between text-xs font-bold text-emerald-400 pt-4 border-t border-slate-800">
+                  <span>Enter Executive Portal</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition" />
                 </div>
               </div>
 
-              <form onSubmit={handleLoginSubmit} className="space-y-4">
-                {/* Username / Email Field */}
+              {/* Staff POS Terminal Card */}
+              <div 
+                onClick={() => handleRoleSelect('employee')}
+                className="group bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-teal-500/50 p-8 rounded-3xl cursor-pointer transition-all duration-300 transform hover:-translate-y-1 shadow-2xl relative overflow-hidden flex flex-col justify-between"
+              >
+                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition text-teal-400">
+                  <User size={120} />
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Username or Email</label>
+                  <div className="p-4 bg-teal-500/10 text-teal-400 border border-teal-500/20 w-fit rounded-2xl mb-6 group-hover:scale-110 transition">
+                    <User size={36} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Staff POS Terminal</h3>
+                  <p className="text-slate-400 text-xs leading-relaxed">
+                    Counter terminal for cashiers: IoT barcode scanning, instant product price checker, automated WhatsApp PDF receipts, and shift sales tracking.
+                  </p>
+                </div>
+                <div className="mt-8 flex items-center justify-between text-xs font-bold text-teal-400 pt-4 border-t border-slate-800">
+                  <span>Open Billing Terminal</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition" />
+                </div>
+              </div>
+
+            </div>
+
+            {/* Feature Highlights Bar */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-6 text-xs text-slate-400">
+              <div className="p-3 bg-slate-900/40 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+                <Cpu className="text-emerald-400" size={18} />
+                <span>IoT Hardware Scanner API</span>
+              </div>
+              <div className="p-3 bg-slate-900/40 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+                <MessageSquare className="text-teal-400" size={18} />
+                <span>Automated WhatsApp Bills</span>
+              </div>
+              <div className="p-3 bg-slate-900/40 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+                <Database className="text-cyan-400" size={18} />
+                <span>Permanent SQLite Storage</span>
+              </div>
+              <div className="p-3 bg-slate-900/40 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+                <CheckCircle2 className="text-emerald-400" size={18} />
+                <span>PDF Tax Invoices</span>
+              </div>
+            </div>
+
+          </div>
+        ) : (
+          /* LOGIN / PASSWORD RESET FORM */
+          <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-800 p-8 rounded-3xl shadow-2xl animate-in fade-in duration-200 relative">
+            
+            <button 
+              onClick={() => setActiveRole(null)}
+              className="absolute top-6 left-6 text-slate-400 hover:text-white text-xs font-semibold flex items-center gap-1"
+            >
+              <ChevronLeft size={16} /> Back
+            </button>
+
+            <div className="text-center pt-4 pb-6">
+              <div className={`p-3.5 mx-auto w-fit rounded-2xl mb-3 ${
+                activeRole === 'admin' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
+              }`}>
+                {activeRole === 'admin' ? <ShieldCheck size={32} /> : <User size={32} />}
+              </div>
+              <h3 className="text-2xl font-black text-white capitalize">{activeRole} Portal Login</h3>
+              <p className="text-xs text-slate-400 mt-1">Enter your assigned username or email and password</p>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs flex items-center gap-2">
+                <CheckCircle2 size={16} className="shrink-0" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
+            {!isForgotPassword ? (
+              /* LOGIN FORM */
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                
+                {/* Username or Email Input */}
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1.5">Username or Email</label>
                   <div className="relative">
-                    <AtSign size={20} className="absolute left-3 top-3 text-gray-400" />
                     <input 
                       type="text" 
-                      value={usernameOrEmail} 
-                      onChange={(e) => setUsernameOrEmail(e.target.value)} 
-                      placeholder={activeRole === 'admin' ? "admin or systemdefault96@gmail.com" : "e.g. Kertick or kertick@gmail.com"} 
-                      className={`w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 ${activeRole === 'admin' ? 'focus:ring-indigo-500 border-indigo-200' : 'focus:ring-green-500 border-green-200'}`} 
-                      autoFocus 
+                      placeholder={activeRole === 'admin' ? 'admin or systemdefault96@gmail.com' : 'Pars, Kertick, or email...'}
+                      value={usernameOrEmail}
+                      onChange={(e) => setUsernameOrEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-slate-100"
+                      required
                     />
+                    <AtSign size={18} className="absolute left-3 top-3.5 text-slate-500" />
                   </div>
                 </div>
 
-                {/* Password Field */}
+                {/* Password Input */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <label className="text-xs font-bold text-slate-300 block mb-1.5">Password</label>
                   <div className="relative">
-                    <Lock size={20} className="absolute left-3 top-3 text-gray-400" />
                     <input 
                       type="password" 
-                      value={password} 
-                      onChange={(e) => setPassword(e.target.value)} 
-                      placeholder="Enter password..." 
-                      className={`w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 ${activeRole === 'admin' ? 'focus:ring-indigo-500 border-indigo-200' : 'focus:ring-green-500 border-green-200'}`} 
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-slate-100"
+                      required
                     />
+                    <KeyRound size={18} className="absolute left-3 top-3.5 text-slate-500" />
                   </div>
                 </div>
 
-                {error && (
-                  <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg text-sm font-medium">
-                    <AlertCircle size={16} /> {error}
-                  </div>
-                )}
-
-                <div className="flex justify-end">
-                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-sm text-gray-500 hover:text-gray-800 font-medium">
+                {/* Forgot Password Link */}
+                <div className="text-right">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsForgotPassword(true)}
+                    className="text-xs text-slate-400 hover:text-emerald-400 transition"
+                  >
                     Forgot Password?
                   </button>
                 </div>
 
+                {/* Submit Button */}
                 <button 
-                  type="submit" 
-                  disabled={isLoading} 
-                  className={`w-full text-white font-bold py-3 rounded-lg transition-colors flex justify-center items-center gap-2 ${activeRole === 'admin' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-green-600 hover:bg-green-700'}`}
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full py-3.5 text-slate-950 font-extrabold text-sm rounded-xl transition shadow-lg flex items-center justify-center gap-2 ${
+                    activeRole === 'admin' ? 'bg-emerald-400 hover:bg-emerald-300' : 'bg-teal-400 hover:bg-teal-300'
+                  }`}
                 >
-                  {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Unlock Terminal'}
+                  {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Authenticate & Sign In →'}
                 </button>
+
               </form>
-              
-              <button 
-                onClick={() => setActiveRole(null)} 
-                className="mt-4 w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"
-              >
-                <ChevronLeft size={16} /> Back to roles
-              </button>
-            </div>
-          )}
-
-          {/* VIEW 3: Forgot Password Flow */}
-          {activeRole && isForgotPassword && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-300 bg-white p-8 border-2 border-gray-200 rounded-xl shadow-lg">
-              {resetStep === 1 ? (
-                <form onSubmit={handleRequestOTP} className="space-y-4">
-                  <p className="text-sm text-gray-600 mb-4">Click below to send a One-Time Password (OTP) to the registered email for the <strong>{activeRole}</strong> account.</p>
-                  
-                  {error && <div className="text-red-600 bg-red-50 p-3 rounded-lg text-sm font-medium flex gap-2 items-center"><AlertCircle size={16}/> {error}</div>}
-                  {successMessage && <div className="text-emerald-600 bg-emerald-50 p-3 rounded-lg text-sm font-medium">{successMessage}</div>}
-                  
-                  <button type="submit" disabled={isLoading} className="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-gray-900 transition flex justify-center items-center gap-2">
-                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : <><Mail size={18}/> Send OTP to Email</>}
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleResetPassword} className="space-y-4">
-                  {successMessage && <div className="text-emerald-600 bg-emerald-50 p-3 rounded-lg text-sm font-medium mb-4">{successMessage}</div>}
-                  {error && <div className="text-red-600 bg-red-50 p-3 rounded-lg text-sm font-medium mb-4">{error}</div>}
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Enter 6-Digit OTP</label>
-                    <input type="text" maxLength="6" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="000000" className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 text-center tracking-[0.5em] font-bold text-lg" required />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                    <div className="relative">
-                      <KeyRound size={20} className="absolute left-3 top-3 text-gray-400" />
-                      <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password..." className="w-full pl-10 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500" required />
+            ) : (
+              /* FORGOT PASSWORD FORM */
+              <div className="space-y-4">
+                {resetStep === 1 ? (
+                  <form onSubmit={handleRequestOTP} className="space-y-4">
+                    <p className="text-xs text-slate-400">An OTP will be sent to the registered email address for this role.</p>
+                    <button 
+                      type="submit" 
+                      disabled={isLoading}
+                      className="w-full py-3.5 bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm hover:bg-emerald-300 transition"
+                    >
+                      {isLoading ? <Loader2 className="animate-spin inline" size={18} /> : 'Send OTP to Email'}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-300 block mb-1">Enter 6-Digit OTP</label>
+                      <input 
+                        type="text" 
+                        placeholder="123456"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono text-center tracking-widest text-slate-100"
+                        required
+                      />
                     </div>
-                  </div>
-
-                  <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
-                    {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Update Password'}
+                    <div>
+                      <label className="text-xs font-bold text-slate-300 block mb-1">New Password</label>
+                      <input 
+                        type="password" 
+                        placeholder="Enter new password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100"
+                        required
+                      />
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={isLoading}
+                      className="w-full py-3.5 bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm hover:bg-emerald-300 transition"
+                    >
+                      {isLoading ? <Loader2 className="animate-spin inline" size={18} /> : 'Reset Password'}
+                    </button>
+                  </form>
+                )}
+                <div className="text-center pt-2">
+                  <button type="button" onClick={() => setIsForgotPassword(false)} className="text-xs text-slate-400 hover:text-white">
+                    Return to Login
                   </button>
-                </form>
-              )}
+                </div>
+              </div>
+            )}
 
-              <button onClick={() => setIsForgotPassword(false)} className="mt-4 w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 transition-colors text-sm font-medium"><ChevronLeft size={16} /> Back to login</button>
-            </div>
-          )}
+          </div>
+        )}
 
-        </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="p-6 text-center text-xs text-slate-500 border-t border-slate-900 z-10">
+        SuperMart POS Enterprise System • Built for Hardware & Retail Integration • © {new Date().getFullYear()} SuperMart Corp
+      </footer>
+
     </div>
   );
 }
