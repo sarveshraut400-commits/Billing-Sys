@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime
 import traceback
 
-from database import get_db_connection
+from database import get_db_connection, log_activity
 from routes.auth_routes import tokens
 from routes.invoice_routes import (
     calculate_totals,
@@ -123,6 +123,14 @@ def checkout():
 
         conn.commit()
         conn.close()
+
+        # Log live activity event in database
+        log_activity(
+            category="Billing",
+            action="Invoice Generated",
+            details=f"Invoice {invoice_number} generated for ₹{totals['grand_total']:,.2f} ({len(bill_products)} items) - Customer: {customer_name or 'Walk-in'}",
+            performed_by=session_data.get("username", "Staff") if isinstance(session_data, dict) else "Staff"
+        )
 
         # ---------- 7. Generate PDF (REAL) ----------
         pdf_path = generate_invoice_pdf(

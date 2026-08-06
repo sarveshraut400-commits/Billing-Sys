@@ -1,12 +1,12 @@
 {
     "admin": {
         "email": "systemdefault96@gmail.com",
-        "password": "1234",
-        "otp": "218851"
+        "password": "6767",
+        "otp": "448161"
     },
     "employee": {
-        "email": "kertick@gmail.com",
-        "password": "1234",
+        "email": "pars@gmail.com",
+        "password": "123",
         "otp": null
     }
 }

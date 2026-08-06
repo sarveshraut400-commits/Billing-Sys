@@ -122,8 +122,56 @@ def create_tables():
             pdf_path TEXT
         )
     ''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS activity_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT NOT NULL,
+            action TEXT NOT NULL,
+            details TEXT,
+            performed_by TEXT DEFAULT 'System',
+            timestamp TEXT NOT NULL
+        )
+    ''')
+    
+    # Insert seed log entries if empty
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM activity_logs")
+    if cursor.fetchone()[0] == 0:
+        from datetime import datetime
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        seed_logs = [
+            ("Login/Checkout", "Admin Login", "Administrator logged into the system", "Admin", now),
+            ("Billing", "Invoice Generated", "Invoice INV-0005 generated for ₹1,250.00 (Customer: John Doe)", "Staff", now),
+            ("Inventory", "Product Added", "Added new product 'Wireless Mouse' with stock 50", "Admin", now),
+            ("Inventory", "Stock Updated", "Updated stock for 'USB Cable' to 120 units", "Admin", now),
+            ("Login/Checkout", "Staff Login", "Staff member logged into the POS counter", "Staff", now)
+        ]
+        cursor.executemany('''
+            INSERT INTO activity_logs (category, action, details, performed_by, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+        ''', seed_logs)
+
     conn.commit()
     conn.close()
+
+def log_activity(category, action, details="", performed_by="System", timestamp=None):
+    """
+    Logs a live event across Billing, Inventory, or Login/Checkout into the database.
+    """
+    from datetime import datetime
+    if not timestamp:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    try:
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO activity_logs (category, action, details, performed_by, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (category, action, details, performed_by, timestamp))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Logging error: {e}")
 
 # Optionally create tables when this module is imported
 create_tables()

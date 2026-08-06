@@ -9,6 +9,9 @@ import io
 import json
 import os
 
+# Database helper functions
+from database import get_db_connection, log_activity
+
 # Required for PDF and Excel exports
 from reportlab.pdfgen import canvas
 import openpyxl
@@ -110,6 +113,7 @@ def login():
     
     user = users_db.get(role)
     if user and user['password'] == password:
+        log_activity("Login/Checkout", f"{role.capitalize()} Login", f"{role.capitalize()} user authenticated successfully", performed_by=role.capitalize())
         return jsonify({"success": True, "role": role}), 200
     return jsonify({"error": "Invalid password"}), 401
 
@@ -187,6 +191,7 @@ def add_inventory():
     }
     inventory_db.append(new_product)
     save_inventory()
+    log_activity("Inventory", "Product Added", f"Added '{new_product['name']}' (Stock: {new_product['stock']}, Price: ₹{new_product['price']})", performed_by="Admin")
     return jsonify(new_product), 201
 
 @app.route('/api/inventory/<product_id>', methods=['PUT'])
@@ -204,14 +209,18 @@ def edit_inventory(product_id):
             product['imageUrl'] = data.get('imageUrl', product['imageUrl'])
             product['specifications'] = data.get('specifications', product['specifications'])
             save_inventory()
+            log_activity("Inventory", "Product Updated", f"Updated details for '{product['name']}' (Stock: {product['stock']}, Price: ₹{product['price']})", performed_by="Admin")
             return jsonify(product), 200
     return jsonify({"error": "Product not found"}), 404
 
 @app.route('/api/inventory/<product_id>', methods=['DELETE'])
 def delete_inventory(product_id):
     global inventory_db
+    deleted_p = next((p for p in inventory_db if str(p['id']) == str(product_id)), None)
+    p_name = deleted_p['name'] if deleted_p else product_id
     inventory_db = [p for p in inventory_db if str(p['id']) != str(product_id)]
     save_inventory()
+    log_activity("Inventory", "Product Deleted", f"Deleted product '{p_name}' from inventory", performed_by="Admin")
     return jsonify({"success": True, "message": "Product deleted"}), 200
 
 
@@ -318,13 +327,193 @@ def delete_employee(emp_id):
     global employees_db
     employees_db = [e for e in employees_db if str(e['id']) != str(emp_id)]
     save_employees()
+    log_activity("Login/Checkout", "Employee Deleted", f"Removed employee ID {emp_id}", performed_by="Admin")
     return jsonify({"success": True}), 200
 
 
 # ==========================================
-# 4. DASHBOARD & CHECKOUT (Skipped for brevity, they remain identical)
+# 4. LIVE REPORTS & EXPORT ENDPOINTS
 # ==========================================
-# To keep this clean, leave your checkout and dashboard blocks exactly as they are below this line!
+@app.route('/api/reports/logs', methods=['GET'])
+def get_reports_logs():
+    category = request.args.get('category')
+    search = request.args.get('search')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = "SELECT id, category, action, details, performed_by, timestamp FROM activity_logs"
+    params = []
+    conditions = []
+    
+    if category and category != 'All':
+        conditions.append("category = ?")
+        params.append(category)
+        
+    if search:
+        conditions.append("(action LIKE ? OR details LIKE ? OR performed_by LIKE ?)")
+        search_param = f"%{search}%"
+        params.extend([search_param, search_param, search_param])
+        
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+        
+    query += " ORDER BY id DESC LIMIT 100"
+    
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    conn.close()
+    
+    logs_list = [dict(row) for row in rows]
+    return jsonify(logs_list), 200
+
+@app.route('/api/reports/generate', methods=['POST'])
+def generate_report():
+    data = request.get_json() or {}
+    report_type = data.get('reportName', 'Daily Sales')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*), SUM(total_bill) FROM bills")
+    total_bills, total_rev = cursor.fetchone()
+    total_rev = total_rev or 0.0
+    conn.close()
+    
+    log_activity("Reports", "Report Generated", f"Generated '{report_type}' report (Total Sales: ₹{total_rev:,.2f})", performed_by="Admin")
+    
+    return jsonify({
+        "success": True,
+        "reportName": report_type,
+        "summary": {
+            "total_bills": total_bills,
+            "total_revenue": total_rev,
+            "generated_at": time.strftime('%Y-%m-%d %H:%M:%S')
+        }
+    }), 200
+
+@app.route('/api/reports/export/excel', methods=['GET'])
+def export_reports_excel():
+    try:
+        wb = openpyxl.Workbook()
+        
+        # Sheet 1: Activity Logs & Audit Trail
+        ws_logs = wb.active
+        ws_logs.title = "Live Activity Logs"
+        ws_logs.append(["ID", "Timestamp", "Category", "Action", "Details", "Performed By"])
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM activity_logs ORDER BY id DESC")
+        for row in cursor.fetchall():
+            ws_logs.append([row['id'], row['timestamp'], row['category'], row['action'], row['details'], row['performed_by']])
+            
+        # Sheet 2: Inventory
+        ws_inv = wb.create_sheet(title="Live Inventory")
+        ws_inv.append(["Barcode", "Product Name", "Category", "Price", "Stock"])
+        for item in inventory_db:
+            ws_inv.append([item.get('barcode', ''), item.get('name', ''), item.get('category', ''), item.get('price', 0), item.get('stock', 0)])
+            
+        # Sheet 3: Sales / Bills
+        ws_bills = wb.create_sheet(title="Sales Invoices")
+        ws_bills.append(["Bill ID", "Invoice No", "Customer", "Date", "Time", "Total Amount"])
+        cursor.execute("SELECT * FROM bills ORDER BY id DESC")
+        for b in cursor.fetchall():
+            ws_bills.append([b['id'], b.get('invoice_number', ''), b.get('customer_name', ''), b.get('date', ''), b.get('time', ''), b.get('total_bill', 0)])
+            
+        conn.close()
+        
+        excel_io = io.BytesIO()
+        wb.save(excel_io)
+        excel_io.seek(0)
+        
+        log_activity("Reports", "Excel Exported", "Exported live database report to Excel (.xlsx)", performed_by="Admin")
+        
+        return send_file(
+            excel_io,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name='Sales_Report.xlsx'
+        )
+    except Exception as e:
+        print(f"Excel Export Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/reports/export/pdf', methods=['GET'])
+def export_reports_pdf():
+    try:
+        pdf_io = io.BytesIO()
+        c = canvas.Canvas(pdf_io)
+        
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(50, 800, "SuperMart POS - Live System Database Audit Report")
+        
+        c.setFont("Helvetica", 10)
+        c.drawString(50, 785, f"Generated on: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        c.line(50, 775, 550, 775)
+        
+        # Live Stats
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*), SUM(total_bill) FROM bills")
+        total_bills, total_rev = cursor.fetchone()
+        total_rev = total_rev or 0.0
+        
+        c.setFont("Helvetica-Bold", 11)
+        c.drawString(50, 755, "System Performance Overview:")
+        c.setFont("Helvetica", 9)
+        c.drawString(70, 740, f"• Total Completed Invoices: {total_bills}")
+        c.drawString(70, 725, f"• Total Sales Volume: INR {total_rev:,.2f}")
+        c.drawString(70, 710, f"• Total Inventory Items: {len(inventory_db)}")
+        
+        # Live Entries
+        c.setFont("Helvetica-Bold", 11)
+        c.drawString(50, 680, "Live Database Activity Log Stream:")
+        c.line(50, 672, 550, 672)
+        
+        c.setFont("Helvetica-Bold", 8)
+        c.drawString(50, 660, "Time")
+        c.drawString(140, 660, "Category")
+        c.drawString(220, 660, "Action")
+        c.drawString(330, 660, "Details")
+        c.drawString(490, 660, "User")
+        c.line(50, 652, 550, 652)
+        
+        c.setFont("Helvetica", 8)
+        cursor.execute("SELECT * FROM activity_logs ORDER BY id DESC LIMIT 25")
+        y = 638
+        for row in cursor.fetchall():
+            if y < 40:
+                c.showPage()
+                y = 800
+            ts = row['timestamp'] if row['timestamp'] else ''
+            cat = row['category'] if row['category'] else ''
+            act = row['action'][:18] if row['action'] else ''
+            det = row['details'][:32] if row['details'] else ''
+            usr = row['performed_by'] if row['performed_by'] else ''
+            
+            c.drawString(50, y, ts)
+            c.drawString(140, y, cat)
+            c.drawString(220, y, act)
+            c.drawString(330, y, det)
+            c.drawString(490, y, usr)
+            y -= 16
+            
+        conn.close()
+        c.save()
+        pdf_io.seek(0)
+        
+        log_activity("Reports", "PDF Exported", "Exported live database report to PDF (.pdf)", performed_by="Admin")
+        
+        return send_file(
+            pdf_io,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='System_Report.pdf'
+        )
+    except Exception as e:
+        print(f"PDF Export Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     print("🚀 Backend is starting on http://127.0.0.1:5000")

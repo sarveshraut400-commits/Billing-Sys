@@ -41,8 +41,14 @@ export const fetchDashboardStats = () => api.get('/integration/dashboard');
 export const fetchRecentInvoices = () => api.get('/invoices/recent');
 
 // ==========================================
-// 5. FILE DOWNLOADS & REPORTS
+// 5. FILE DOWNLOADS & REPORTS (LIVE DATABASE)
 // ==========================================
+export const fetchReportsLogs = (category = 'All', search = '') => 
+  api.get(`/reports/logs`, { params: { category, search } });
+
+export const generateReportApi = (reportName) => 
+  api.post('/reports/generate', { reportName });
+
 export const downloadInvoiceFile = (filename) => api.get(`/downloads/${filename}`, { responseType: 'blob' });
 export const exportReportFile = (type) => api.get(`/reports/export/${type}`, { responseType: 'blob' });
 

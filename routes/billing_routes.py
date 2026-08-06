@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime
-from database import get_db_connection          # ✅ Changed from get_connection
+from database import get_db_connection, log_activity
 
 billing_bp = Blueprint("billing", __name__)
 
@@ -140,12 +140,17 @@ def create_bill():
             # Update stock
             cursor.execute("""
                 UPDATE products
-                SET stock = stock - ?            # ✅ Changed from "quantity"
+                SET stock = stock - ?
                 WHERE id = ?
             """, (product["quantity"], product["product_id"]))
 
         conn.commit()
         conn.close()
+
+        # Log live activity entry into database
+        inv_label = f"Bill #{bill_id}"
+        details_str = f"Bill generated for ₹{total_bill:,.2f} ({len(bill_products)} items) - Customer: {customer_name or 'Walk-in'}"
+        log_activity("Billing", "Invoice Generated", details_str, performed_by="Staff")
 
         return jsonify({
             "message": "Bill Generated Successfully",

@@ -12,5 +12,12 @@
         "email": "kertick@gmail.com",
         "role": "employee",
         "lastLogin": "Never"
+    },
+    {
+        "id": "4bc5e64c",
+        "name": "Pars",
+        "email": "pars@gmail.com",
+        "role": "employee",
+        "lastLogin": "Never"
     }
 ]
