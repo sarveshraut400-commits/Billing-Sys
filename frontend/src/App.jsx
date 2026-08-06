@@ -11,6 +11,7 @@ import Inventory from './pages/Inventory/Inventory';
 import EmployeeManagement from './pages/Employees/EmployeeManagement';
 import Reports from './pages/Reports/Reports';
 import Settings from './pages/Settings/Settings';
+import SalesHistory from './pages/Sales/SalesHistory';
 import Activity from './pages/Activity/Activity';
 import { logoutUser } from './services/api';
 
@@ -68,6 +69,7 @@ export default function App() {
                         {/* Admin-Only */}
                         {currentUserRole === 'admin' && (
                           <>
+                            <Route path="/sales-history" element={<SalesHistory />} />
                             <Route path="/inventory" element={<Inventory />} />
                             <Route path="/employees" element={<EmployeeManagement />} />
                             <Route path="/reports" element={<Reports />} />

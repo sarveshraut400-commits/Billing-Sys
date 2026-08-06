@@ -2,14 +2,19 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, Package, Users, ShoppingCart, 
-  FileBarChart, Settings, Activity 
+  FileBarChart, Settings, Activity, Receipt, FileText
 } from 'lucide-react';
 
 export default function Sidebar({ role }) {
-  // Define navigation items based on the features you requested
+  // Navigation items customized per role:
+  // Admin gets "Sales History & Receipts" instead of "Billing (POS)"
+  // Staff gets "Billing (POS)"
   const navItems = [
     { name: 'Dashboard', path: `/${role}-dashboard`, icon: <LayoutDashboard size={20} /> },
-    { name: 'Billing (POS)', path: '/billing', icon: <ShoppingCart size={20} /> },
+    ...(role === 'admin' 
+      ? [{ name: 'Sales History & Receipts', path: '/sales-history', icon: <FileText size={20} /> }]
+      : [{ name: 'Billing (POS)', path: '/billing', icon: <ShoppingCart size={20} /> }]
+    ),
     { name: 'Inventory', path: '/inventory', icon: <Package size={20} />, adminOnly: true },
     { name: 'Employees', path: '/employees', icon: <Users size={20} />, adminOnly: true },
     { name: 'Reports & Export', path: '/reports', icon: <FileBarChart size={20} />, adminOnly: true },
@@ -26,7 +31,6 @@ export default function Sidebar({ role }) {
 
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => {
-          // Hide admin-only items from standard employees
           if (item.adminOnly && role !== 'admin') return null;
 
           return (
@@ -40,7 +44,7 @@ export default function Sidebar({ role }) {
               }
             >
               {item.icon}
-              <span>{item.name}</span>
+              <span className="text-sm font-semibold">{item.name}</span>
             </NavLink>
           );
         })}

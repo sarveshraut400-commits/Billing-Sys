@@ -516,6 +516,37 @@ def checkout():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/sales/history', methods=['GET'])
+def get_sales_history():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM bills ORDER BY id DESC LIMIT 100")
+        bills = cursor.fetchall()
+        
+        result = []
+        for b in bills:
+            bill_id = b['id']
+            cursor.execute("SELECT * FROM bill_items WHERE bill_id = ?", (bill_id,))
+            items = [dict(row) for row in cursor.fetchall()]
+            
+            b_dict = dict(b)
+            b_dict['items'] = items
+            b_dict['invoice_no'] = b_dict.get('invoice_number') or f"INV{bill_id:04d}"
+            b_dict['cashier'] = b_dict.get('cashier', 'Staff (Counter 1)')
+            b_dict['customer_name'] = b_dict.get('customer_name') or 'Walk-in'
+            b_dict['phone'] = b_dict.get('phone') or 'N/A'
+            b_dict['datetime_formatted'] = f"{b_dict.get('date', '')} {b_dict.get('time', '')}".strip()
+            result.append(b_dict)
+            
+        conn.close()
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Sales History Error: {e}")
+        return jsonify([]), 200
+
+
 # ==========================================
 # 4. LIVE REPORTS & EXPORT ENDPOINTS
 # ==========================================
