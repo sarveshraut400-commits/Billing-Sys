@@ -34,9 +34,64 @@
     },
     {
         "id": "4",
+        "barcode": "8901058852104",
+        "name": "Tata Salt Vacuum Evaporated 1kg",
+        "category": "Groceries",
+        "price": 28.0,
+        "stock": 80,
+        "lowStockAlert": 15,
+        "imageUrl": "https://images.unsplash.com/photo-1518110168401-f2877ee2e88b?w=400",
+        "specifications": "• Vacuum Evaporated Iodized Salt\n• Purity Guaranteed\n• 1kg Pack"
+    },
+    {
+        "id": "5",
+        "barcode": "8901030300101",
+        "name": "Tata Sampann Unpolished Toor Dal 1kg",
+        "category": "Groceries",
+        "price": 165.0,
+        "stock": 40,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400",
+        "specifications": "• High Protein Unpolished Pulses\n• No Artificial Colors\n• 1kg Pack"
+    },
+    {
+        "id": "6",
+        "barcode": "8901030300102",
+        "name": "Catch Super Garam Masala 100g",
+        "category": "Groceries",
+        "price": 85.0,
+        "stock": 50,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400",
+        "specifications": "• Authentic Aromatic Spice Blend\n• Sealed Freshness Pack\n• 100g Box"
+    },
+    {
+        "id": "7",
+        "barcode": "8901030300103",
+        "name": "Madhur Pure Sugar 5kg",
+        "category": "Groceries",
+        "price": 240.0,
+        "stock": 30,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=400",
+        "specifications": "• 100% Refined Sulphur Free Sugar\n• Clean Small Crystals\n• 5kg Bag"
+    },
+    {
+        "id": "8",
+        "barcode": "8901030300104",
+        "name": "Saffola Gold Edible Cooking Oil 5L",
+        "category": "Groceries",
+        "price": 890.0,
+        "stock": 15,
+        "lowStockAlert": 4,
+        "imageUrl": "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=400",
+        "specifications": "• Pro Healthy Heart Dual Seed Blend\n• High Antioxidant Tech\n• 5L Can"
+    },
+    {
+        "id": "9",
         "barcode": "8901030300050",
         "name": "Amul Pasteurised Butter 500g",
-        "category": "Groceries",
+        "category": "Dairy & Bakery",
         "price": 275.0,
         "stock": 18,
         "lowStockAlert": 5,
@@ -44,7 +99,62 @@
         "specifications": "• Utterly Butterly Delicious\n• Keep Refrigerated\n• 500g Brick"
     },
     {
-        "id": "5",
+        "id": "10",
+        "barcode": "8901030300105",
+        "name": "Amul Taaza Toned Milk 1L",
+        "category": "Dairy & Bakery",
+        "price": 68.0,
+        "stock": 60,
+        "lowStockAlert": 15,
+        "imageUrl": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",
+        "specifications": "• Homogenised Toned Milk\n• Long Shelf Life Tetra Pak\n• 1 Liter Pack"
+    },
+    {
+        "id": "11",
+        "barcode": "8901030300106",
+        "name": "Amul Masti Spiced Dahi 400g",
+        "category": "Dairy & Bakery",
+        "price": 45.0,
+        "stock": 30,
+        "lowStockAlert": 8,
+        "imageUrl": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",
+        "specifications": "• Rich & Creamy Natural Curd\n• Hygienically Sealed Cup\n• 400g Container"
+    },
+    {
+        "id": "12",
+        "barcode": "8901030300107",
+        "name": "Britannia Whole Wheat Sandwich Bread 400g",
+        "category": "Dairy & Bakery",
+        "price": 50.0,
+        "stock": 25,
+        "lowStockAlert": 6,
+        "imageUrl": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
+        "specifications": "• 100% Whole Wheat Sliced Bread\n• Fresh Baked Daily\n• 400g Loaf"
+    },
+    {
+        "id": "13",
+        "barcode": "8901030300108",
+        "name": "Amul Processed Cheese Blocks 200g",
+        "category": "Dairy & Bakery",
+        "price": 135.0,
+        "stock": 22,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",
+        "specifications": "• Premium Cheddar Cheese Block\n• Great for Sandwiches & Pizza\n• 200g Pack"
+    },
+    {
+        "id": "14",
+        "barcode": "8901030300109",
+        "name": "Mother Dairy Paneer Fresh 200g",
+        "category": "Dairy & Bakery",
+        "price": 90.0,
+        "stock": 35,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",
+        "specifications": "• Rich Milk Cottage Cheese\n• Soft & Fresh Texture\n• 200g Pack"
+    },
+    {
+        "id": "15",
         "barcode": "8901058852104",
         "name": "Nestle Maggi 2-Minute Masala Noodles 12-Pack",
         "category": "Snacks",
@@ -55,51 +165,7 @@
         "specifications": "• India's Favorite Instant Noodles\n• Includes Tastemaker Sachet\n• Family Saver Pack"
     },
     {
-        "id": "6",
-        "barcode": "8901764012011",
-        "name": "Coca-Cola Original Taste 1.5L",
-        "category": "Beverages",
-        "price": 85.0,
-        "stock": 50,
-        "lowStockAlert": 12,
-        "imageUrl": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400",
-        "specifications": "• Refreshing Carbonated Soft Drink\n• Serve Chilled\n• 1.5 Liter PET Bottle"
-    },
-    {
-        "id": "7",
-        "barcode": "8901491100014",
-        "name": "Tropicana 100% Real Orange Juice 1L",
-        "category": "Beverages",
-        "price": 135.0,
-        "stock": 24,
-        "lowStockAlert": 6,
-        "imageUrl": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400",
-        "specifications": "• 100% Pressed Orange Juice\n• No Added Sugar or Preservatives\n• 1 Liter Tetra Pak"
-    },
-    {
-        "id": "8",
-        "barcode": "9002490100070",
-        "name": "Red Bull Energy Drink 250ml",
-        "category": "Beverages",
-        "price": 125.0,
-        "stock": 40,
-        "lowStockAlert": 10,
-        "imageUrl": "https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400",
-        "specifications": "• Vitalizes Body and Mind\n• High Caffeine Content\n• 250ml Can"
-    },
-    {
-        "id": "9",
-        "barcode": "8901030800020",
-        "name": "Nescafe Classic Instant Coffee Powder 100g",
-        "category": "Beverages",
-        "price": 340.0,
-        "stock": 30,
-        "lowStockAlert": 8,
-        "imageUrl": "https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=400",
-        "specifications": "• 100% Pure Coffee Soluble Granules\n• Glass Jar Packaging\n• 100g Jar"
-    },
-    {
-        "id": "10",
+        "id": "16",
         "barcode": "8901207000100",
         "name": "Lay's India's Magic Masala Chips 50g",
         "category": "Snacks",
@@ -110,7 +176,18 @@
         "specifications": "• Crispy Potato Chips with Spices\n• Trans-Fat Free\n• 50g Sachet"
     },
     {
-        "id": "11",
+        "id": "17",
+        "barcode": "8901207000101",
+        "name": "Kurkure Masala Munch 90g",
+        "category": "Snacks",
+        "price": 20.0,
+        "stock": 90,
+        "lowStockAlert": 15,
+        "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
+        "specifications": "• Crunchy Tedhe Medhe Snacks\n• Indian Spices Flavour\n• 90g Bag"
+    },
+    {
+        "id": "18",
         "barcode": "8901234005011",
         "name": "Cadbury Dairy Milk Silk Chocolate 150g",
         "category": "Snacks",
@@ -121,18 +198,139 @@
         "specifications": "• Rich, Smooth & Creamy Chocolate\n• Melts in the Mouth\n• 150g Bar"
     },
     {
-        "id": "12",
-        "barcode": "8901060001020",
-        "name": "Surf Excel Easy Wash Detergent Powder 1kg",
-        "category": "Household",
-        "price": 140.0,
-        "stock": 25,
-        "lowStockAlert": 5,
-        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-        "specifications": "• Superior Stain Removal Formula\n• Safe on Fabric & Colors\n• 1kg Pack"
+        "id": "19",
+        "barcode": "8901234005012",
+        "name": "Oreo Chocolate Cream Biscuit 120g",
+        "category": "Snacks",
+        "price": 35.0,
+        "stock": 75,
+        "lowStockAlert": 15,
+        "imageUrl": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
+        "specifications": "• Twist, Lick & Dunk Cookie\n• Rich Chocolate Cream\n• 120g Pack"
     },
     {
-        "id": "13",
+        "id": "20",
+        "barcode": "8901234005013",
+        "name": "Britannia Good Day Cashew Cookies 200g",
+        "category": "Snacks",
+        "price": 50.0,
+        "stock": 50,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",
+        "specifications": "• Loaded with Real Cashew Nuts\n• Rich Butter Biscuits\n• 200g Pack"
+    },
+    {
+        "id": "21",
+        "barcode": "8901234005014",
+        "name": "Haldiram's Nagpur Bhujia Sev 350g",
+        "category": "Snacks",
+        "price": 110.0,
+        "stock": 40,
+        "lowStockAlert": 8,
+        "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
+        "specifications": "• Spicy Crispy Gram Flour Strings\n• Authentic Rajasthani Recipe\n• 350g Pack"
+    },
+    {
+        "id": "22",
+        "barcode": "8901234005015",
+        "name": "Pringles Sour Cream & Onion 107g",
+        "category": "Snacks",
+        "price": 125.0,
+        "stock": 25,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",
+        "specifications": "• Stacked Potato Crisps\n• Zesty Sour Cream Flavour\n• Canister Container"
+    },
+    {
+        "id": "23",
+        "barcode": "8901764012011",
+        "name": "Coca-Cola Original Taste 1.5L",
+        "category": "Beverages",
+        "price": 85.0,
+        "stock": 50,
+        "lowStockAlert": 12,
+        "imageUrl": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400",
+        "specifications": "• Refreshing Carbonated Soft Drink\n• Serve Chilled\n• 1.5 Liter PET Bottle"
+    },
+    {
+        "id": "24",
+        "barcode": "8901764012012",
+        "name": "Pepsi Soft Drink 750ml",
+        "category": "Beverages",
+        "price": 45.0,
+        "stock": 60,
+        "lowStockAlert": 15,
+        "imageUrl": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400",
+        "specifications": "• Bold Refreshing Cola Taste\n• 750ml PET Bottle\n• Best Served Chilled"
+    },
+    {
+        "id": "25",
+        "barcode": "8901491100014",
+        "name": "Tropicana 100% Real Orange Juice 1L",
+        "category": "Beverages",
+        "price": 135.0,
+        "stock": 24,
+        "lowStockAlert": 6,
+        "imageUrl": "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400",
+        "specifications": "• 100% Pressed Orange Juice\n• No Added Sugar or Preservatives\n• 1 Liter Tetra Pak"
+    },
+    {
+        "id": "26",
+        "barcode": "9002490100070",
+        "name": "Red Bull Energy Drink 250ml",
+        "category": "Beverages",
+        "price": 125.0,
+        "stock": 40,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400",
+        "specifications": "• Vitalizes Body and Mind\n• High Caffeine Content\n• 250ml Can"
+    },
+    {
+        "id": "27",
+        "barcode": "8901030800020",
+        "name": "Nescafe Classic Instant Coffee Powder 100g",
+        "category": "Beverages",
+        "price": 340.0,
+        "stock": 30,
+        "lowStockAlert": 8,
+        "imageUrl": "https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=400",
+        "specifications": "• 100% Pure Coffee Soluble Granules\n• Glass Jar Packaging\n• 100g Jar"
+    },
+    {
+        "id": "28",
+        "barcode": "8901030800021",
+        "name": "Brooke Bond Red Label Tea 500g",
+        "category": "Beverages",
+        "price": 280.0,
+        "stock": 45,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400",
+        "specifications": "• Strong CTC Black Tea Leaf\n• Rich Aroma & Flavor\n• 500g Box"
+    },
+    {
+        "id": "29",
+        "barcode": "8901030800022",
+        "name": "Sprite Lemon-Lime Soft Drink 2L",
+        "category": "Beverages",
+        "price": 95.0,
+        "stock": 35,
+        "lowStockAlert": 8,
+        "imageUrl": "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400",
+        "specifications": "• Clear Crisp Lemon Lime Refreshment\n• Zero Caffeine\n• 2 Liter Bottle"
+    },
+    {
+        "id": "30",
+        "barcode": "8901030800023",
+        "name": "Kinley Packaged Mineral Water 1L",
+        "category": "Beverages",
+        "price": 20.0,
+        "stock": 120,
+        "lowStockAlert": 25,
+        "imageUrl": "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=400",
+        "specifications": "• Added Minerals Pure Drinking Water\n• Reverse Osmosis Treated\n• 1L Bottle"
+    },
+    {
+        "id": "31",
         "barcode": "8901396001014",
         "name": "Dettol Original Liquid Handwash 250ml",
         "category": "Personal Care",
@@ -143,7 +341,7 @@
         "specifications": "• 99.9% Germ Protection\n• Pump Dispenser Bottle\n• 250ml Bottle"
     },
     {
-        "id": "14",
+        "id": "32",
         "barcode": "8901030100010",
         "name": "Dove Cream Beauty Bathing Bar 100g (Pack of 3)",
         "category": "Personal Care",
@@ -154,7 +352,7 @@
         "specifications": "• 1/4 Moisturizing Cream\n• Soft & Smooth Skin\n• 3 x 100g Bars"
     },
     {
-        "id": "15",
+        "id": "33",
         "barcode": "8901030999010",
         "name": "Head & Shoulders Anti-Dandruff Shampoo 340ml",
         "category": "Personal Care",
@@ -165,7 +363,62 @@
         "specifications": "• Up to 100% Dandruff Free Hair\n• Smooth & Silky Formula\n• 340ml Bottle"
     },
     {
-        "id": "16",
+        "id": "34",
+        "barcode": "8901030999011",
+        "name": "Colgate Strong Teeth Toothpaste 200g",
+        "category": "Personal Care",
+        "price": 115.0,
+        "stock": 50,
+        "lowStockAlert": 10,
+        "imageUrl": "https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=400",
+        "specifications": "• Amino Shakti Calcium Formula\n• Stronger White Teeth\n• 200g Tube"
+    },
+    {
+        "id": "35",
+        "barcode": "8901030999012",
+        "name": "Nivea Soft Light Moisturiser Cream 200ml",
+        "category": "Personal Care",
+        "price": 299.0,
+        "stock": 18,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400",
+        "specifications": "• Enriched with Vitamin E & Jojoba Oil\n• Non-Greasy Fast Absorption\n• 200ml Tub"
+    },
+    {
+        "id": "36",
+        "barcode": "8901030999013",
+        "name": "Gillette Mach3 Turbo Razor + 2 Cartridges",
+        "category": "Personal Care",
+        "price": 450.0,
+        "stock": 12,
+        "lowStockAlert": 3,
+        "imageUrl": "https://images.unsplash.com/photo-1585232351009-aa87416fca90?w=400",
+        "specifications": "• 3 Stronger-Than-Steel Blades\n• Lubricating Strip Indicator\n• Ergonomic Handle"
+    },
+    {
+        "id": "37",
+        "barcode": "8901030999014",
+        "name": "Pond's White Beauty Face Wash 100g",
+        "category": "Personal Care",
+        "price": 165.0,
+        "stock": 25,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400",
+        "specifications": "• Advanced Vitamin B3 Formula\n• Deep Cleansing Spotless Glow\n• 100g Tube"
+    },
+    {
+        "id": "38",
+        "barcode": "8901060001020",
+        "name": "Surf Excel Easy Wash Detergent Powder 1kg",
+        "category": "Household",
+        "price": 140.0,
+        "stock": 25,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
+        "specifications": "• Superior Stain Removal Formula\n• Safe on Fabric & Colors\n• 1kg Pack"
+    },
+    {
+        "id": "39",
         "barcode": "8901030777010",
         "name": "Lizol Disinfectant Surface Floor Cleaner 1L",
         "category": "Household",
@@ -176,7 +429,45 @@
         "specifications": "• Kills 99.9% Germs & Bacteria\n• Citrus Fresh Fragrance\n• 1 Liter Bottle"
     },
     {
-        "id": "17",
+        "id": "40",
+        "barcode": "8901030777011",
+        "name": "Vim Dishwash Liquid Gel Lemon 500ml",
+        "category": "Household",
+        "price": 120.0,
+        "stock": 35,
+        "lowStockAlert": 8,
+        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
+        "specifications": "• Power of 100 Lemons\n• Degreases Tough Utensil Oil\n• 500ml Bottle"
+    },
+    {
+        "id": "41",
+        "barcode": "8901030777012",
+        "name": "Harpic Power Plus Toilet Cleaner 1L",
+        "category": "Household",
+        "price": 195.0,
+        "stock": 28,
+        "lowStockAlert": 6,
+        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
+        "specifications": "• 10x Max Stain Removal\n• Disinfects & Freshens\n• 1 Liter Bottle"
+    },
+    {
+        "id": "42",
+        "barcode": "8901030777013",
+        "name": "Goodknight Gold Flash Mosquito Repellent Refill 2-Pack", "category": "Household", "price": 160.0, "stock": 30, "lowStockAlert": 6, "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400", "specifications": "• Automatic Vapor Release Tech\n• Protects Against Mosquitoes\n• Twin Refill Pack"
+    },
+    {
+        "id": "43",
+        "barcode": "8901030777014",
+        "name": "Colin Glass & Household Cleaner 500ml",
+        "category": "Household",
+        "price": 105.0,
+        "stock": 20,
+        "lowStockAlert": 5,
+        "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
+        "specifications": "• Ultra Shine Glass Formula\n• Spray Bottle\n• 500ml Bottle"
+    },
+    {
+        "id": "44",
         "barcode": "0978550770120",
         "name": "Logitech Wireless Optical Mouse M185",
         "category": "Electronics",
@@ -187,7 +478,7 @@
         "specifications": "• 2.4GHz Plug & Play Wireless Nano Receiver\n• 12-Month Battery Life\n• Compatible with Windows/Mac"
     },
     {
-        "id": "18",
+        "id": "45",
         "barcode": "8904250001015",
         "name": "USB Laser Barcode Scanner Cable 1.5m",
         "category": "Electronics",
@@ -198,7 +489,7 @@
         "specifications": "• Plug & Play POS Scanner Cable\n• High Speed Laser Decoding\n• 1.5 Meter Rugged Cable"
     },
     {
-        "id": "19",
+        "id": "46",
         "barcode": "8904250005051",
         "name": "Duracell Chota Power AA Batteries (Pack of 4)",
         "category": "Electronics",
@@ -209,7 +500,29 @@
         "specifications": "• Up to 10x Longer Lasting Power\n• Leak-Proof Construction\n• Pack of 4 Batteries"
     },
     {
-        "id": "20",
+        "id": "47",
+        "barcode": "8904250005052",
+        "name": "boAt Dual Port USB Fast Wall Charger 18W",
+        "category": "Electronics",
+        "price": 499.0,
+        "stock": 15,
+        "lowStockAlert": 4,
+        "imageUrl": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400",
+        "specifications": "• Quick Charge 3.0 Compatible\n• Overheat Protection Circuit\n• Dual USB Outlets"
+    },
+    {
+        "id": "48",
+        "barcode": "8904250005053",
+        "name": "JBL GO 2 Portable Wireless Bluetooth Speaker",
+        "category": "Electronics",
+        "price": 1899.0,
+        "stock": 8,
+        "lowStockAlert": 2,
+        "imageUrl": "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400",
+        "specifications": "• IPX7 Waterproof Body\n• 5 Hours Playtime\n• Built-in Noise Cancelling Mic"
+    },
+    {
+        "id": "49",
         "barcode": "8901030444010",
         "name": "Classic Crewneck White Cotton T-Shirt",
         "category": "Clothing",
@@ -218,5 +531,16 @@
         "lowStockAlert": 5,
         "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
         "specifications": "• 100% Combed Cotton\n• Pre-Shrunk Breathable Fabric\n• Machine Washable"
+    },
+    {
+        "id": "50",
+        "barcode": "8901030444011",
+        "name": "SuperMart Executive Cotton Apron",
+        "category": "Clothing",
+        "price": 299.0,
+        "stock": 30,
+        "lowStockAlert": 6,
+        "imageUrl": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400",
+        "specifications": "• Store Staff Duty Apron\n• Adjustable Neck Strap & Front Pockets\n• Durable Washable Canvas"
     }
 ]

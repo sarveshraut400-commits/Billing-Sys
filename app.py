@@ -397,6 +397,13 @@ def save_inventory():
 
 @app.route('/api/inventory', methods=['GET'])
 def get_inventory():
+    global inventory_db
+    if os.path.exists(INVENTORY_FILE):
+        try:
+            with open(INVENTORY_FILE, 'r') as f:
+                inventory_db = json.load(f)
+        except Exception as e:
+            print(f"Error loading inventory.json: {e}")
     return jsonify({"items": inventory_db}), 200
 
 @app.route('/api/inventory', methods=['POST'])
