@@ -30,6 +30,7 @@ export const sendAdminOtp = () => api.post('/auth/send-admin-otp');
 // 3. INVENTORY MANAGEMENT
 // ==========================================
 export const fetchProducts = () => api.get('/inventory');
+export const fetchInventory = fetchProducts;
 export const addProductToDB = (data) => api.post('/inventory', data);
 export const updateProductInDB = (id, data) => api.put(`/inventory/${id}`, data);
 export const deleteProductFromDB = (id) => api.delete(`/inventory/${id}`);
