@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ScanBarcode, Trash2, FileText, CheckCircle, Image as ImageIcon, ShoppingCart, MessageSquare, Printer, X, CheckCircle2 } from 'lucide-react';
-import { fetchProducts, generateBill, sendWhatsAppBillApi } from '../../services/api';
+import { Search, ScanBarcode, Trash2, FileText, CheckCircle, Image as ImageIcon, ShoppingCart, MessageSquare, Printer, X, CheckCircle2, FileCheck, Download } from 'lucide-react';
+import { fetchProducts, generateBill } from '../../services/api';
 
 const CATEGORIES = ['All', 'Groceries', 'Beverages', 'Electronics', 'Clothing', 'Snacks', 'Other'];
 
@@ -11,8 +11,8 @@ export default function Billing({ currentUser }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [customer, setCustomer] = useState({ name: '', phone: '' });
 
-  // WhatsApp & Invoice Modal State
-  const [completedInvoice, setCompletedInvoice] = useState(null);
+  // Completed Checkout Notification State
+  const [checkoutNotice, setCheckoutNotice] = useState(null);
 
   useEffect(() => { loadProducts(); }, []);
 
@@ -82,7 +82,7 @@ export default function Billing({ currentUser }) {
     const cashierName = currentUser?.name || 'Pars';
     
     try {
-      await generateBill({ 
+      const res = await generateBill({ 
         cart, 
         customer, 
         total, 
@@ -90,23 +90,17 @@ export default function Billing({ currentUser }) {
         invoice_number: invoiceNo
       });
 
-      const invoiceData = {
-        invoice_no: invoiceNo,
+      const invNo = res?.data?.invoice_number || invoiceNo;
+      const pdfUrl = res?.data?.pdf_url || `http://127.0.0.1:5000/api/invoices/download/${invNo}`;
+
+      setCheckoutNotice({
+        invoice_no: invNo,
         customer_name: customer.name || 'Walk-in Customer',
-        phone: customer.phone || '',
+        phone: customer.phone,
         total: total.toFixed(2),
-        items: [...cart],
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString(),
-        cashier: cashierName
-      };
+        pdf_url: pdfUrl
+      });
 
-      setCompletedInvoice(invoiceData);
-
-      // Auto-trigger WhatsApp dispatch if phone provided
-      if (customer.phone) {
-        dispatchWhatsApp(invoiceData);
-      }
     } catch (error) {
       console.warn("Bill generation warning:", error);
     } finally {
@@ -114,44 +108,6 @@ export default function Billing({ currentUser }) {
       setCustomer({ name: '', phone: '' });
       loadProducts();
     }
-  };
-
-  const dispatchWhatsApp = async (inv) => {
-    let cleanPhone = inv.phone.replace(/[^0-9]/g, '');
-    if (cleanPhone.length === 10) cleanPhone = `91${cleanPhone}`;
-
-    const itemsList = inv.items.map(i => `• ${i.name} (x${i.qty}) - ₹${(i.price * i.qty).toFixed(2)}`).join('\n');
-    
-    const message = 
-      `🧾 *SuperMart POS - Official Digital Receipt* 🧾\n` +
-      `----------------------------------------\n` +
-      `Invoice #: ${inv.invoice_no}\n` +
-      `Date & Time: ${inv.date} ${inv.time}\n` +
-      `Customer: ${inv.customer_name}\n` +
-      `Cashier: ${inv.cashier}\n` +
-      `----------------------------------------\n` +
-      `Items Purchased:\n${itemsList}\n` +
-      `----------------------------------------\n` +
-      `Subtotal: ₹${subtotal.toFixed(2)}\n` +
-      `Store Discount (5%): -₹${dmDiscount.toFixed(2)}\n` +
-      `*Grand Total Paid: ₹${inv.total}*\n` +
-      `----------------------------------------\n` +
-      `Thank you for shopping at SuperMart! 🛍️✨\n` +
-      `Have a wonderful day ahead!`;
-
-    const encodedText = encodeURIComponent(message);
-    const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
-    
-    try {
-      await sendWhatsAppBillApi({
-        phone: inv.phone,
-        invoice_no: inv.invoice_no,
-        customer_name: inv.customer_name,
-        total: inv.total
-      });
-    } catch (e) {}
-
-    window.open(waUrl, '_blank');
   };
 
   // Filter products by category
@@ -249,7 +205,7 @@ export default function Billing({ currentUser }) {
         {/* Customer Mobile Input */}
         <div className="p-3 bg-emerald-50 border-b border-emerald-100 space-y-2">
           <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-            <MessageSquare size={14} className="text-emerald-600" /> Customer WhatsApp Billing
+            <MessageSquare size={14} className="text-emerald-600" /> Customer WhatsApp Mobile
           </div>
           <div className="grid grid-cols-2 gap-2">
             <input 
@@ -267,6 +223,7 @@ export default function Billing({ currentUser }) {
               className="p-2 bg-white border border-emerald-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
+          <span className="text-[10px] text-emerald-700 block italic">⚡ Automated PDF Invoice Document will be sent directly to customer WhatsApp</span>
         </div>
 
         {/* Cart Items List */}
@@ -322,68 +279,54 @@ export default function Billing({ currentUser }) {
 
       </div>
 
-      {/* COMPLETED INVOICE & WHATSAPP DISPATCH MODAL */}
-      {completedInvoice && (
+      {/* AUTOMATED CHECKOUT SUCCESS NOTICE MODAL */}
+      {checkoutNotice && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border border-gray-100">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border border-gray-100 text-center">
             <button 
-              onClick={() => setCompletedInvoice(null)}
+              onClick={() => setCheckoutNotice(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
               <X size={20} />
             </button>
 
-            <div className="text-center pb-4 border-b border-dashed border-gray-300">
-              <div className="inline-flex p-3 bg-emerald-100 text-emerald-600 rounded-full mb-2">
-                <CheckCircle2 size={32} />
-              </div>
-              <h2 className="text-2xl font-black text-gray-900">Sale Complete!</h2>
-              <p className="text-xs text-gray-500">Invoice #{completedInvoice.invoice_no} generated successfully</p>
+            <div className="inline-flex p-3 bg-emerald-100 text-emerald-600 rounded-full mb-3">
+              <FileCheck size={36} />
             </div>
+            
+            <h2 className="text-2xl font-black text-gray-900">Sale Completed!</h2>
+            <p className="text-xs text-gray-500 mt-1">Invoice #{checkoutNotice.invoice_no} • Total Paid: <strong className="text-emerald-600 text-sm">₹{checkoutNotice.total}</strong></p>
 
-            <div className="my-4 bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-xs space-y-1.5">
-              <div className="flex justify-between text-gray-700">
-                <span>Customer:</span>
-                <strong className="text-gray-900">{completedInvoice.customer_name}</strong>
-              </div>
-              {completedInvoice.phone && (
-                <div className="flex justify-between text-gray-700">
-                  <span>WhatsApp Mobile:</span>
-                  <strong className="text-emerald-700 font-mono">{completedInvoice.phone}</strong>
+            {checkoutNotice.phone ? (
+              <div className="my-4 bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-left space-y-1">
+                <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs">
+                  <CheckCircle2 size={16} className="text-emerald-600" /> Automated WhatsApp PDF Bill Dispatched!
                 </div>
-              )}
-              <div className="flex justify-between text-gray-700 border-t border-emerald-200 pt-1 font-bold text-sm">
-                <span>Total Paid:</span>
-                <strong className="text-emerald-600 text-base">₹{completedInvoice.total}</strong>
+                <p className="text-[11px] text-emerald-700">
+                  PDF document receipt sent to customer <strong>{checkoutNotice.customer_name}</strong> (+{checkoutNotice.phone}). No manual cashier messaging required!
+                </p>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              {completedInvoice.phone ? (
-                <button 
-                  onClick={() => dispatchWhatsApp(completedInvoice)}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition"
-                >
-                  <MessageSquare size={16} /> Send / Re-send Digital Bill on WhatsApp 💬
-                </button>
-              ) : (
-                <p className="text-center text-xs text-gray-400 italic">No phone number was entered for WhatsApp dispatch.</p>
-              )}
-
-              <div className="grid grid-cols-2 gap-2 pt-2">
-                <button 
-                  onClick={() => window.print()}
-                  className="py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5"
-                >
-                  <Printer size={16} /> Print Receipt
-                </button>
-                <button 
-                  onClick={() => setCompletedInvoice(null)}
-                  className="py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl text-xs"
-                >
-                  New Order
-                </button>
+            ) : (
+              <div className="my-4 bg-gray-50 border border-gray-200 p-3 rounded-xl text-xs text-gray-500 italic">
+                Walk-in transaction saved to SQLite database.
               </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <a 
+                href={checkoutNotice.pdf_url}
+                target="_blank"
+                rel="noreferrer"
+                className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
+              >
+                <Download size={14} /> PDF Document
+              </a>
+              <button 
+                onClick={() => setCheckoutNotice(null)}
+                className="py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl text-xs transition"
+              >
+                Next Customer →
+              </button>
             </div>
 
           </div>

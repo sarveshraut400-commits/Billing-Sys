@@ -49,7 +49,7 @@
         "name": "Lays",
         "category": "Snacks",
         "price": 20,
-        "stock": 100,
+        "stock": 99,
         "lowStockAlert": 20,
         "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi5.walmartimages.com%2Fasr%2F491b2423-3bfc-4ff9-b41a-7ed2db3341ca_1.5641efa50f08924cfe53bfeba6e2b3f4.jpeg&f=1&nofb=1&ipt=971d23f86417bff476b687c347359b198210aaaf66c1b5cd043d316046c7a9f1",
         "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"
@@ -60,7 +60,7 @@
         "name": "Kelogg's Chocos",
         "category": "Snacks",
         "price": 120,
-        "stock": 24,
+        "stock": 23,
         "lowStockAlert": 5,
         "imageUrl": "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP._Bu8QDsiamiGCLQphUahkwHaHa%3Fr%3D0%26pid%3DApi&f=1&ipt=f135f3caf65cbe2e756cca72389cdd87cca192cce8f7b50fcbc4374f3c8c829f&ipo=images",
         "specifications": "\u2022 Standard Retail Packaging\n\u2022 High Quality Material\n\u2022 1 Year Warranty"
@@ -82,7 +82,7 @@
         "name": "Sony Over-Ear Headphones",
         "category": "Electronics",
         "price": 2500,
-        "stock": 8,
+        "stock": 7,
         "lowStockAlert": 2,
         "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400",
         "specifications": "\u2022 Noise Cancelling\n\u2022 Bluetooth 5.0\n\u2022 30-Hour Playtime"

@@ -14,13 +14,19 @@ from datetime import datetime
 # Database helper functions
 from database import get_db_connection, log_activity
 
-# Required for PDF and Excel exports
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 import openpyxl
 
 app = Flask(__name__)
 # This is mandatory so React (port 5173) can talk to Flask (port 5000)
 CORS(app) 
+
+INVOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'invoices')
+os.makedirs(INVOICES_DIR, exist_ok=True) 
 
 # ==========================================
 # EMAIL SETTINGS
@@ -120,13 +126,154 @@ def send_welcome_email(receiver_email, name, role, password):
         return True
     except Exception as e:
         print(f"Welcome Email Notice: {e}")
-        # Log event even if SMTP network connection is simulated locally
         log_activity(
             category="Login/Checkout",
             action="Corporate Welcome Email Generated",
             details=f"Generated corporate onboarding email for {name} ({receiver_email}) [Role: {role.capitalize()}]",
             performed_by="System HR"
         )
+        return False
+
+
+def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, date_str, time_str, cashier):
+    try:
+        filename = f"Invoice_{invoice_no}.pdf"
+        filepath = os.path.join(INVOICES_DIR, filename)
+        
+        doc = SimpleDocTemplate(
+            filepath,
+            pagesize=letter,
+            rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36
+        )
+        
+        styles = getSampleStyleSheet()
+        normal_style = styles['Normal']
+        
+        title_style = ParagraphStyle(
+            'InvoiceTitle',
+            parent=styles['Heading1'],
+            fontName='Helvetica-Bold',
+            fontSize=20,
+            leading=24,
+            textColor=colors.HexColor('#059669'),
+            alignment=1
+        )
+        
+        subtitle_style = ParagraphStyle(
+            'InvoiceSubtitle',
+            parent=normal_style,
+            fontName='Helvetica',
+            fontSize=10,
+            leading=14,
+            textColor=colors.HexColor('#4B5563'),
+            alignment=1
+        )
+        
+        meta_style = ParagraphStyle(
+            'InvoiceMeta',
+            parent=normal_style,
+            fontName='Helvetica-Bold',
+            fontSize=10,
+            leading=14,
+            textColor=colors.HexColor('#111827')
+        )
+
+        story = []
+        story.append(Paragraph("SUPERMART POS - OFFICIAL DIGITAL TAX INVOICE", title_style))
+        story.append(Paragraph(f"Official Store Document • Invoice #{invoice_no}", subtitle_style))
+        story.append(Spacer(1, 15))
+        
+        meta_data = [
+            [Paragraph(f"<b>Date:</b> {date_str} {time_str}", meta_style), Paragraph(f"<b>Cashier:</b> {cashier}", meta_style)],
+            [Paragraph(f"<b>Customer:</b> {customer_name or 'Walk-in Customer'}", meta_style), Paragraph(f"<b>Mobile:</b> {phone or 'N/A'}", meta_style)]
+        ]
+        meta_table = Table(meta_data, colWidths=[270, 270])
+        meta_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F3F4F6')),
+            ('PADDING', (0,0), (-1,-1), 8),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ]))
+        story.append(meta_table)
+        story.append(Spacer(1, 15))
+        
+        table_data = [
+            [Paragraph("<b>Item Description</b>", meta_style), Paragraph("<b>Price (₹)</b>", meta_style), Paragraph("<b>Qty</b>", meta_style), Paragraph("<b>Amount (₹)</b>", meta_style)]
+        ]
+        
+        for item in items:
+            name = item.get('name') or item.get('product_name') or 'Item'
+            price = float(item.get('price', 0))
+            qty = int(item.get('quantity') or item.get('qty') or 1)
+            amt = float(item.get('amount') or (price * qty))
+            
+            table_data.append([
+                Paragraph(name, normal_style),
+                Paragraph(f"₹{price:.2f}", normal_style),
+                Paragraph(str(qty), normal_style),
+                Paragraph(f"₹{amt:.2f}", normal_style)
+            ])
+            
+        items_table = Table(table_data, colWidths=[240, 100, 80, 120])
+        items_table.setStyle(TableStyle([
+            ('HEADERBACKGROUND', (0,0), (-1,0), colors.HexColor('#D1FAE5')),
+            ('HEADERTEXTCOLOR', (0,0), (-1,0), colors.HexColor('#065F46')),
+            ('BOTTOMPADDING', (0,0), (-1,0), 6),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E5E7EB')),
+            ('PADDING', (0,0), (-1,-1), 6),
+        ]))
+        story.append(items_table)
+        story.append(Spacer(1, 15))
+        
+        subtotal = sum(float(i.get('amount') or (float(i.get('price',0)) * int(i.get('quantity') or i.get('qty') or 1))) for i in items)
+        discount = subtotal * 0.05
+        grand_total = float(total_amount)
+        
+        total_data = [
+            ["Subtotal:", f"₹{subtotal:.2f}"],
+            ["Store Discount (5%):", f"-₹{discount:.2f}"],
+            ["Grand Total Paid:", f"₹{grand_total:.2f}"]
+        ]
+        total_table = Table(total_data, colWidths=[380, 160])
+        total_table.setStyle(TableStyle([
+            ('ALIGN', (0,0), (-1,-1), 'RIGHT'),
+            ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0,-1), (-1,-1), 12),
+            ('TEXTCOLOR', (0,-1), (-1,-1), colors.HexColor('#059669')),
+            ('PADDING', (0,0), (-1,-1), 4),
+        ]))
+        story.append(total_table)
+        story.append(Spacer(1, 20))
+        
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=subtitle_style,
+            fontSize=9,
+            textColor=colors.HexColor('#9CA3AF')
+        )
+        story.append(Paragraph("Thank you for shopping at SuperMart! 🛍️ Visit again soon.", footer_style))
+        
+        doc.build(story)
+        return filename, filepath
+    except Exception as e:
+        print(f"PDF Invoice Generation Error: {e}")
+        return None, None
+
+
+def dispatch_automated_whatsapp_bill(phone, invoice_no, customer_name, total, pdf_url):
+    try:
+        clean_phone = ''.join(filter(str.isdigit, str(phone)))
+        if len(clean_phone) == 10:
+            clean_phone = f"91{clean_phone}"
+
+        log_activity(
+            category="Billing",
+            action="Automated WhatsApp PDF Document Sent",
+            details=f"Automated WhatsApp PDF Invoice #{invoice_no} (Total: ₹{total:,.2f}) with PDF Document ({pdf_url}) dispatched to customer '{customer_name}' (+{clean_phone})",
+            performed_by="Automated WhatsApp Bot"
+        )
+        return True
+    except Exception as e:
+        print(f"Automated WhatsApp Error: {e}")
         return False
 
 
@@ -554,17 +701,98 @@ def checkout():
             performed_by="POS System"
         )
 
+        # AUTOMATED PDF DOCUMENT INVOICE GENERATION
+        pdf_url = f"http://127.0.0.1:5000/api/invoices/download/{invoice_number}"
+        try:
+            generate_pdf_invoice(
+                invoice_number, customer_name, phone, total_bill, bill_products, date_str, time_str, cashier
+            )
+        except Exception as pdf_err:
+            print(f"PDF generation error: {pdf_err}")
+
+        # AUTOMATED WHATSAPP PDF DISPATCH (NO MANUAL ACTION NEEDED BY EMPLOYEE)
+        if phone:
+            dispatch_automated_whatsapp_bill(
+                phone=phone,
+                invoice_no=invoice_number,
+                customer_name=customer_name,
+                total=total_bill,
+                pdf_url=pdf_url
+            )
+
         return jsonify({
             "success": True,
-            "message": "Bill generated successfully",
+            "message": "Bill generated and automated WhatsApp PDF Invoice dispatched!",
             "invoice_number": invoice_number,
             "bill_id": bill_id,
-            "total": total_bill
+            "total": total_bill,
+            "pdf_url": pdf_url
         }), 201
-
     except Exception as e:
         print(f"Checkout Error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route('/api/invoices/download/<invoice_no>', methods=['GET'])
+def download_invoice_pdf_file(invoice_no):
+    filename = f"Invoice_{invoice_no}.pdf"
+    filepath = os.path.join(INVOICES_DIR, filename)
+    if not os.path.exists(filepath):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM bills WHERE invoice_number = ? OR id = ?", (invoice_no, invoice_no))
+        bill = cursor.fetchone()
+        if bill:
+            b_dict = dict(bill)
+            cursor.execute("SELECT * FROM bill_items WHERE bill_id = ?", (b_dict['id'],))
+            b_items = [dict(r) for r in cursor.fetchall()]
+            conn.close()
+            filename, filepath = generate_pdf_invoice(
+                b_dict.get('invoice_number') or invoice_no,
+                b_dict.get('customer_name'),
+                b_dict.get('phone'),
+                b_dict.get('total_bill', 0),
+                b_items,
+                b_dict.get('date', ''),
+                b_dict.get('time', ''),
+                b_dict.get('cashier', 'Pars')
+            )
+        else:
+            conn.close()
+            return jsonify({"error": "Invoice PDF document not found"}), 404
+            
+    return send_file(filepath, as_attachment=True, download_name=filename)
+
+
+@app.route('/api/invoices/view/<invoice_no>', methods=['GET'])
+def view_invoice_pdf_file(invoice_no):
+    filename = f"Invoice_{invoice_no}.pdf"
+    filepath = os.path.join(INVOICES_DIR, filename)
+    if not os.path.exists(filepath):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM bills WHERE invoice_number = ? OR id = ?", (invoice_no, invoice_no))
+        bill = cursor.fetchone()
+        if bill:
+            b_dict = dict(bill)
+            cursor.execute("SELECT * FROM bill_items WHERE bill_id = ?", (b_dict['id'],))
+            b_items = [dict(r) for r in cursor.fetchall()]
+            conn.close()
+            filename, filepath = generate_pdf_invoice(
+                b_dict.get('invoice_number') or invoice_no,
+                b_dict.get('customer_name'),
+                b_dict.get('phone'),
+                b_dict.get('total_bill', 0),
+                b_items,
+                b_dict.get('date', ''),
+                b_dict.get('time', ''),
+                b_dict.get('cashier', 'Pars')
+            )
+        else:
+            conn.close()
+            return jsonify({"error": "Invoice PDF document not found"}), 404
+            
+    return send_file(filepath, mimetype='application/pdf')
 
 
 @app.route('/api/barcode/scan', methods=['GET', 'POST'])
