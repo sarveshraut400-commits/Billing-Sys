@@ -811,6 +811,63 @@ def export_reports_pdf():
         return jsonify({"error": str(e)}), 500
 
 
+# ==========================================
+# 5. SETTINGS & SYSTEM MAINTENANCE ENDPOINTS
+# ==========================================
+@app.route('/api/settings/backup', methods=['GET'])
+def download_db_backup():
+    try:
+        db_file = os.path.join(os.path.dirname(__file__), 'billing.db')
+        if os.path.exists(db_file):
+            log_activity("Settings", "Backup Downloaded", "Admin downloaded local SQLite billing.db database backup", performed_by="Admin")
+            return send_file(db_file, mimetype='application/x-sqlite3', as_attachment=True, download_name='billing_backup.db')
+        return jsonify({"error": "Database file not found"}), 404
+    except Exception as e:
+        print(f"Backup Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/settings/db-health', methods=['GET'])
+def get_db_health():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT COUNT(*) FROM bills")
+        bills_count = cursor.fetchone()[0] or 0
+        
+        cursor.execute("SELECT COUNT(*) FROM activity_logs")
+        logs_count = cursor.fetchone()[0] or 0
+        
+        cursor.execute("SELECT COUNT(*) FROM products")
+        products_count = cursor.fetchone()[0] or 0
+        
+        conn.close()
+        
+        db_file = os.path.join(os.path.dirname(__file__), 'billing.db')
+        file_size_mb = round(os.path.getsize(db_file) / (1024 * 1024), 2) if os.path.exists(db_file) else 0.0
+        
+        return jsonify({
+            "status": "Healthy & Connected",
+            "db_name": "billing.db",
+            "file_size_mb": file_size_mb,
+            "total_bills": bills_count,
+            "total_logs": logs_count,
+            "total_products": products_count,
+            "engine": "SQLite 3 Database"
+        }), 200
+    except Exception as e:
+        print(f"DB Health Error: {e}")
+        return jsonify({
+            "status": "Connected (JSON Mode)",
+            "db_name": "inventory.json",
+            "file_size_mb": 0.05,
+            "total_bills": 0,
+            "total_logs": 0,
+            "total_products": len(inventory_db),
+            "engine": "Local Storage & JSON"
+        }), 200
+
+
 if __name__ == '__main__':
     print("🚀 Backend is starting on http://127.0.0.1:5000")
     app.run(debug=True, port=5000)

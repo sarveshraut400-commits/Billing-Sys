@@ -53,6 +53,8 @@ export const generateReportApi = (reportName) =>
 
 export const downloadInvoiceFile = (filename) => api.get(`/downloads/${filename}`, { responseType: 'blob' });
 export const exportReportFile = (type) => api.get(`/reports/export/${type}`, { responseType: 'blob' });
+export const downloadDatabaseBackup = () => api.get('/settings/backup', { responseType: 'blob' });
+export const fetchDbHealth = () => api.get('/settings/db-health');
 
 // Alias to satisfy Reports.jsx naming convention
 export const downloadReport = exportReportFile;
