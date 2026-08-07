@@ -101,6 +101,22 @@ export default function EmployeeManagement() {
     setError('');
     setIsSubmitting(true);
     
+    const tempId = `emp_${Date.now()}`;
+    const tempEmp = {
+      id: tempId,
+      name: formData.name,
+      email: formData.email,
+      role: formData.role,
+      lastLogin: 'Never',
+      isOnline: false,
+      status: 'offline'
+    };
+
+    // Optimistically update list instantly
+    if (!editingEmployee) {
+      setEmployees(prev => [...prev, tempEmp]);
+    }
+    
     try {
       if (editingEmployee) {
         if (formData.password && !isVerifyingOtp) {
@@ -111,20 +127,24 @@ export default function EmployeeManagement() {
         }
 
         await updateEmployee(editingEmployee.id, { ...formData, otp });
-        await loadLiveEmployeeData();
-        showToast('Employee updated successfully. Login page updated!');
+        showToast('Employee updated successfully.');
       } else {
         await addEmployee(formData);
-        await loadLiveEmployeeData();
-        showToast(`✅ Employee created and welcome email sent to ${formData.email}!`);
+        showToast(`✅ Employee '${formData.name}' created successfully!`);
       }
       setIsModalOpen(false);
+      loadLiveEmployeeData(true);
     } catch (err) {
+      if (!editingEmployee) {
+        setEmployees(prev => prev.filter(emp => emp.id !== tempId));
+      }
+      console.warn("Employee save notice:", err);
       setError(err.response?.data?.error || "Failed to save. Check backend connection.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen relative">
