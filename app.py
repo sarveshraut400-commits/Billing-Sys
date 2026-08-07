@@ -34,10 +34,90 @@ os.makedirs(INVOICES_DIR, exist_ok=True)
 
 
 # ==========================================
-# EMAIL SETTINGS
+# EMAIL SETTINGS & ROBUST DISPATCH ENGINE
 # ==========================================
-SENDER_EMAIL = "systemdefault96@gmail.com" # Put your real Gmail here
-SENDER_PASSWORD = "zkav ukps jfeh uhqw" # Paste the 16 letters here (no spaces!)
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "systemdefault96@gmail.com")
+SENDER_PASSWORD = os.environ.get("SENDER_PASSWORD", "zkav ukps jfeh uhqw").replace(" ", "").strip()
+
+def send_email(receiver_email, subject, body_text):
+    if not receiver_email or not SENDER_EMAIL or not SENDER_PASSWORD:
+        print("Email Dispatch Warning: Missing email credentials.")
+        return False
+
+    clean_pwd = SENDER_PASSWORD.replace(" ", "").strip()
+    msg = MIMEText(body_text, 'plain', 'utf-8')
+    msg['Subject'] = subject
+    msg['From'] = f"SuperMart POS <{SENDER_EMAIL}>"
+    msg['To'] = receiver_email
+    
+    # Try Port 587 (TLS - Standard for Cloud Environments)
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=12) as server:
+            server.starttls()
+            server.login(SENDER_EMAIL, clean_pwd)
+            server.send_message(msg)
+        return True
+    except Exception as e587:
+        print(f"SMTP Port 587 Notice: {e587}. Retrying with Port 465 (SSL)...")
+        # Fallback to Port 465 (SSL)
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=12) as server:
+                server.login(SENDER_EMAIL, clean_pwd)
+                server.send_message(msg)
+            return True
+        except Exception as e465:
+            print(f"SMTP Port 465 Error: {e465}")
+            return False
+
+def send_otp_email(receiver_email, otp):
+    subject = "SuperMart POS - Security Verification OTP"
+    body = (
+        f"Hello,\n\n"
+        f"Your SuperMart POS Security Verification OTP is:\n"
+        f"🔑 {otp}\n\n"
+        f"This OTP is valid for security authorization. Do not share this code with anyone.\n\n"
+        f"Regards,\n"
+        f"SuperMart Security & Operations"
+    )
+    return send_email(receiver_email, subject, body)
+
+def send_welcome_email(receiver_email, name, role, password):
+    subject = f"🚀 Welcome to SuperMart! Onboarding & Portal Access, {name}"
+    body = (
+        f"Dear {name},\n\n"
+        f"WELCOME ABOARD THE SUPERMART FAMILY! 🚀🎉\n\n"
+        f"We are thrilled to officially welcome you to SuperMart as our newest {role.capitalize()}!\n\n"
+        f"Here are your official POS portal credentials to get started on your shift:\n"
+        f"------------------------------------------------------------\n"
+        f"🔑 Live Portal URL: https://billing-sys-beta.vercel.app\n"
+        f"👤 Staff Account: {name}\n"
+        f"📧 Login Email / Username: {receiver_email}\n"
+        f"🔒 Initial Password: {password}\n"
+        f"💼 Position: {role.capitalize()}\n"
+        f"------------------------------------------------------------\n\n"
+        f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
+        f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
+        f"If you have any questions, your Management Team and HR are here to support you.\n\n"
+        f"Warm regards,\n"
+        f"Executive Leadership & Operations Team\n"
+        f"SuperMart Corporation"
+    )
+    success = send_email(receiver_email, subject, body)
+    if success:
+        log_activity(
+            category="Login/Checkout",
+            action="Corporate Welcome Email Sent",
+            details=f"Sent corporate onboarding welcome email to {name} ({receiver_email}) for role '{role}'",
+            performed_by="System HR"
+        )
+    else:
+        log_activity(
+            category="Login/Checkout",
+            action="Corporate Welcome Email Generated",
+            details=f"Generated corporate onboarding email for {name} ({receiver_email}) [Role: {role.capitalize()}]",
+            performed_by="System HR"
+        )
+    return success
 
 
 # ==========================================
@@ -70,75 +150,6 @@ def save_users():
     """Saves auth changes permanently so the login page updates!"""
     with open(USERS_FILE, 'w') as f:
         json.dump(users_db, f, indent=4)
-
-
-# ==========================================
-# EMAIL HELPER FUNCTIONS
-# ==========================================
-def send_otp_email(receiver_email, otp):
-    try:
-        msg = MIMEText(f"Your SuperMart POS Security OTP is: {otp}\n\nDo not share this with anyone.")
-        msg['Subject'] = 'SuperMart POS - Security Verification'
-        msg['From'] = SENDER_EMAIL
-        msg['To'] = receiver_email
-        
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            server.send_message(msg)
-        return True
-    except Exception as e:
-        print(f"Email Error: {e}")
-        return False
-
-def send_welcome_email(receiver_email, name, role, password):
-    try:
-        body = (
-            f"Dear {name},\n\n"
-            f"WELCOME ABOARD THE SUPERMART FAMILY! 🚀🎉\n\n"
-            f"We are thrilled to officially welcome you to SuperMart as our newest {role.capitalize()}!\n\n"
-            f"You are joining a high-performing corporate sales and retail team dedicated to innovation, customer satisfaction, and operational excellence. In your role, every transaction is an opportunity to solve customer needs, deliver outstanding service, and achieve sales milestones.\n\n"
-            f"Here are your official POS portal credentials to get started on your shift:\n"
-            f"------------------------------------------------------------\n"
-            f"🔑 Live Portal URL: https://billing-sys-beta.vercel.app\n"
-            f"👤 Staff Account: {name}\n"
-            f"📧 Login Email / Username: {receiver_email}\n"
-            f"🔒 Initial Password: {password}\n"
-            f"💼 Position: {role.capitalize()}\n"
-            f"------------------------------------------------------------\n\n"
-
-            f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
-            f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
-            f"If you have any questions, your Management Team and HR are here to support you every step of the way.\n\n"
-            f"Once again, welcome to the team! Let me conquer the sales floor! 🌟📈\n\n"
-            f"Warm regards,\n"
-            f"Executive Leadership & Operations Team\n"
-            f"SuperMart Corporation"
-        )
-        msg = MIMEText(body)
-        msg['Subject'] = f"🚀 Welcome to SuperMart! Exciting Corporate Sales Journey Awaits, {name}!"
-        msg['From'] = SENDER_EMAIL
-        msg['To'] = receiver_email
-        
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            server.send_message(msg)
-            
-        log_activity(
-            category="Login/Checkout",
-            action="Corporate Welcome Email Sent",
-            details=f"Sent corporate onboarding welcome email to {name} ({receiver_email}) for role '{role}'",
-            performed_by="System HR"
-        )
-        return True
-    except Exception as e:
-        print(f"Welcome Email Notice: {e}")
-        log_activity(
-            category="Login/Checkout",
-            action="Corporate Welcome Email Generated",
-            details=f"Generated corporate onboarding email for {name} ({receiver_email}) [Role: {role.capitalize()}]",
-            performed_by="System HR"
-        )
-        return False
 
 
 SHOP_SETTINGS_FILE = os.path.join(BASE_DIR, 'shop_settings.json')
