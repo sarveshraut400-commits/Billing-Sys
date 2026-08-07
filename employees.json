@@ -36,5 +36,12 @@
         "lastLogin": "Never",
         "isOnline": false,
         "status": "offline"
+    },
+    {
+        "id": "b27a63ed",
+        "name": "Prany Test",
+        "email": "pranaydoingwork@gmail.com",
+        "role": "employee",
+        "lastLogin": "Never"
     }
 ]

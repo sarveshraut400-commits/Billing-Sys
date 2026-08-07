@@ -715,10 +715,14 @@ def add_employee():
         save_users()
 
     if email:
-        send_welcome_email(email, name, role, raw_password)
+        try:
+            send_welcome_email(email, name, role, raw_password)
+        except Exception as mail_err:
+            print(f"Welcome email dispatch notice (non-fatal): {mail_err}")
         
     log_activity("Login/Checkout", "Employee Registered", f"Added new employee '{name}' ({email}) with role '{role}'", performed_by="Admin")
     return jsonify(new_emp), 201
+
 
 @app.route('/api/auth/employees/<emp_id>', methods=['PUT'])
 def edit_employee(emp_id):
