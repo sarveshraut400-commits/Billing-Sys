@@ -97,13 +97,31 @@ export default function Billing({ currentUser }) {
         pdfUrl = pdfUrl.replace(/http:\/\/(127\.0\.0\.1|localhost):\d+\/api/, API_BASE_URL).replace(/http:\/\/(127\.0\.0\.1|localhost):\d+/, API_BASE_URL.replace(/\/api\/?$/, ''));
       }
 
+      const pdfViewUrl = `${API_BASE_URL}/invoices/view/${invNo}`;
+
+      // Build WhatsApp direct message URL
+      let waUrl = res?.data?.whatsapp_url;
+      if (customer.phone) {
+        const cleanPhone = customer.phone.replace(/\D/g, '');
+        const formattedPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+        const waText = encodeURIComponent(`Hello ${customer.name || 'Valued Customer'}, thank you for shopping at SuperMart POS! 🛍️\n\nYour Tax Invoice #${invNo} for Rs.${total.toFixed(2)} is ready.\n\n📄 View & Download PDF Invoice:\n${pdfViewUrl}\n\nGSTIN: 27AABCU9603R1ZM\nThank you! Visit again.`);
+        waUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${waText}`;
+        
+        // Auto-launch WhatsApp in new tab
+        try {
+          window.open(waUrl, '_blank');
+        } catch (e) {
+          console.warn("Popup blocked for WhatsApp auto-launch:", e);
+        }
+      }
 
       setCheckoutNotice({
         invoice_no: invNo,
         customer_name: customer.name || 'Walk-in Customer',
         phone: customer.phone,
         total: total.toFixed(2),
-        pdf_url: pdfUrl
+        pdf_url: pdfViewUrl,
+        whatsapp_url: waUrl
       });
 
     } catch (error) {
@@ -230,7 +248,7 @@ export default function Billing({ currentUser }) {
               className="p-2 bg-white border border-emerald-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
-          <span className="text-[10px] text-emerald-700 block italic">⚡ Automated PDF Invoice Document will be sent directly to customer WhatsApp</span>
+          <span className="text-[10px] text-emerald-700 block italic">⚡ WhatsApp PDF Invoice will automatically launch on checkout</span>
         </div>
 
         {/* Cart Items List (Scrollable Area) */}
@@ -307,10 +325,10 @@ export default function Billing({ currentUser }) {
             {checkoutNotice.phone ? (
               <div className="my-4 bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-left space-y-1">
                 <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs">
-                  <CheckCircle2 size={16} className="text-emerald-600" /> Automated WhatsApp PDF Bill Dispatched!
+                  <CheckCircle2 size={16} className="text-emerald-600" /> WhatsApp PDF Invoice Ready!
                 </div>
                 <p className="text-[11px] text-emerald-700">
-                  PDF document receipt sent to customer <strong>{checkoutNotice.customer_name}</strong> (+{checkoutNotice.phone}). No manual cashier messaging required!
+                  Customer <strong>{checkoutNotice.customer_name}</strong> (+{checkoutNotice.phone}). Click <strong>Send WhatsApp</strong> below to dispatch invoice link instantly.
                 </p>
               </div>
             ) : (
@@ -319,20 +337,30 @@ export default function Billing({ currentUser }) {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4">
+              {checkoutNotice.whatsapp_url && (
+                <a 
+                  href={checkoutNotice.whatsapp_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm"
+                >
+                  <MessageSquare size={14} /> WhatsApp
+                </a>
+              )}
               <a 
-                href={`${API_BASE_URL}/invoices/view/${checkoutNotice.invoice_no}`}
+                href={checkoutNotice.pdf_url}
                 target="_blank"
                 rel="noreferrer"
-                className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
+                className="py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm"
               >
-                <Download size={14} /> Open PDF Invoice
+                <Download size={14} /> Open PDF
               </a>
               <button 
                 onClick={() => setCheckoutNotice(null)}
                 className="py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl text-xs transition"
               >
-                Next Customer →
+                Next →
               </button>
             </div>
 
