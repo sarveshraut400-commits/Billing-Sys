@@ -99,16 +99,15 @@ export default function Billing({ currentUser }) {
 
       const pdfViewUrl = `${API_BASE_URL}/invoices/view/${invNo}`;
 
-      // Build WhatsApp direct message URL
+      // Build single-link WhatsApp direct deep-link URL (wa.me)
       let waUrl = res?.data?.whatsapp_url;
-      if (customer.phone) {
+      if (!waUrl && customer.phone) {
         const cleanPhone = customer.phone.replace(/\D/g, '');
         const formattedPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-        const waText = encodeURIComponent(`Hello ${customer.name || 'Valued Customer'}, thank you for shopping at SuperMart POS! 🛍️\n\nYour Tax Invoice #${invNo} for Rs.${total.toFixed(2)} is ready.\n\n📄 View & Download PDF Invoice:\n${pdfViewUrl}\n\nGSTIN: 27AABCU9603R1ZM\nThank you! Visit again.`);
-        waUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${waText}`;
-        
-        // Store WhatsApp URL for manual optional click
+        const waText = encodeURIComponent(`Hello ${customer.name || 'Valued Customer'}, thank you for shopping at SuperMart POS! 🛍️\n\nTax Invoice #${invNo}\nTotal Amount: Rs.${total.toFixed(2)}\nGSTIN: 27AABCU9603R1ZM\n\n📄 PDF Receipt:\n${pdfViewUrl}\n\nThank you! Visit again.`);
+        waUrl = `https://wa.me/${formattedPhone}?text=${waText}`;
       }
+
 
 
       setCheckoutNotice({

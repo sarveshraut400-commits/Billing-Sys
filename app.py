@@ -374,24 +374,38 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
 
 
 
+from urllib.parse import quote
+
 def dispatch_automated_whatsapp_bill(phone, invoice_no, customer_name, total, pdf_url):
     try:
         clean_phone = ''.join(filter(str.isdigit, str(phone)))
         if len(clean_phone) == 10:
             clean_phone = f"91{clean_phone}"
+        elif not clean_phone:
+            return None
 
-        wa_url = f"https://api.whatsapp.com/send?phone={clean_phone}&text=Hello%20{customer_name or 'Customer'},%20your%20SuperMart%20tax%20invoice%20%23{invoice_no}%20for%20Rs.{total:,.2f}%20is%20ready.%20Download%20PDF:%20{pdf_url}"
+        text = (
+            f"Hello {customer_name or 'Valued Customer'}, thank you for shopping at SuperMart POS! 🛍️\n\n"
+            f"Tax Invoice #{invoice_no}\n"
+            f"Total Amount: Rs.{total:,.2f}\n"
+            f"GSTIN: 27AABCU9603R1ZM\n\n"
+            f"📄 PDF Receipt:\n{pdf_url}\n\n"
+            f"Thank you! Visit again."
+        )
+
+        wa_url = f"https://wa.me/{clean_phone}?text={quote(text)}"
 
         log_activity(
             category="Billing",
-            action="Automated WhatsApp PDF Document Sent",
-            details=f"Automated WhatsApp PDF Invoice #{invoice_no} (Total: Rs.{total:,.2f}) with PDF Document ({pdf_url}) dispatched to customer '{customer_name}' (+{clean_phone})",
-            performed_by="Automated WhatsApp Bot"
+            action="WhatsApp Bill Link Generated",
+            details=f"Generated single-link WhatsApp bill for #{invoice_no} ({customer_name})",
+            performed_by="POS System"
         )
         return wa_url
     except Exception as e:
-        print(f"Automated WhatsApp Error: {e}")
+        print(f"WhatsApp URL error: {e}")
         return None
+
 
 
 
