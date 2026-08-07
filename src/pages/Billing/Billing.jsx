@@ -107,13 +107,9 @@ export default function Billing({ currentUser }) {
         const waText = encodeURIComponent(`Hello ${customer.name || 'Valued Customer'}, thank you for shopping at SuperMart POS! 🛍️\n\nYour Tax Invoice #${invNo} for Rs.${total.toFixed(2)} is ready.\n\n📄 View & Download PDF Invoice:\n${pdfViewUrl}\n\nGSTIN: 27AABCU9603R1ZM\nThank you! Visit again.`);
         waUrl = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${waText}`;
         
-        // Auto-launch WhatsApp in new tab
-        try {
-          window.open(waUrl, '_blank');
-        } catch (e) {
-          console.warn("Popup blocked for WhatsApp auto-launch:", e);
-        }
+        // Store WhatsApp URL for manual optional click
       }
+
 
       setCheckoutNotice({
         invoice_no: invNo,
@@ -248,7 +244,8 @@ export default function Billing({ currentUser }) {
               className="p-2 bg-white border border-emerald-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none"
             />
           </div>
-          <span className="text-[10px] text-emerald-700 block italic">⚡ WhatsApp PDF Invoice will automatically launch on checkout</span>
+          <span className="text-[10px] text-emerald-700 block italic">Optional customer receipt contact</span>
+
         </div>
 
         {/* Cart Items List (Scrollable Area) */}
