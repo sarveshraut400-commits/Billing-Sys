@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { StoreProvider } from './Context/StoreContext';
 
@@ -13,10 +13,24 @@ import Reports from './pages/Reports/Reports';
 import Settings from './pages/Settings/Settings';
 import SalesHistory from './pages/Sales/SalesHistory';
 import Activity from './pages/Activity/Activity';
-import { logoutUser } from './services/api';
+import { logoutUser, sendHeartbeat } from './services/api';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null); // { role: 'admin', name: 'System', email: '...' }
+
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    // Immediate heartbeat ping on session start
+    sendHeartbeat(currentUser).catch(() => {});
+
+    // Periodic heartbeat every 10s to keep live online status active across all active users
+    const interval = setInterval(() => {
+      sendHeartbeat(currentUser).catch(() => {});
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
   const handleLoginSuccess = (userData) => {
     if (typeof userData === 'string') {
@@ -36,7 +50,7 @@ export default function App() {
   const handleLogout = async () => {
     try {
       if (currentUser) {
-        await logoutUser({ role: currentUser.role, email: currentUser.email });
+        await logoutUser({ role: currentUser.role, email: currentUser.email, name: currentUser.name });
       }
     } catch (e) {
       console.warn("Logout log warning:", e);
@@ -44,6 +58,7 @@ export default function App() {
       setCurrentUser(null);
     }
   };
+
 
   return (
     <StoreProvider>

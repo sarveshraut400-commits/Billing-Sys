@@ -398,7 +398,8 @@ def login():
     data = request.get_json() or {}
     role = data.get('role', 'employee')
     password = data.get('password')
-    email = data.get('email', '').strip().lower()
+    username = (data.get('username') or data.get('email') or '').strip()
+    email = (data.get('email') or data.get('username') or '').strip().lower()
     
     user = users_db.get(role)
     if user and user['password'] == password:
@@ -406,20 +407,30 @@ def login():
         
         matched_emp = None
         if email:
-            matched_emp = next((e for e in employees_db if e.get('email', '').lower() == email), None)
+            matched_emp = next((e for e in employees_db if e.get('email', '').lower() == email or e.get('name', '').lower() == username.lower()), None)
+        if not matched_emp and username:
+            matched_emp = next((e for e in employees_db if e.get('name', '').lower() == username.lower()), None)
         if not matched_emp:
             matched_emp = next((e for e in employees_db if e.get('role') == role), None)
             
         if matched_emp:
             matched_emp['lastLogin'] = now_str
+            matched_emp['lastActive'] = time.time()
             matched_emp['isOnline'] = True
             matched_emp['status'] = 'online'
-                
-        save_employees()
+            save_employees()
+            user_data = {
+                "id": matched_emp.get('id'),
+                "name": matched_emp.get('name'),
+                "email": matched_emp.get('email'),
+                "role": matched_emp.get('role', role)
+            }
+        else:
+            user_data = {"role": role, "name": username or role.capitalize(), "email": email}
         
-        user_name = matched_emp.get('name') if matched_emp else role.capitalize()
+        user_name = user_data.get('name', role.capitalize())
         log_activity("Login/Checkout", f"{role.capitalize()} Login", f"User '{user_name}' authenticated & started active session", performed_by=user_name)
-        return jsonify({"success": True, "role": role}), 200
+        return jsonify({"success": True, "role": role, "user": user_data}), 200
     return jsonify({"error": "Invalid password"}), 401
 
 @app.route('/api/auth/logout', methods=['POST'])
@@ -427,26 +438,52 @@ def logout():
     data = request.get_json() or {}
     role = data.get('role', 'employee')
     email = data.get('email', '').strip().lower()
+    name = (data.get('name') or data.get('username') or '').strip().lower()
     
     matched_emp = None
     if email:
         matched_emp = next((e for e in employees_db if e.get('email', '').lower() == email), None)
+    if not matched_emp and name:
+        matched_emp = next((e for e in employees_db if e.get('name', '').lower() == name), None)
     if not matched_emp:
         matched_emp = next((e for e in employees_db if e.get('role') == role and e.get('isOnline')), None)
         
     if matched_emp:
         matched_emp['isOnline'] = False
         matched_emp['status'] = 'offline'
+        matched_emp['lastActive'] = 0
+        save_employees()
+        user_name = matched_emp.get('name')
     else:
-        for emp in employees_db:
-            if emp.get('role') == role:
-                emp['isOnline'] = False
-                emp['status'] = 'offline'
-                
-    save_employees()
-    user_name = matched_emp.get('name') if matched_emp else role.capitalize()
+        user_name = role.capitalize()
+
     log_activity("Login/Checkout", f"{role.capitalize()} Logout", f"User '{user_name}' signed out of the POS system", performed_by=user_name)
     return jsonify({"success": True, "message": "Logged out successfully"}), 200
+
+@app.route('/api/auth/heartbeat', methods=['POST'])
+def heartbeat():
+    data = request.get_json() or {}
+    email = (data.get('email') or '').strip().lower()
+    name = (data.get('name') or data.get('username') or '').strip().lower()
+    emp_id = data.get('id')
+
+    matched_emp = None
+    if emp_id:
+        matched_emp = next((e for e in employees_db if str(e.get('id')) == str(emp_id)), None)
+    if not matched_emp and email:
+        matched_emp = next((e for e in employees_db if e.get('email', '').lower() == email), None)
+    if not matched_emp and name:
+        matched_emp = next((e for e in employees_db if e.get('name', '').lower() == name), None)
+
+    if matched_emp:
+        matched_emp['lastActive'] = time.time()
+        matched_emp['isOnline'] = True
+        matched_emp['status'] = 'online'
+        save_employees()
+        return jsonify({"success": True, "status": "online", "name": matched_emp.get('name')}), 200
+
+    return jsonify({"success": False, "message": "User not found"}), 404
+
 
 @app.route('/api/auth/forgot-password', methods=['POST'])
 def forgot_password():
@@ -625,7 +662,11 @@ def get_employees():
         if last_log:
             last_login_time = last_log['timestamp']
             
-        is_online = bool(emp.get('isOnline', False) and emp.get('status') == 'online')
+        now_time = time.time()
+        last_active = float(emp.get('lastActive', 0))
+        # Consider online if last active heartbeat was within the last 35 seconds
+        is_online = bool(emp.get('isOnline', False) and (now_time - last_active < 35))
+
 
         emp_copy = dict(emp)
         emp_copy['lastLogin'] = last_login_time

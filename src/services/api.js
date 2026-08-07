@@ -27,8 +27,10 @@ const api = axios.create({
 // ==========================================
 export const loginUser = (data) => api.post('/auth/login', data);
 export const logoutUser = (data) => api.post('/auth/logout', data);
+export const sendHeartbeat = (data) => api.post('/auth/heartbeat', data);
 export const requestPasswordReset = (data) => api.post('/auth/forgot-password', data);
 export const resetPassword = (data) => api.post('/auth/reset-password', data);
+
 
 // ==========================================
 // 2. EMPLOYEE MANAGEMENT
