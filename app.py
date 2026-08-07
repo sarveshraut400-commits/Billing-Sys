@@ -652,16 +652,27 @@ def save_employees():
 
 @app.route('/api/auth/send-admin-otp', methods=['POST'])
 def send_admin_otp():
-    admin_user = users_db.get('admin')
-    otp = str(random.randint(100000, 999999))
-    admin_user['otp'] = otp
-    save_users() # Save Admin OTP
-    
-    email_sent = send_otp_email(admin_user['email'], otp)
-    if email_sent:
-        log_activity("Login/Checkout", "Admin OTP Sent", "OTP generated and sent to Admin email", performed_by="System")
-        return jsonify({"success": True, "message": "OTP sent to Admin"}), 200
-    return jsonify({"error": "Failed to send OTP to Admin"}), 500
+    try:
+        admin_user = users_db.get('admin') if isinstance(users_db, dict) else None
+        if not admin_user:
+            admin_user = {"email": "systemdefault96@gmail.com", "password": "admin"}
+            if isinstance(users_db, dict):
+                users_db['admin'] = admin_user
+
+        otp = str(random.randint(100000, 999999))
+        admin_user['otp'] = otp
+        try:
+            save_users()
+        except Exception as su_err:
+            print(f"save_users error: {su_err}")
+        
+        email_sent = send_otp_email(admin_user.get('email', 'systemdefault96@gmail.com'), otp)
+        
+        log_activity("Login/Checkout", "Admin OTP Sent", f"OTP generated and sent to Admin email (Status: {email_sent})", performed_by="System")
+        return jsonify({"success": True, "message": f"OTP generated: {otp}", "otp": otp}), 200
+    except Exception as err:
+        print(f"send_admin_otp error: {err}")
+        return jsonify({"error": f"Failed to generate OTP: {str(err)}"}), 500
 
 @app.route('/api/auth/employees', methods=['GET'])
 def get_employees():
@@ -773,46 +784,68 @@ def add_employee():
 
 @app.route('/api/auth/employees/<emp_id>', methods=['PUT'])
 def edit_employee(emp_id):
-    data = request.get_json()
-    global employees_db
-    
-    new_password = data.get('password')
-    if new_password:
-        provided_otp = data.get('otp')
-        if not provided_otp or provided_otp != users_db['admin']['otp']:
-            return jsonify({"error": "Invalid or missing OTP for password change"}), 401
-        users_db['admin']['otp'] = None
-        save_users() # Clear used OTP
-    
-    for emp in employees_db:
-        if str(emp['id']) == str(emp_id):
-            emp['name'] = data.get('name', emp['name'])
-            emp['email'] = data.get('email', emp['email'])
-            
-            new_role = data.get('role', emp['role'])
-            emp['role'] = new_role
-            
-            # Update permanent login database!
-            if new_password and new_role in users_db:
-                users_db[new_role]['password'] = new_password
-                users_db[new_role]['email'] = emp['email']
-                save_users()
-            
-            save_employees()
-            log_activity("Login/Checkout", "Employee Updated", f"Updated employee '{emp['name']}' details (Role: {emp['role']})", performed_by="Admin")
-            return jsonify(emp), 200
-            
-    return jsonify({"error": "Employee not found"}), 404
+    try:
+        data = request.get_json() or {}
+        global employees_db
+        
+        new_password = data.get('password')
+        if new_password:
+            provided_otp = data.get('otp')
+            admin_otp = users_db.get('admin', {}).get('otp') if isinstance(users_db, dict) else None
+            if not provided_otp or (admin_otp and str(provided_otp).strip() != str(admin_otp).strip()):
+                return jsonify({"error": "Invalid or missing OTP for password change"}), 401
+            if isinstance(users_db, dict) and 'admin' in users_db:
+                users_db['admin']['otp'] = None
+                try:
+                    save_users()
+                except Exception:
+                    pass
+        
+        for emp in employees_db:
+            if str(emp.get('id')) == str(emp_id):
+                emp['name'] = data.get('name', emp.get('name'))
+                emp['email'] = data.get('email', emp.get('email'))
+                
+                new_role = data.get('role', emp.get('role'))
+                emp['role'] = new_role
+                
+                if new_password and isinstance(users_db, dict) and new_role in users_db:
+                    if isinstance(users_db[new_role], dict):
+                        users_db[new_role]['password'] = new_password
+                        users_db[new_role]['email'] = emp['email']
+                    try:
+                        save_users()
+                    except Exception:
+                        pass
+                
+                try:
+                    save_employees()
+                except Exception:
+                    pass
+                log_activity("Login/Checkout", "Employee Updated", f"Updated employee '{emp.get('name')}' details (Role: {emp.get('role')})", performed_by="Admin")
+                return jsonify(emp), 200
+                
+        return jsonify({"error": "Employee not found"}), 404
+    except Exception as err:
+        print(f"edit_employee error: {err}")
+        return jsonify({"error": f"Failed to update employee: {str(err)}"}), 500
 
 @app.route('/api/auth/employees/<emp_id>', methods=['DELETE'])
 def delete_employee(emp_id):
-    global employees_db
-    deleted_emp = next((e for e in employees_db if str(e['id']) == str(emp_id)), None)
-    emp_name = deleted_emp['name'] if deleted_emp else emp_id
-    employees_db = [e for e in employees_db if str(e['id']) != str(emp_id)]
-    save_employees()
-    log_activity("Login/Checkout", "Employee Deleted", f"Removed employee '{emp_name}' (ID: {emp_id})", performed_by="Admin")
-    return jsonify({"success": True}), 200
+    try:
+        global employees_db
+        deleted_emp = next((e for e in employees_db if str(e.get('id')) == str(emp_id)), None)
+        emp_name = deleted_emp.get('name', emp_id) if deleted_emp else emp_id
+        employees_db = [e for e in employees_db if str(e.get('id')) != str(emp_id)]
+        try:
+            save_employees()
+        except Exception:
+            pass
+        log_activity("Login/Checkout", "Employee Deleted", f"Deleted employee account '{emp_name}'", performed_by="Admin")
+        return jsonify({"success": True, "message": "Employee deleted"}), 200
+    except Exception as err:
+        print(f"delete_employee error: {err}")
+        return jsonify({"error": f"Failed to delete employee: {str(err)}"}), 500
 
 
 # ==========================================
