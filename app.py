@@ -639,10 +639,21 @@ def get_employees():
     if os.path.exists(EMPLOYEES_FILE):
         try:
             with open(EMPLOYEES_FILE, 'r') as f:
-                employees_db = json.load(f)
+                disk_data = json.load(f)
+                memory_map = {str(e.get('id')): e for e in employees_db}
+                for item in disk_data:
+                    item_id = str(item.get('id'))
+                    if item_id in memory_map:
+                        mem_emp = memory_map[item_id]
+                        if mem_emp.get('lastActive', 0) > item.get('lastActive', 0):
+                            item['lastActive'] = mem_emp.get('lastActive')
+                            item['isOnline'] = mem_emp.get('isOnline', item.get('isOnline'))
+                            item['status'] = mem_emp.get('status', item.get('status'))
+                employees_db = disk_data
         except Exception:
             pass
 
+    now_time = time.time()
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -662,11 +673,9 @@ def get_employees():
         if last_log:
             last_login_time = last_log['timestamp']
             
-        now_time = time.time()
         last_active = float(emp.get('lastActive', 0))
-        # Consider online if last active heartbeat was within the last 35 seconds
-        is_online = bool(emp.get('isOnline', False) and (now_time - last_active < 35))
-
+        # Consider online if last active heartbeat was within the last 120 seconds (2 minutes)
+        is_online = bool(emp.get('isOnline', False) and (now_time - last_active < 120))
 
         emp_copy = dict(emp)
         emp_copy['lastLogin'] = last_login_time
@@ -676,6 +685,8 @@ def get_employees():
         
     conn.close()
     return jsonify(enriched_employees), 200
+
+
 
 @app.route('/api/auth/employees', methods=['POST'])
 def add_employee():

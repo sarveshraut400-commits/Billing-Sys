@@ -4,18 +4,20 @@
         "name": "System",
         "email": "systemdefault96@gmail.com",
         "role": "admin",
-        "lastLogin": "2026-08-06 09:19 PM",
-        "isOnline": false,
-        "status": "offline"
+        "lastLogin": "2026-08-07 11:43 AM",
+        "isOnline": true,
+        "status": "online",
+        "lastActive": 1786083241.3579805
     },
     {
         "id": "36bfb9e5",
         "name": "Kertick",
         "email": "kertick@gmail.com",
         "role": "employee",
-        "lastLogin": "2026-08-06 09:19 PM",
-        "isOnline": false,
-        "status": "offline"
+        "lastLogin": "2026-08-07 11:43 AM",
+        "isOnline": true,
+        "status": "online",
+        "lastActive": 1786083241.3579805
     },
     {
         "id": "4bc5e64c",
