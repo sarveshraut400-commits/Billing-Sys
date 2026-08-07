@@ -8,17 +8,10 @@ const getApiBaseUrl = () => {
     }
     return url;
   }
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    if (hostname.includes('vercel.app')) {
-      return 'https://supermart-api-xkjt.onrender.com/api';
-    }
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      return `${window.location.protocol}//${hostname}:5000/api`;
-    }
-  }
-  return 'http://127.0.0.1:5000/api';
+  // Default to live Render cloud API for all clients (mobile, Vercel, localhost) to prevent 127.0.0.1 connection errors
+  return 'https://supermart-api-xkjt.onrender.com/api';
 };
+
 
 export const API_BASE_URL = getApiBaseUrl();
 

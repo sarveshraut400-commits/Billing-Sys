@@ -93,9 +93,10 @@ export default function Billing({ currentUser }) {
       const invNo = res?.data?.invoice_number || invoiceNo;
       let pdfUrl = res?.data?.pdf_url || `${API_BASE_URL}/invoices/download/${invNo}`;
       
-      if (pdfUrl.includes('127.0.0.1:5000') && typeof window !== 'undefined' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost') {
-        pdfUrl = `${API_BASE_URL}/invoices/download/${invNo}`;
+      if (pdfUrl.includes('127.0.0.1') || pdfUrl.includes('localhost')) {
+        pdfUrl = pdfUrl.replace(/http:\/\/(127\.0\.0\.1|localhost):\d+\/api/, API_BASE_URL).replace(/http:\/\/(127\.0\.0\.1|localhost):\d+/, API_BASE_URL.replace(/\/api\/?$/, ''));
       }
+
 
       setCheckoutNotice({
         invoice_no: invNo,
