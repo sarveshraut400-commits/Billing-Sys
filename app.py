@@ -10,8 +10,10 @@ import uuid
 import io
 import json
 import os
+import threading
 
 from datetime import datetime
+
 
 # Database helper functions
 from database import get_db_connection, log_activity
@@ -97,12 +99,13 @@ def send_welcome_email(receiver_email, name, role, password):
             f"You are joining a high-performing corporate sales and retail team dedicated to innovation, customer satisfaction, and operational excellence. In your role, every transaction is an opportunity to solve customer needs, deliver outstanding service, and achieve sales milestones.\n\n"
             f"Here are your official POS portal credentials to get started on your shift:\n"
             f"------------------------------------------------------------\n"
-            f"🔑 Portal URL: http://localhost:5173\n"
+            f"🔑 Live Portal URL: https://billing-sys-beta.vercel.app\n"
             f"👤 Staff Account: {name}\n"
             f"📧 Login Email / Username: {receiver_email}\n"
             f"🔒 Initial Password: {password}\n"
             f"💼 Position: {role.capitalize()}\n"
             f"------------------------------------------------------------\n\n"
+
             f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
             f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
             f"If you have any questions, your Management Team and HR are here to support you every step of the way.\n\n"
@@ -715,13 +718,15 @@ def add_employee():
         save_users()
 
     if email:
-        try:
-            send_welcome_email(email, name, role, raw_password)
-        except Exception as mail_err:
-            print(f"Welcome email dispatch notice (non-fatal): {mail_err}")
+        threading.Thread(
+            target=send_welcome_email,
+            args=(email, name, role, raw_password),
+            daemon=True
+        ).start()
         
     log_activity("Login/Checkout", "Employee Registered", f"Added new employee '{name}' ({email}) with role '{role}'", performed_by="Admin")
     return jsonify(new_emp), 201
+
 
 
 @app.route('/api/auth/employees/<emp_id>', methods=['PUT'])
