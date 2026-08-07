@@ -274,7 +274,7 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
         story.append(Spacer(1, 12))
         
         table_data = [
-            [Paragraph("<b>Item Description</b>", meta_style), Paragraph("<b>Price (₹)</b>", meta_style), Paragraph("<b>Qty</b>", meta_style), Paragraph("<b>Amount (₹)</b>", meta_style)]
+            [Paragraph("<b>Item Description</b>", meta_style), Paragraph("<b>Price (Rs.)</b>", meta_style), Paragraph("<b>Qty</b>", meta_style), Paragraph("<b>Amount (Rs.)</b>", meta_style)]
         ]
         
         for item in items:
@@ -285,9 +285,9 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             
             table_data.append([
                 Paragraph(name, normal_style),
-                Paragraph(f"₹{price:.2f}", normal_style),
+                Paragraph(f"Rs. {price:.2f}", normal_style),
                 Paragraph(str(qty), normal_style),
-                Paragraph(f"₹{amt:.2f}", normal_style)
+                Paragraph(f"Rs. {amt:.2f}", normal_style)
             ])
             
         items_table = Table(table_data, colWidths=[240, 100, 80, 120])
@@ -311,12 +311,12 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
         sgst_val = cgst_val
         
         total_data = [
-            ["Subtotal:", f"₹{subtotal:.2f}"],
-            ["Store Discount (5%):", f"-₹{discount:.2f}"],
-            ["Taxable Amount:", f"₹{taxable_val:.2f}"],
-            ["CGST (9%):", f"₹{cgst_val:.2f}"],
-            ["SGST (9%):", f"₹{sgst_val:.2f}"],
-            ["Grand Total Paid:", f"₹{grand_total:.2f}"]
+            ["Subtotal:", f"Rs. {subtotal:.2f}"],
+            ["Store Discount (5%):", f"-Rs. {discount:.2f}"],
+            ["Taxable Amount:", f"Rs. {taxable_val:.2f}"],
+            ["CGST (9%):", f"Rs. {cgst_val:.2f}"],
+            ["SGST (9%):", f"Rs. {sgst_val:.2f}"],
+            ["Grand Total Paid:", f"Rs. {grand_total:.2f}"]
         ]
         total_table = Table(total_data, colWidths=[380, 160])
         total_table.setStyle(TableStyle([
@@ -352,16 +352,19 @@ def dispatch_automated_whatsapp_bill(phone, invoice_no, customer_name, total, pd
         if len(clean_phone) == 10:
             clean_phone = f"91{clean_phone}"
 
+        wa_url = f"https://api.whatsapp.com/send?phone={clean_phone}&text=Hello%20{customer_name or 'Customer'},%20your%20SuperMart%20tax%20invoice%20%23{invoice_no}%20for%20Rs.{total:,.2f}%20is%20ready.%20Download%20PDF:%20{pdf_url}"
+
         log_activity(
             category="Billing",
             action="Automated WhatsApp PDF Document Sent",
-            details=f"Automated WhatsApp PDF Invoice #{invoice_no} (Total: ₹{total:,.2f}) with PDF Document ({pdf_url}) dispatched to customer '{customer_name}' (+{clean_phone})",
+            details=f"Automated WhatsApp PDF Invoice #{invoice_no} (Total: Rs.{total:,.2f}) with PDF Document ({pdf_url}) dispatched to customer '{customer_name}' (+{clean_phone})",
             performed_by="Automated WhatsApp Bot"
         )
-        return True
+        return wa_url
     except Exception as e:
         print(f"Automated WhatsApp Error: {e}")
-        return False
+        return None
+
 
 
 # ==========================================
@@ -799,9 +802,9 @@ def checkout():
         except Exception as pdf_err:
             print(f"PDF generation error: {pdf_err}")
 
-        # AUTOMATED WHATSAPP PDF DISPATCH (NO MANUAL ACTION NEEDED BY EMPLOYEE)
+        wa_url = None
         if phone:
-            dispatch_automated_whatsapp_bill(
+            wa_url = dispatch_automated_whatsapp_bill(
                 phone=phone,
                 invoice_no=invoice_number,
                 customer_name=customer_name,
@@ -815,8 +818,10 @@ def checkout():
             "invoice_number": invoice_number,
             "bill_id": bill_id,
             "total": total_bill,
-            "pdf_url": pdf_url
+            "pdf_url": pdf_url,
+            "whatsapp_url": wa_url
         }), 201
+
     except Exception as e:
         print(f"Checkout Error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
