@@ -43,5 +43,14 @@
         "email": "pranaydoingwork@gmail.com",
         "role": "employee",
         "lastLogin": "Never"
+    },
+    {
+        "id": "24b74a6f",
+        "name": "system2",
+        "email": "systemdefault96@gmail.com",
+        "role": "employee",
+        "lastLogin": "Never",
+        "isOnline": false,
+        "status": "offline"
     }
 ]

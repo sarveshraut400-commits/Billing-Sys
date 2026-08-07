@@ -695,37 +695,54 @@ def get_employees():
 
 @app.route('/api/auth/employees', methods=['POST'])
 def add_employee():
-    data = request.get_json()
-    raw_password = data.get('password', 'staff123')
-    email = data.get('email', '')
-    name = data.get('name', 'New Employee')
-    role = data.get('role', 'employee')
-    
-    new_emp = {
-        "id": str(uuid.uuid4())[:8],
-        "name": name,
-        "email": email,
-        "role": role,
-        "lastLogin": "Never"
-    }
-    employees_db.append(new_emp)
-    save_employees()
-    
-    # Also update login credentials!
-    if role in users_db:
-        users_db[role]['email'] = email
-        users_db[role]['password'] = raw_password
-        save_users()
-
-    if email:
-        threading.Thread(
-            target=send_welcome_email,
-            args=(email, name, role, raw_password),
-            daemon=True
-        ).start()
+    try:
+        data = request.get_json() or {}
+        raw_password = data.get('password', 'staff123')
+        email = (data.get('email') or '').strip()
+        name = (data.get('name') or 'New Employee').strip()
+        role = data.get('role', 'employee')
         
-    log_activity("Login/Checkout", "Employee Registered", f"Added new employee '{name}' ({email}) with role '{role}'", performed_by="Admin")
-    return jsonify(new_emp), 201
+        new_emp = {
+            "id": str(uuid.uuid4())[:8],
+            "name": name,
+            "email": email,
+            "role": role,
+            "lastLogin": "Never",
+            "isOnline": False,
+            "status": "offline"
+        }
+        employees_db.append(new_emp)
+        try:
+            save_employees()
+        except Exception as se_err:
+            print(f"save_employees error: {se_err}")
+        
+        # Safely update login credentials
+        if isinstance(users_db, dict) and role in users_db:
+            if isinstance(users_db[role], dict):
+                users_db[role]['email'] = email
+                users_db[role]['password'] = raw_password
+            try:
+                save_users()
+            except Exception as su_err:
+                print(f"save_users error: {su_err}")
+
+        if email:
+            try:
+                threading.Thread(
+                    target=send_welcome_email,
+                    args=(email, name, role, raw_password),
+                    daemon=True
+                ).start()
+            except Exception as mail_err:
+                print(f"threading email error: {mail_err}")
+            
+        log_activity("Login/Checkout", "Employee Registered", f"Added new employee '{name}' ({email}) with role '{role}'", performed_by="Admin")
+        return jsonify(new_emp), 201
+    except Exception as err:
+        print(f"Error in add_employee: {err}")
+        return jsonify({"error": f"Failed to add employee: {str(err)}"}), 500
+
 
 
 
