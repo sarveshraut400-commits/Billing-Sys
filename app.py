@@ -167,6 +167,28 @@ def save_shop_settings(settings):
         return False
 
 
+def clean_pdf_str(text):
+    if not text:
+        return ""
+    text = str(text)
+    replacements = {
+        '•': '-',
+        '₹': 'Rs. ',
+        '–': '-',
+        '—': '-',
+        '“': '"',
+        '”': '"',
+        '‘': "'",
+        '’': "'",
+        '™': '(TM)',
+        '®': '(R)',
+        '©': '(C)'
+    }
+    for orig, repl in replacements.items():
+        text = text.replace(orig, repl)
+    return text
+
+
 def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, date_str, time_str, cashier):
     try:
         filename = f"Invoice_{invoice_no}.pdf"
@@ -240,12 +262,12 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
 
         story = []
         # Store Name Header
-        story.append(Paragraph(shop_name.upper(), title_style))
-        story.append(Paragraph(f"{shop_address} • Phone: {shop_phone} • Email: {shop_email}", subtitle_style))
+        story.append(Paragraph(clean_pdf_str(shop_name.upper()), title_style))
+        story.append(Paragraph(clean_pdf_str(f"{shop_address} | Phone: {shop_phone} | Email: {shop_email}"), subtitle_style))
         story.append(Spacer(1, 6))
 
         # GSTIN / TAX REGISTRATION ID BANNER
-        gstin_banner = Table([[Paragraph(f"<b>GSTIN / TAX REGISTRATION ID: {shop_gstin}</b>", gstin_style)]], colWidths=[540])
+        gstin_banner = Table([[Paragraph(clean_pdf_str(f"<b>GSTIN / TAX REGISTRATION ID: {shop_gstin}</b>"), gstin_style)]], colWidths=[540])
         gstin_banner.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#D1FAE5')),
             ('PADDING', (0,0), (-1,-1), 6),
@@ -256,12 +278,12 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
         story.append(gstin_banner)
         story.append(Spacer(1, 10))
 
-        story.append(Paragraph(f"TAX INVOICE • #{invoice_no}", inv_head_style))
+        story.append(Paragraph(clean_pdf_str(f"TAX INVOICE | #{invoice_no}"), inv_head_style))
         story.append(Spacer(1, 10))
         
         meta_data = [
-            [Paragraph(f"<b>Date & Time:</b> {date_str} {time_str}", meta_style), Paragraph(f"<b>Cashier:</b> {cashier}", meta_style)],
-            [Paragraph(f"<b>Customer:</b> {customer_name or 'Walk-in Customer'}", meta_style), Paragraph(f"<b>Mobile:</b> {phone or 'N/A'}", meta_style)]
+            [Paragraph(clean_pdf_str(f"<b>Date & Time:</b> {date_str} {time_str}"), meta_style), Paragraph(clean_pdf_str(f"<b>Cashier:</b> {cashier}"), meta_style)],
+            [Paragraph(clean_pdf_str(f"<b>Customer:</b> {customer_name or 'Walk-in Customer'}"), meta_style), Paragraph(clean_pdf_str(f"<b>Mobile:</b> {phone or 'N/A'}"), meta_style)]
         ]
         meta_table = Table(meta_data, colWidths=[270, 270])
         meta_table.setStyle(TableStyle([
@@ -284,7 +306,7 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             amt = float(item.get('amount') or (price * qty))
             
             table_data.append([
-                Paragraph(name, normal_style),
+                Paragraph(clean_pdf_str(name), normal_style),
                 Paragraph(f"Rs. {price:.2f}", normal_style),
                 Paragraph(str(qty), normal_style),
                 Paragraph(f"Rs. {amt:.2f}", normal_style)
@@ -335,11 +357,12 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             fontSize=9,
             textColor=colors.HexColor('#6B7280')
         )
-        story.append(Paragraph(f"<b>{receipt_footer}</b>", footer_style))
+        story.append(Paragraph(clean_pdf_str(f"<b>{receipt_footer}</b>"), footer_style))
         story.append(Paragraph("This is a computer generated tax invoice. Valid without physical signature.", subtitle_style))
         
         doc.build(story)
         return filename, filepath
+
     except Exception as e:
         print(f"PDF Invoice Generation Error: {e}")
         return None, None
