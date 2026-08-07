@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ScanBarcode, Trash2, FileText, CheckCircle, Image as ImageIcon, ShoppingCart, MessageSquare, Printer, X, CheckCircle2, FileCheck, Download } from 'lucide-react';
-import { fetchProducts, generateBill } from '../../services/api';
+import { fetchProducts, generateBill, API_BASE_URL } from '../../services/api';
 
 const CATEGORIES = ['All', 'Groceries', 'Beverages', 'Electronics', 'Clothing', 'Snacks', 'Other'];
 
@@ -91,7 +91,11 @@ export default function Billing({ currentUser }) {
       });
 
       const invNo = res?.data?.invoice_number || invoiceNo;
-      const pdfUrl = res?.data?.pdf_url || `http://127.0.0.1:5000/api/invoices/download/${invNo}`;
+      let pdfUrl = res?.data?.pdf_url || `${API_BASE_URL}/invoices/download/${invNo}`;
+      
+      if (pdfUrl.includes('127.0.0.1:5000') && typeof window !== 'undefined' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost') {
+        pdfUrl = `${API_BASE_URL}/invoices/download/${invNo}`;
+      }
 
       setCheckoutNotice({
         invoice_no: invNo,
@@ -116,15 +120,15 @@ export default function Billing({ currentUser }) {
     : productsDB.filter(p => p.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex p-4 gap-4">
+    <div className="h-[calc(100vh-5rem)] md:h-[calc(100vh-4.5rem)] max-h-screen bg-gray-100 flex flex-col md:flex-row p-3 md:p-4 gap-4 overflow-hidden">
       
       {/* Left Column: Product Catalog */}
-      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
         
         {/* Header & Barcode Search */}
-        <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+        <div className="p-3 md:p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
           <div>
-            <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <h1 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
               <ShoppingCart className="text-emerald-600" /> POS Billing Terminal
             </h1>
             <p className="text-xs text-gray-500">Scan barcodes or click items to add to checkout bill</p>
@@ -149,7 +153,7 @@ export default function Billing({ currentUser }) {
         </div>
 
         {/* Categories Bar */}
-        <div className="p-3 bg-white border-b border-gray-100 flex gap-2 overflow-x-auto">
+        <div className="p-2.5 bg-white border-b border-gray-100 flex gap-2 overflow-x-auto shrink-0">
           {Array.from(new Set(['All', 'Groceries', 'Beverages', 'Dairy & Bakery', 'Snacks', 'Personal Care', 'Household', 'Electronics', 'Clothing', 'Jerseys', 'Gaming', ...productsDB.map(p => p.category).filter(Boolean)])).map((cat) => (
             <button
               key={cat}
@@ -164,7 +168,7 @@ export default function Billing({ currentUser }) {
         </div>
 
         {/* Products Grid */}
-        <div className="flex-1 p-4 overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="flex-1 min-h-0 p-4 overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {displayProducts.map((product) => (
             <div 
               key={product.id}
@@ -172,20 +176,20 @@ export default function Billing({ currentUser }) {
               className="bg-white rounded-xl border border-gray-200 p-3 hover:shadow-md transition cursor-pointer flex flex-col justify-between group hover:border-emerald-400"
             >
               <div>
-                <div className="h-28 bg-gray-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden border">
+                <div className="h-24 md:h-28 bg-gray-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden border">
                   {product.imageUrl ? (
                     <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover group-hover:scale-105 transition" />
                   ) : (
                     <ImageIcon className="text-gray-300" size={32} />
                   )}
                 </div>
-                <h3 className="font-bold text-gray-800 text-sm line-clamp-1">{product.name}</h3>
-                <p className="text-xs text-gray-400 font-mono">{product.barcode || 'N/A'}</p>
+                <h3 className="font-bold text-gray-800 text-xs md:text-sm line-clamp-1">{product.name}</h3>
+                <p className="text-[11px] text-gray-400 font-mono">{product.barcode || 'N/A'}</p>
               </div>
 
               <div className="mt-2 flex justify-between items-center pt-2 border-t border-gray-100">
-                <span className="font-extrabold text-emerald-600 text-sm">₹{parseFloat(product.price).toFixed(2)}</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${product.stock > 5 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
+                <span className="font-extrabold text-emerald-600 text-xs md:text-sm">₹{parseFloat(product.price).toFixed(2)}</span>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${product.stock > 5 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
                   Stock: {product.stock}
                 </span>
               </div>
@@ -195,15 +199,17 @@ export default function Billing({ currentUser }) {
 
       </div>
 
-      {/* Right Column: Checkout Cart */}
-      <div className="w-96 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-          <h2 className="font-bold text-gray-800 text-base">Current Customer Order</h2>
-          <span className="text-xs font-bold text-gray-400">{cart.length} Items</span>
+      {/* Right Column: Checkout Cart & Fixed Payment Bar */}
+      <div className="w-full md:w-96 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden shrink-0">
+        
+        {/* Cart Header */}
+        <div className="p-3 md:p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center shrink-0">
+          <h2 className="font-bold text-gray-800 text-sm md:text-base">Current Customer Order</h2>
+          <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">{cart.length} Items</span>
         </div>
 
         {/* Customer Mobile Input */}
-        <div className="p-3 bg-emerald-50 border-b border-emerald-100 space-y-2">
+        <div className="p-3 bg-emerald-50 border-b border-emerald-100 space-y-2 shrink-0">
           <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
             <MessageSquare size={14} className="text-emerald-600" /> Customer WhatsApp Mobile
           </div>
@@ -226,8 +232,8 @@ export default function Billing({ currentUser }) {
           <span className="text-[10px] text-emerald-700 block italic">⚡ Automated PDF Invoice Document will be sent directly to customer WhatsApp</span>
         </div>
 
-        {/* Cart Items List */}
-        <div className="flex-1 p-3 overflow-y-auto space-y-2 divide-y divide-gray-100">
+        {/* Cart Items List (Scrollable Area) */}
+        <div className="flex-1 min-h-0 p-3 overflow-y-auto space-y-2 divide-y divide-gray-100">
           {cart.length > 0 ? (
             cart.map((item) => (
               <div key={item.id} className="pt-2 flex justify-between items-center text-xs">
@@ -253,8 +259,8 @@ export default function Billing({ currentUser }) {
           )}
         </div>
 
-        {/* Bill Summary & Complete Checkout Button */}
-        <div className="p-4 border-t border-gray-200 bg-gray-50 space-y-2">
+        {/* Fixed Bill Summary & Checkout Button (Pinned at Bottom) */}
+        <div className="shrink-0 p-4 border-t border-gray-200 bg-gray-50 space-y-2 z-10 shadow-md">
           <div className="flex justify-between text-xs text-gray-600">
             <span>Subtotal</span>
             <span className="font-bold">₹{subtotal.toFixed(2)}</span>
@@ -263,7 +269,7 @@ export default function Billing({ currentUser }) {
             <span>SuperMart Discount (5%)</span>
             <span>-₹{dmDiscount.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-base font-black text-gray-900 border-t pt-2">
+          <div className="flex justify-between text-base font-black text-gray-900 border-t pt-1.5">
             <span>Grand Total</span>
             <span className="text-emerald-600">₹{total.toFixed(2)}</span>
           </div>
@@ -271,7 +277,7 @@ export default function Billing({ currentUser }) {
           <button 
             onClick={handleGenerateBill}
             disabled={cart.length === 0}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2 mt-1"
           >
             <CheckCircle size={18} /> Complete Sale & Send Bill
           </button>
@@ -314,12 +320,12 @@ export default function Billing({ currentUser }) {
 
             <div className="grid grid-cols-2 gap-2 mt-4">
               <a 
-                href={checkoutNotice.pdf_url}
+                href={`${API_BASE_URL}/invoices/view/${checkoutNotice.invoice_no}`}
                 target="_blank"
                 rel="noreferrer"
                 className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
               >
-                <Download size={14} /> PDF Document
+                <Download size={14} /> Open PDF Invoice
               </a>
               <button 
                 onClick={() => setCheckoutNotice(null)}

@@ -3,7 +3,7 @@ import {
   Store, MessageCircle, Database, Percent, ShieldCheck, Save, CheckCircle2, 
   Download, HardDrive, Cpu, RefreshCw, AlertCircle, FileText, Check
 } from 'lucide-react';
-import { downloadDatabaseBackup, fetchDbHealth } from '../../services/api';
+import { downloadDatabaseBackup, fetchDbHealth, fetchShopSettings, saveShopSettingsApi } from '../../services/api';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('shop');
@@ -53,6 +53,12 @@ export default function Settings() {
     const savedShop = localStorage.getItem('pos_shop_settings');
     if (savedShop) setShopInfo(JSON.parse(savedShop));
 
+    fetchShopSettings()
+      .then((res) => {
+        if (res.data) setShopInfo(res.data);
+      })
+      .catch((e) => console.warn("Shop settings API fallback:", e));
+
     const savedTax = localStorage.getItem('pos_tax_settings');
     if (savedTax) setTaxInfo(JSON.parse(savedTax));
 
@@ -80,11 +86,17 @@ export default function Settings() {
     }, 3000);
   };
 
-  const handleSaveShop = (e) => {
+  const handleSaveShop = async (e) => {
     if (e) e.preventDefault();
     localStorage.setItem('pos_shop_settings', JSON.stringify(shopInfo));
+    try {
+      await saveShopSettingsApi(shopInfo);
+    } catch (err) {
+      console.warn("Backend shop settings save fallback:", err);
+    }
     triggerToast('Shop profile & receipt branding updated successfully!');
   };
+
 
   const handleSaveTax = (e) => {
     if (e) e.preventDefault();

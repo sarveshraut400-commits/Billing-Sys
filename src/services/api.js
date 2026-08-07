@@ -10,6 +10,9 @@ const getApiBaseUrl = () => {
   }
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
+    if (hostname.includes('vercel.app')) {
+      return 'https://supermart-api-xkjt.onrender.com/api';
+    }
     if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
       return `${window.location.protocol}//${hostname}:5000/api`;
     }
@@ -17,7 +20,7 @@ const getApiBaseUrl = () => {
   return 'http://127.0.0.1:5000/api';
 };
 
-const API_BASE_URL = getApiBaseUrl();
+export const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -63,7 +66,7 @@ export const fetchEmployeeDashboardStats = (cashier = '') => api.get('/employee/
 export const fetchRecentInvoices = () => api.get('/invoices/recent');
 
 // ==========================================
-// 5. FILE DOWNLOADS & REPORTS (LIVE DATABASE)
+// 5. FILE DOWNLOADS, REPORTS & SETTINGS
 // ==========================================
 export const fetchReportsLogs = (category = 'All', search = '') => 
   api.get(`/reports/logs`, { params: { category, search } });
@@ -75,6 +78,8 @@ export const downloadInvoiceFile = (filename) => api.get(`/downloads/${filename}
 export const exportReportFile = (type) => api.get(`/reports/export/${type}`, { responseType: 'blob' });
 export const downloadDatabaseBackup = () => api.get('/settings/backup', { responseType: 'blob' });
 export const fetchDbHealth = () => api.get('/settings/db-health');
+export const fetchShopSettings = () => api.get('/settings/shop');
+export const saveShopSettingsApi = (data) => api.post('/settings/shop', data);
 
 // Alias to satisfy Reports.jsx naming convention
 export const downloadReport = exportReportFile;

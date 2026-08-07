@@ -24,8 +24,10 @@ import openpyxl
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True) 
 
-INVOICES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'invoices')
-os.makedirs(INVOICES_DIR, exist_ok=True) 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+INVOICES_DIR = os.path.join(BASE_DIR, 'invoices')
+os.makedirs(INVOICES_DIR, exist_ok=True)
+
 
 # ==========================================
 # EMAIL SETTINGS
@@ -134,11 +136,50 @@ def send_welcome_email(receiver_email, name, role, password):
         return False
 
 
+SHOP_SETTINGS_FILE = os.path.join(BASE_DIR, 'shop_settings.json')
+
+DEFAULT_SHOP_SETTINGS = {
+    "name": "SuperMart POS",
+    "phone": "+91 9876543210",
+    "email": "systemdefault96@gmail.com",
+    "gstin": "27AABCU9603R1ZM",
+    "address": "123 Main Commercial Hub, Mumbai, MH, India",
+    "receiptFooter": "Thank you for shopping with us! Visit again."
+}
+
+def load_shop_settings():
+    if os.path.exists(SHOP_SETTINGS_FILE):
+        try:
+            with open(SHOP_SETTINGS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return {**DEFAULT_SHOP_SETTINGS, **data}
+        except Exception as e:
+            print(f"Error loading shop_settings.json: {e}")
+    return DEFAULT_SHOP_SETTINGS.copy()
+
+def save_shop_settings(settings):
+    try:
+        with open(SHOP_SETTINGS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(settings, f, indent=4)
+        return True
+    except Exception as e:
+        print(f"Error saving shop_settings.json: {e}")
+        return False
+
+
 def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, date_str, time_str, cashier):
     try:
         filename = f"Invoice_{invoice_no}.pdf"
         filepath = os.path.join(INVOICES_DIR, filename)
         
+        shop = load_shop_settings()
+        shop_name = str(shop.get('name', 'SuperMart POS')).strip()
+        shop_phone = str(shop.get('phone', '+91 9876543210')).strip()
+        shop_email = str(shop.get('email', 'systemdefault96@gmail.com')).strip()
+        shop_gstin = str(shop.get('gstin', '27AABCU9603R1ZM')).strip()
+        shop_address = str(shop.get('address', '123 Main Commercial Hub, Mumbai, MH, India')).strip()
+        receipt_footer = str(shop.get('receiptFooter', 'Thank you for shopping with us! Visit again.')).strip()
+
         doc = SimpleDocTemplate(
             filepath,
             pagesize=letter,
@@ -152,9 +193,9 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             'InvoiceTitle',
             parent=styles['Heading1'],
             fontName='Helvetica-Bold',
-            fontSize=20,
-            leading=24,
-            textColor=colors.HexColor('#059669'),
+            fontSize=22,
+            leading=26,
+            textColor=colors.HexColor('#047857'),
             alignment=1
         )
         
@@ -162,9 +203,29 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             'InvoiceSubtitle',
             parent=normal_style,
             fontName='Helvetica',
+            fontSize=9,
+            leading=13,
+            textColor=colors.HexColor('#4B5563'),
+            alignment=1
+        )
+
+        gstin_style = ParagraphStyle(
+            'GSTINHeader',
+            parent=normal_style,
+            fontName='Helvetica-Bold',
             fontSize=10,
             leading=14,
-            textColor=colors.HexColor('#4B5563'),
+            textColor=colors.HexColor('#065F46'),
+            alignment=1
+        )
+
+        inv_head_style = ParagraphStyle(
+            'InvoiceHeaderLabel',
+            parent=normal_style,
+            fontName='Helvetica-Bold',
+            fontSize=12,
+            leading=16,
+            textColor=colors.HexColor('#111827'),
             alignment=1
         )
         
@@ -172,28 +233,45 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             'InvoiceMeta',
             parent=normal_style,
             fontName='Helvetica-Bold',
-            fontSize=10,
-            leading=14,
-            textColor=colors.HexColor('#111827')
+            fontSize=9.5,
+            leading=13,
+            textColor=colors.HexColor('#1F2937')
         )
 
         story = []
-        story.append(Paragraph("SUPERMART POS - OFFICIAL DIGITAL TAX INVOICE", title_style))
-        story.append(Paragraph(f"Official Store Document • Invoice #{invoice_no}", subtitle_style))
-        story.append(Spacer(1, 15))
+        # Store Name Header
+        story.append(Paragraph(shop_name.upper(), title_style))
+        story.append(Paragraph(f"{shop_address} • Phone: {shop_phone} • Email: {shop_email}", subtitle_style))
+        story.append(Spacer(1, 6))
+
+        # GSTIN / TAX REGISTRATION ID BANNER
+        gstin_banner = Table([[Paragraph(f"<b>GSTIN / TAX REGISTRATION ID: {shop_gstin}</b>", gstin_style)]], colWidths=[540])
+        gstin_banner.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#D1FAE5')),
+            ('PADDING', (0,0), (-1,-1), 6),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('LINEBELOW', (0,0), (-1,-1), 1, colors.HexColor('#10B981')),
+            ('LINEABOVE', (0,0), (-1,-1), 1, colors.HexColor('#10B981')),
+        ]))
+        story.append(gstin_banner)
+        story.append(Spacer(1, 10))
+
+        story.append(Paragraph(f"TAX INVOICE • #{invoice_no}", inv_head_style))
+        story.append(Spacer(1, 10))
         
         meta_data = [
-            [Paragraph(f"<b>Date:</b> {date_str} {time_str}", meta_style), Paragraph(f"<b>Cashier:</b> {cashier}", meta_style)],
+            [Paragraph(f"<b>Date & Time:</b> {date_str} {time_str}", meta_style), Paragraph(f"<b>Cashier:</b> {cashier}", meta_style)],
             [Paragraph(f"<b>Customer:</b> {customer_name or 'Walk-in Customer'}", meta_style), Paragraph(f"<b>Mobile:</b> {phone or 'N/A'}", meta_style)]
         ]
         meta_table = Table(meta_data, colWidths=[270, 270])
         meta_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F3F4F6')),
-            ('PADDING', (0,0), (-1,-1), 8),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F9FAFB')),
+            ('PADDING', (0,0), (-1,-1), 7),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E5E7EB')),
         ]))
         story.append(meta_table)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 12))
         
         table_data = [
             [Paragraph("<b>Item Description</b>", meta_style), Paragraph("<b>Price (₹)</b>", meta_style), Paragraph("<b>Qty</b>", meta_style), Paragraph("<b>Amount (₹)</b>", meta_style)]
@@ -214,22 +292,30 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             
         items_table = Table(table_data, colWidths=[240, 100, 80, 120])
         items_table.setStyle(TableStyle([
-            ('HEADERBACKGROUND', (0,0), (-1,0), colors.HexColor('#D1FAE5')),
+            ('HEADERBACKGROUND', (0,0), (-1,0), colors.HexColor('#ECFDF5')),
             ('HEADERTEXTCOLOR', (0,0), (-1,0), colors.HexColor('#065F46')),
             ('BOTTOMPADDING', (0,0), (-1,0), 6),
             ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E5E7EB')),
             ('PADDING', (0,0), (-1,-1), 6),
         ]))
         story.append(items_table)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 12))
         
         subtotal = sum(float(i.get('amount') or (float(i.get('price',0)) * int(i.get('quantity') or i.get('qty') or 1))) for i in items)
         discount = subtotal * 0.05
         grand_total = float(total_amount)
+
+        # Tax calculation breakdown (e.g., GST 18% inclusive)
+        taxable_val = grand_total / 1.18
+        cgst_val = (grand_total - taxable_val) / 2
+        sgst_val = cgst_val
         
         total_data = [
             ["Subtotal:", f"₹{subtotal:.2f}"],
             ["Store Discount (5%):", f"-₹{discount:.2f}"],
+            ["Taxable Amount:", f"₹{taxable_val:.2f}"],
+            ["CGST (9%):", f"₹{cgst_val:.2f}"],
+            ["SGST (9%):", f"₹{sgst_val:.2f}"],
             ["Grand Total Paid:", f"₹{grand_total:.2f}"]
         ]
         total_table = Table(total_data, colWidths=[380, 160])
@@ -237,25 +323,27 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
             ('ALIGN', (0,0), (-1,-1), 'RIGHT'),
             ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
             ('FONTSIZE', (0,-1), (-1,-1), 12),
-            ('TEXTCOLOR', (0,-1), (-1,-1), colors.HexColor('#059669')),
+            ('TEXTCOLOR', (0,-1), (-1,-1), colors.HexColor('#047857')),
             ('PADDING', (0,0), (-1,-1), 4),
         ]))
         story.append(total_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 16))
         
         footer_style = ParagraphStyle(
             'Footer',
             parent=subtitle_style,
             fontSize=9,
-            textColor=colors.HexColor('#9CA3AF')
+            textColor=colors.HexColor('#6B7280')
         )
-        story.append(Paragraph("Thank you for shopping at SuperMart! 🛍️ Visit again soon.", footer_style))
+        story.append(Paragraph(f"<b>{receipt_footer}</b>", footer_style))
+        story.append(Paragraph("This is a computer generated tax invoice. Valid without physical signature.", subtitle_style))
         
         doc.build(story)
         return filename, filepath
     except Exception as e:
         print(f"PDF Invoice Generation Error: {e}")
         return None, None
+
 
 
 def dispatch_automated_whatsapp_bill(phone, invoice_no, customer_name, total, pdf_url):
@@ -702,7 +790,8 @@ def checkout():
         )
 
         # AUTOMATED PDF DOCUMENT INVOICE GENERATION
-        pdf_url = f"http://127.0.0.1:5000/api/invoices/download/{invoice_number}"
+        host_url = request.host_url.rstrip('/')
+        pdf_url = f"{host_url}/api/invoices/download/{invoice_number}"
         try:
             generate_pdf_invoice(
                 invoice_number, customer_name, phone, total_bill, bill_products, date_str, time_str, cashier
@@ -733,6 +822,19 @@ def checkout():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route('/api/settings/shop', methods=['GET', 'POST'])
+def manage_shop_settings():
+    if request.method == 'POST':
+        data = request.json or {}
+        current = load_shop_settings()
+        updated = {**current, **data}
+        save_shop_settings(updated)
+        log_activity("Settings", "Shop Settings Updated", f"Updated GSTIN: {updated.get('gstin')}", performed_by="Admin")
+        return jsonify({"success": True, "message": "Shop profile updated", "settings": updated}), 200
+    else:
+        return jsonify(load_shop_settings()), 200
+
+
 @app.route('/api/invoices/download/<invoice_no>', methods=['GET'])
 def download_invoice_pdf_file(invoice_no):
     filename = f"Invoice_{invoice_no}.pdf"
@@ -761,7 +863,9 @@ def download_invoice_pdf_file(invoice_no):
             conn.close()
             return jsonify({"error": "Invoice PDF document not found"}), 404
             
-    return send_file(filepath, as_attachment=True, download_name=filename)
+    response = make_response(send_file(filepath, as_attachment=True, download_name=filename, mimetype='application/pdf'))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 
 @app.route('/api/invoices/view/<invoice_no>', methods=['GET'])
@@ -792,7 +896,11 @@ def view_invoice_pdf_file(invoice_no):
             conn.close()
             return jsonify({"error": "Invoice PDF document not found"}), 404
             
-    return send_file(filepath, mimetype='application/pdf')
+    response = make_response(send_file(filepath, mimetype='application/pdf'))
+    response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
 
 
 @app.route('/api/barcode/scan', methods=['GET', 'POST'])
