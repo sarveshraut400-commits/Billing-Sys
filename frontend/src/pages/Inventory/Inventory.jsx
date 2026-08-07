@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, X, Wand2, Loader2, Image as ImageIcon, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Wand2, Loader2, Image as ImageIcon, Filter, AlertTriangle } from 'lucide-react';
 import { fetchProducts, addProductToDB, deleteProductFromDB, updateProductInDB } from '../../services/api';
 
 const CATEGORIES = ['All', 'Groceries', 'Beverages', 'Electronics', 'Clothing', 'Snacks', 'Other'];
@@ -9,6 +9,7 @@ export default function Inventory() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [isLowStockOnly, setIsLowStockOnly] = useState(false);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSearchingWeb, setIsSearchingWeb] = useState(false);
@@ -39,6 +40,8 @@ export default function Inventory() {
     }
   };
 
+  const lowStockCount = products.filter(p => Number(p.stock) <= (Number(p.lowStockAlert) || 10)).length;
+
   const handleDelete = async (id) => {
     if(window.confirm("Delete this product?")) {
       const filtered = products.filter(p => p.id !== id);
@@ -59,8 +62,6 @@ export default function Inventory() {
     setIsModalOpen(true);
   };
 
-  // --- FIXED IMAGE GENERATOR ---
-  // --- SMARTER WEB SEARCH SIMULATION ---
   const handleAutoFill = () => {
     if (!formData.name) return alert("Please enter a Product Name first!");
     
@@ -68,14 +69,11 @@ export default function Inventory() {
     
     setTimeout(() => {
       const searchTerm = formData.name.toLowerCase();
-      // Extract the first descriptive word for a highly accurate image search
       const keyword = searchTerm.split(' ')[0]; 
       
-      // LoremFlickr allows us to target specific keywords (e.g., 'electronics', 'coffee')
       let generatedImage = `https://loremflickr.com/400/400/${keyword},product/all`;
       let generatedSpecs = "• Standard Retail Packaging\n• High Quality Material\n• 1 Year Warranty";
 
-      // Smart category and spec mapping based on text
       if (searchTerm.includes("mouse") || searchTerm.includes("keyboard") || searchTerm.includes("cable")) {
         generatedSpecs = "• Wireless / Plug & Play\n• Ergonomic Design\n• Compatible with Windows/Mac";
         setFormData(prev => ({...prev, category: 'Electronics'}));
@@ -116,16 +114,44 @@ export default function Inventory() {
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name?.toLowerCase().includes(searchQuery.toLowerCase()) || p.barcode?.toString().includes(searchQuery);
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-    return matchesSearch && matchesCategory;
+    const isLow = Number(p.stock) <= (Number(p.lowStockAlert) || 10);
+    const matchesLowStock = isLowStockOnly ? isLow : true;
+    return matchesSearch && matchesCategory && matchesLowStock;
   });
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Inventory Management</h1>
-        <button onClick={() => openModal()} className="bg-emerald-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition font-bold">
-          <Plus size={20} /> Add New Product
-        </button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Inventory Management</h1>
+          <p className="text-xs text-gray-500 mt-1">Manage catalog stock, pricing, and automated low stock alerts</p>
+        </div>
+
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          {/* LOW STOCK ALERT BUTTON */}
+          <button 
+            onClick={() => setIsLowStockOnly(!isLowStockOnly)}
+            className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition text-sm shadow-sm border ${
+              isLowStockOnly 
+                ? 'bg-amber-600 text-white border-amber-600 ring-2 ring-amber-400' 
+                : lowStockCount > 0 
+                  ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100' 
+                  : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'
+            }`}
+          >
+            <AlertTriangle size={18} className={isLowStockOnly ? "text-white" : lowStockCount > 0 ? "text-amber-600" : "text-gray-400"} />
+            {isLowStockOnly ? 'Showing Low Stock' : 'Low Stock Alerts'}
+            {lowStockCount > 0 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-black ${isLowStockOnly ? 'bg-white text-amber-700' : 'bg-amber-500 text-white animate-pulse'}`}>
+                {lowStockCount}
+              </span>
+            )}
+          </button>
+
+          <button onClick={() => openModal()} className="bg-emerald-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition font-bold text-sm shadow-sm">
+            <Plus size={18} /> Add New Product
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -177,7 +203,26 @@ export default function Inventory() {
                 </td>
                 <td className="p-4 font-semibold text-gray-600">{product.category || 'Other'}</td>
                 <td className="p-4 font-bold text-emerald-700">₹{product.price}</td>
-                <td className="p-4 font-semibold">{product.stock}</td>
+                <td className="p-4 font-semibold">
+                  {Number(product.stock) <= (Number(product.lowStockAlert) || 10) ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 font-bold rounded-lg text-xs border border-amber-200 shadow-sm">
+                      <AlertTriangle size={13} className="text-amber-600" />
+                      {product.stock} (Low Stock)
+                    </span>
+                  ) : (
+                    <span className="text-gray-800 font-bold">{product.stock}</span>
+                  )}
+                </td>
+                <td className="p-4 flex justify-center gap-3">
+                  <button onClick={() => openModal(product)} className="text-blue-500 hover:text-blue-700"><Edit size={18} /></button>
+                  <button onClick={() => handleDelete(product.id)} className="text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
                 <td className="p-4 flex justify-center gap-3">
                   <button onClick={() => openModal(product)} className="text-blue-500 hover:text-blue-700"><Edit size={18} /></button>
                   <button onClick={() => handleDelete(product.id)} className="text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
