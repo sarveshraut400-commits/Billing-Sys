@@ -120,14 +120,15 @@ export default function EmployeeManagement() {
     try {
       if (editingEmployee) {
         if (formData.password && !isVerifyingOtp) {
-          await sendAdminOtp();
+          const otpRes = await sendAdminOtp({ email: formData.email, target_email: formData.email });
           setIsVerifyingOtp(true);
           setIsSubmitting(false);
+          showToast(`🔑 Security OTP dispatched to admin email (${formData.email})!`);
           return; 
         }
 
         await updateEmployee(editingEmployee.id, { ...formData, otp });
-        showToast('Employee updated successfully.');
+        showToast('✅ Employee updated successfully.');
       } else {
         await addEmployee(formData);
         showToast(`✅ Employee '${formData.name}' created successfully!`);

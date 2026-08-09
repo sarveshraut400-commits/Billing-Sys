@@ -1070,6 +1070,10 @@ def save_employees():
 @app.route('/api/auth/send-admin-otp', methods=['POST'])
 def send_admin_otp():
     try:
+        data = request.get_json() or {}
+        caller_email = (data.get('email') or data.get('admin_email') or '').strip().lower()
+        target_email = (data.get('target_email') or '').strip().lower()
+        
         admin_user = users_db.get('admin') if isinstance(users_db, dict) else None
         if not admin_user:
             admin_user = {"email": "systemdefault96@gmail.com", "password": "admin"}
@@ -1083,10 +1087,34 @@ def send_admin_otp():
         except Exception as su_err:
             print(f"save_users error: {su_err}")
         
-        email_sent = send_otp_email(admin_user.get('email', 'systemdefault96@gmail.com'), otp)
+        # Collect all destination inboxes (System Admin, Logged-in Admin, Edited User)
+        emails_to_notify = set()
+        default_admin_mail = admin_user.get('email', 'systemdefault96@gmail.com')
+        if default_admin_mail:
+            emails_to_notify.add(default_admin_mail.strip().lower())
+        if caller_email:
+            emails_to_notify.add(caller_email)
+        if target_email:
+            emails_to_notify.add(target_email)
+            
+        for emp in employees_db:
+            if emp.get('role') == 'admin' and emp.get('email'):
+                emails_to_notify.add(emp.get('email').strip().lower())
+                
+        # Send OTP emails concurrently in daemon threads
+        for dest in emails_to_notify:
+            try:
+                threading.Thread(target=send_otp_email, args=(dest, otp), daemon=True).start()
+            except Exception as e:
+                print(f"Error dispatching OTP to {dest}: {e}")
         
-        log_activity("Login/Checkout", "Admin OTP Sent", f"OTP generated and sent to Admin email (Status: {email_sent})", performed_by="System")
-        return jsonify({"success": True, "message": f"OTP generated: {otp}", "otp": otp}), 200
+        log_activity("Login/Checkout", "Admin OTP Sent", f"Security OTP generated and dispatched to: {', '.join(emails_to_notify)}", performed_by="System")
+        return jsonify({
+            "success": True, 
+            "message": f"OTP sent to {', '.join(emails_to_notify)}", 
+            "otp": otp,
+            "emails": list(emails_to_notify)
+        }), 200
     except Exception as err:
         print(f"send_admin_otp error: {err}")
         return jsonify({"error": f"Failed to generate OTP: {str(err)}"}), 500
@@ -1098,44 +1126,31 @@ def get_employees():
         try:
             with open(EMPLOYEES_FILE, 'r') as f:
                 disk_data = json.load(f)
-                memory_map = {str(e.get('id')): e for e in employees_db}
-                for item in disk_data:
-                    item_id = str(item.get('id'))
-                    if item_id in memory_map:
-                        mem_emp = memory_map[item_id]
-                        if mem_emp.get('lastActive', 0) > item.get('lastActive', 0):
-                            item['lastActive'] = mem_emp.get('lastActive')
-                            item['isOnline'] = mem_emp.get('isOnline', item.get('isOnline'))
-                            item['status'] = mem_emp.get('status', item.get('status'))
+                active_sessions = {str(e.get('id')): e.get('lastActive', 0) for e in employees_db}
+                for d in disk_data:
+                    d_id = str(d.get('id'))
+                    if d_id in active_sessions and active_sessions[d_id] > d.get('lastActive', 0):
+                        d['lastActive'] = active_sessions[d_id]
                 employees_db = disk_data
-        except Exception:
-            pass
-
-    now_time = time.time()
+        except Exception as e:
+            print(f"Error loading {EMPLOYEES_FILE}: {e}")
+    
     conn = get_db_connection()
-    cursor = conn.cursor()
+    c = conn.cursor()
     
     enriched_employees = []
     for emp in employees_db:
-        emp_name = emp.get('name', '')
+        emp_copy = emp.copy()
         
-        cursor.execute("""
-            SELECT timestamp, action FROM activity_logs 
-            WHERE category = 'Login/Checkout' 
-            AND (performed_by LIKE ? OR details LIKE ?) 
-            ORDER BY id DESC LIMIT 1
-        """, (f"%{emp_name}%", f"%{emp_name}%"))
-        
-        last_log = cursor.fetchone()
+        c.execute('SELECT created_at FROM bills WHERE cashier_name = ? ORDER BY id DESC LIMIT 1', (emp.get('name'),))
+        last_bill = c.fetchone()
         last_login_time = emp.get('lastLogin', 'Never')
-        if last_log:
-            last_login_time = last_log['timestamp']
+        if last_bill and last_bill['created_at']:
+            last_login_time = last_bill['created_at']
             
-        last_active = float(emp.get('lastActive', 0))
-        # Consider online if last active heartbeat was within the last 120 seconds (2 minutes)
-        is_online = bool(emp.get('isOnline', False) and (now_time - last_active < 120))
-
-        emp_copy = dict(emp)
+        last_active = emp.get('lastActive', 0)
+        is_online = (time.time() - last_active < 120) if last_active > 0 else emp.get('isOnline', False)
+        
         emp_copy['lastLogin'] = last_login_time
         emp_copy['isOnline'] = is_online
         emp_copy['status'] = 'online' if is_online else 'offline'
@@ -1221,6 +1236,7 @@ def edit_employee(emp_id):
         
         for emp in employees_db:
             if str(emp.get('id')) == str(emp_id):
+                old_role = emp.get('role')
                 emp['name'] = data.get('name', emp.get('name'))
                 emp['email'] = data.get('email', emp.get('email'))
                 
@@ -1237,12 +1253,21 @@ def edit_employee(emp_id):
                         save_users()
                     except Exception:
                         pass
+                        
+                save_employees()
                 
-                try:
-                    save_employees()
-                except Exception:
-                    pass
-                log_activity("Login/Checkout", "Employee Updated", f"Modified employee '{emp['name']}' details", performed_by="Admin")
+                # Send email update if promoted to Admin or password changed
+                if emp.get('email') and (new_password or old_role != new_role):
+                    try:
+                        threading.Thread(
+                            target=send_welcome_email,
+                            args=(emp['email'], emp['name'], emp['role'], new_password or 'Existing Password Retained'),
+                            daemon=True
+                        ).start()
+                    except Exception as mail_err:
+                        print(f"threading email error on edit: {mail_err}")
+                        
+                log_activity("Login/Checkout", "Employee Updated", f"Modified employee '{emp['name']}' details (Role: {emp['role']})", performed_by="Admin")
                 return jsonify(emp), 200
                 
         return jsonify({"error": "Employee not found"}), 404
