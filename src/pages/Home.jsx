@@ -54,11 +54,7 @@ export default function Home({ onLogin }) {
     try {
       const response = await loginUser({ username: usernameOrEmail, password, role: activeRole });
       if (response.data && response.data.success) {
-        const userObj = response.data.user || {
-          role: activeRole,
-          name: usernameOrEmail ? usernameOrEmail.split('@')[0] : (activeRole === 'admin' ? 'System' : 'Employee'),
-          email: usernameOrEmail.includes('@') ? usernameOrEmail : `${usernameOrEmail || activeRole}@store.com`
-        };
+        const userObj = response.data.user;
         onLogin(userObj);
         setTimeout(() => navigate(activeRole === 'admin' ? '/admin-dashboard' : '/employee-dashboard'), 10);
         return;
@@ -66,23 +62,9 @@ export default function Home({ onLogin }) {
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
-        setIsLoading(false);
-        return;
+      } else {
+        setError('Invalid username or password. Please check your credentials.');
       }
-
-      // Offline / Fallback credentials
-      let matchedName = activeRole === 'admin' ? 'System' : (usernameOrEmail || 'Staff');
-      if (activeRole === 'admin' && (password === 'admin123' || password === 'admin')) {
-        onLogin({ role: 'admin', name: matchedName, email: 'systemdefault96@gmail.com' });
-        setTimeout(() => navigate('/admin-dashboard'), 10);
-        return;
-      } else if (activeRole === 'employee' && (password === '1234' || password === 'emp123' || password === '123')) {
-        onLogin({ role: 'employee', name: matchedName, email: `${matchedName.toLowerCase()}@gmail.com` });
-        setTimeout(() => navigate('/employee-dashboard'), 10);
-        return;
-      }
-
-      setError('Invalid username or password.');
     } finally {
       setIsLoading(false);
     }
