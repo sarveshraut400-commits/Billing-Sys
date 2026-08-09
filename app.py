@@ -1167,43 +1167,37 @@ def send_admin_otp():
 
 @app.route('/api/auth/employees', methods=['GET'])
 def get_employees():
-    global employees_db
-    if os.path.exists(EMPLOYEES_FILE):
-        try:
-            with open(EMPLOYEES_FILE, 'r') as f:
-                disk_data = json.load(f)
-                active_sessions = {str(e.get('id')): e.get('lastActive', 0) for e in employees_db}
-                for d in disk_data:
-                    d_id = str(d.get('id'))
-                    if d_id in active_sessions and active_sessions[d_id] > d.get('lastActive', 0):
-                        d['lastActive'] = active_sessions[d_id]
-                employees_db = disk_data
-        except Exception as e:
-            print(f"Error loading {EMPLOYEES_FILE}: {e}")
-    
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    enriched_employees = []
-    for emp in employees_db:
-        emp_copy = emp.copy()
+    try:
+        global employees_db
+        if os.path.exists(EMPLOYEES_FILE):
+            try:
+                with open(EMPLOYEES_FILE, 'r') as f:
+                    disk_data = json.load(f)
+                    active_sessions = {str(e.get('id')): e.get('lastActive', 0) for e in employees_db}
+                    for d in disk_data:
+                        d_id = str(d.get('id'))
+                        if d_id in active_sessions and active_sessions[d_id] > d.get('lastActive', 0):
+                            d['lastActive'] = active_sessions[d_id]
+                    employees_db = disk_data
+            except Exception as e:
+                print(f"Error loading {EMPLOYEES_FILE}: {e}")
         
-        c.execute('SELECT created_at FROM bills WHERE cashier_name = ? ORDER BY id DESC LIMIT 1', (emp.get('name'),))
-        last_bill = c.fetchone()
-        last_login_time = emp.get('lastLogin', 'Never')
-        if last_bill and last_bill['created_at']:
-            last_login_time = last_bill['created_at']
+        now_time = time.time()
+        enriched_employees = []
+        for emp in employees_db:
+            emp_copy = emp.copy()
+            last_active = float(emp.get('lastActive', 0))
+            is_online = bool(emp.get('isOnline', False) and (now_time - last_active < 120)) if last_active > 0 else bool(emp.get('isOnline', False))
             
-        last_active = emp.get('lastActive', 0)
-        is_online = (time.time() - last_active < 120) if last_active > 0 else emp.get('isOnline', False)
-        
-        emp_copy['lastLogin'] = last_login_time
-        emp_copy['isOnline'] = is_online
-        emp_copy['status'] = 'online' if is_online else 'offline'
-        enriched_employees.append(emp_copy)
-        
-    conn.close()
-    return jsonify(enriched_employees), 200
+            emp_copy['isOnline'] = is_online
+            emp_copy['status'] = 'online' if is_online else 'offline'
+            enriched_employees.append(emp_copy)
+            
+        return jsonify(enriched_employees), 200
+    except Exception as err:
+        print(f"get_employees error: {err}")
+        return jsonify(employees_db), 200
+
 
 
 
