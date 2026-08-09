@@ -103,181 +103,370 @@ def send_otp_email(receiver_email, otp):
     return send_email(receiver_email, subject, body, html)
 
 def send_welcome_email(receiver_email, name, role, password):
-    subject = f"🚀 Welcome to SuperMart! Official POS Access & Credentials for {name}"
-    body = (
-        f"Dear {name},\n\n"
-        f"WELCOME ABOARD THE SUPERMART FAMILY! 🚀🎉\n\n"
-        f"We are thrilled to officially welcome you to SuperMart as our newest {role.capitalize()}!\n\n"
-        f"Here are your official POS portal credentials to get started on your shift:\n"
-        f"------------------------------------------------------------\n"
-        f"🔑 Live Portal URL: https://billing-sys-beta.vercel.app\n"
-        f"👤 Staff Account: {name}\n"
-        f"📧 Login Email / Username: {receiver_email}\n"
-        f"🔒 Initial Password: {password}\n"
-        f"💼 Position: {role.capitalize()}\n"
-        f"------------------------------------------------------------\n\n"
-        f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
-        f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
-        f"If you have any questions, your Management Team and HR are here to support you.\n\n"
-        f"Warm regards,\n"
-        f"Executive Leadership & Operations Team\n"
-        f"SuperMart Corporation"
-    )
+    is_admin = (role.lower() == 'admin')
     
-    role_badge_color = "#10b981" if role.lower() == 'employee' else "#6366f1"
-    role_badge_bg = "#ecfdf5" if role.lower() == 'employee' else "#eef2ff"
-    
-    html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to SuperMart POS</title>
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 30px 10px;">
-        <tr>
-          <td align="center">
-            
-            <!-- MAIN CARD CONTAINER -->
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 620px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
-              
-              <!-- CORPORATE HERO HEADER -->
-              <tr>
-                <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #047857 100%); padding: 35px 30px; text-align: center;">
-                  <div style="display: inline-block; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); padding: 6px 16px; border-radius: 20px; color: #34d399; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;">
-                    🛒 SUPERMART ENTERPRISE POS
-                  </div>
-                  <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">
-                    Welcome to the Team! 🚀🎉
-                  </h1>
-                  <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 14px;">
-                    Official Staff Account Credentials & Onboarding Access
-                  </p>
-                </td>
-              </tr>
-
-              <!-- BODY CONTENT -->
-              <tr>
-                <td style="padding: 32px 30px;">
+    if is_admin:
+        subject = f"👑 Executive Appointment: Welcome to SuperMart Administration, {name}!"
+        body = (
+            f"Dear {name},\n\n"
+            f"CONGRATULATIONS ON YOUR EXECUTIVE APPOINTMENT AS ADMINISTRATOR! 👑🏛️\n\n"
+            f"You have been granted full administrative authority and operational stewardship over the SuperMart Enterprise POS ecosystem.\n\n"
+            f"As Administrator, your executive responsibilities encompass:\n"
+            f"• Revenue & Fiscal Analytics Oversight\n"
+            f"• Staff Credentialing & Access Security\n"
+            f"• Inventory Procurement & Pricing Strategy\n"
+            f"• Live Compliance & Security Auditing\n\n"
+            f"Here are your Executive Admin Console credentials:\n"
+            f"------------------------------------------------------------\n"
+            f"🔑 Executive Portal: https://billing-sys-beta.vercel.app\n"
+            f"👤 Admin Account: {name}\n"
+            f"📧 Login Email: {receiver_email}\n"
+            f"🔒 Initial Password: {password}\n"
+            f"🛡️ Authority Level: Full Root Administrator\n"
+            f"------------------------------------------------------------\n\n"
+            f"💡 EXECUTIVE LEADERSHIP MOTTO:\n"
+            f"\"Leadership is not about being in charge. It is about taking care of those in your charge and guiding the enterprise toward enduring excellence.\"\n\n"
+            f"Warm regards,\n"
+            f"Board of Directors & Executive Operations\n"
+            f"SuperMart Corporation"
+        )
+        
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Executive Appointment - SuperMart Administration</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #0f172a; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0f172a; padding: 35px 10px;">
+            <tr>
+              <td align="center">
+                
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 630px; background-color: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid #334155;">
                   
-                  <p style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; line-height: 1.5;">
-                    Dear <strong style="color: #0f172a;">{name}</strong>,
-                  </p>
-                  <p style="margin: 0 0 24px 0; color: #475569; font-size: 14px; line-height: 1.6;">
-                    We are thrilled to officially welcome you to the <strong>SuperMart Family</strong>! Your corporate POS terminal profile has been created and is active for your upcoming sales and cashier shifts.
-                  </p>
+                  <!-- EXECUTIVE GOLD & INDIGO HEADER -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e293b 80%, #b45309 100%); padding: 38px 30px; text-align: center;">
+                      <div style="display: inline-block; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.5); padding: 6px 18px; border-radius: 20px; color: #fbbf24; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
+                        👑 EXECUTIVE LEADERSHIP & ADMINISTRATOR
+                      </div>
+                      <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 900; letter-spacing: -0.5px;">
+                        Executive Appointment 🏛️🌟
+                      </h1>
+                      <p style="margin: 8px 0 0 0; color: #cbd5e1; font-size: 14px;">
+                        Full Administrative Command & Operations Stewardship
+                      </p>
+                    </td>
+                  </tr>
 
-                  <!-- CREDENTIALS CARD -->
-                  <div style="background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 22px; margin-bottom: 25px;">
-                    <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
-                      <span style="color: #0f172a; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
-                        🔑 Shift Login Credentials
-                      </span>
-                    </div>
+                  <!-- BODY CONTENT -->
+                  <tr>
+                    <td style="padding: 35px 32px; background-color: #ffffff;">
+                      
+                      <p style="margin: 0 0 16px 0; color: #0f172a; font-size: 17px; line-height: 1.5;">
+                        Dear <strong style="color: #4338ca;">{name}</strong>,
+                      </p>
+                      <p style="margin: 0 0 20px 0; color: #334155; font-size: 14px; line-height: 1.6;">
+                        Congratulations on your appointment to the <strong>Executive Administration</strong> at <strong>SuperMart Corporation</strong>! You have been entrusted with full operational, financial, and supervisory authority over our enterprise POS systems, live sales floors, and employee teams.
+                      </p>
 
-                    <table width="100%" border="0" cellspacing="0" cellpadding="6">
-                      <tr>
-                        <td width="35%" style="color: #64748b; font-size: 13px; font-weight: 600;">Staff Account:</td>
-                        <td style="color: #0f172a; font-size: 14px; font-weight: bold;">{name}</td>
-                      </tr>
-                      <tr>
-                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Login Username:</td>
-                        <td style="color: #0f172a; font-size: 13px; font-family: monospace; font-weight: bold;">{receiver_email}</td>
-                      </tr>
-                      <tr>
-                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Initial Password:</td>
-                        <td>
-                          <span style="background-color: #e2e8f0; color: #0f172a; font-family: monospace; font-size: 15px; font-weight: bold; padding: 3px 10px; border-radius: 6px; border: 1px solid #cbd5e1; letter-spacing: 1px;">
-                            {password}
+                      <!-- EXECUTIVE CREDENTIALS CARD -->
+                      <div style="background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%); border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 22px; margin-bottom: 25px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.8);">
+                        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+                          <span style="color: #1e1b4b; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;">
+                            🛡️ Executive Admin Credentials
                           </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Assigned Role:</td>
-                        <td>
-                          <span style="background-color: {role_badge_bg}; color: {role_badge_color}; border: 1px solid {role_badge_color}40; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">
-                            {role}
+                          <span style="background-color: #fef3c7; color: #92400e; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 12px; border: 1px solid #fde68a;">
+                            FULL ACCESS
                           </span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
+                        </div>
 
-                  <!-- PRIMARY ACTION BUTTON -->
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
-                    <tr>
-                      <td align="center">
-                        <a href="https://billing-sys-beta.vercel.app" target="_blank" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: bold; padding: 14px 34px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); letter-spacing: 0.3px;">
-                          🚀 Launch POS Terminal Shift →
-                        </a>
-                      </td>
-                    </tr>
-                  </table>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="6">
+                          <tr>
+                            <td width="35%" style="color: #64748b; font-size: 13px; font-weight: 600;">Executive Name:</td>
+                            <td style="color: #0f172a; font-size: 14px; font-weight: bold;">{name}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Admin Login:</td>
+                            <td style="color: #0f172a; font-size: 13px; font-family: monospace; font-weight: bold;">{receiver_email}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Master Password:</td>
+                            <td>
+                              <span style="background-color: #1e1b4b; color: #38bdf8; font-family: monospace; font-size: 15px; font-weight: bold; padding: 4px 12px; border-radius: 6px; border: 1px solid #4338ca; letter-spacing: 1px;">
+                                {password}
+                              </span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Authority Tier:</td>
+                            <td>
+                              <span style="background-color: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">
+                                👑 Root Administrator
+                              </span>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
 
-                  <!-- CORPORATE FEATURE PILLS -->
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 25px; margin-bottom: 25px;">
-                    <tr>
-                      <td width="32%" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 10px; text-align: center;">
-                        <div style="font-size: 18px; margin-bottom: 4px;">⚡</div>
-                        <div style="color: #166534; font-size: 12px; font-weight: bold;">IoT Barcode Scan</div>
-                        <div style="color: #15803d; font-size: 10px; margin-top: 2px;">Instant item lookup</div>
-                      </td>
-                      <td width="2%"></td>
-                      <td width="32%" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 10px; text-align: center;">
-                        <div style="font-size: 18px; margin-bottom: 4px;">🧾</div>
-                        <div style="color: #1e40af; font-size: 12px; font-weight: bold;">GST Tax Invoices</div>
-                        <div style="color: #1d4ed8; font-size: 10px; margin-top: 2px;">Auto PDF & WhatsApp</div>
-                      </td>
-                      <td width="2%"></td>
-                      <td width="32%" style="background-color: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 12px 10px; text-align: center;">
-                        <div style="font-size: 18px; margin-bottom: 4px;">🟢</div>
-                        <div style="color: #6b21a8; font-size: 12px; font-weight: bold;">Live Multi-User</div>
-                        <div style="color: #7e22ce; font-size: 10px; margin-top: 2px;">Real-time sync</div>
-                      </td>
-                    </tr>
-                  </table>
+                      <!-- PRIMARY ACTION BUTTON -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
+                        <tr>
+                          <td align="center">
+                            <a href="https://billing-sys-beta.vercel.app" target="_blank" style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: bold; padding: 15px 36px; border-radius: 12px; display: inline-block; box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4); letter-spacing: 0.4px;">
+                              🏛️ Access Executive Admin Console →
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
 
-                  <!-- MOTIVATIONAL PRO-TIP BOX -->
-                  <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-top: 20px;">
-                    <div style="color: #92400e; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
-                      💡 Pro Tip For Your First Shift:
-                    </div>
-                    <div style="color: #78350f; font-size: 13px; font-style: italic; line-height: 1.4;">
-                      "Excellence is not an act, but a habit. Go out there, make every customer smile, and let's conquer today's sales targets together!"
-                    </div>
-                  </div>
+                      <!-- EXECUTIVE PILLARS OF DUTY -->
+                      <div style="margin-top: 25px; margin-bottom: 25px;">
+                        <div style="color: #0f172a; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+                          📋 Your Executive Duties & Powers:
+                        </div>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td width="48%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; vertical-align: top;">
+                              <div style="font-weight: bold; color: #1e1b4b; font-size: 13px; margin-bottom: 3px;">📊 Revenue Analytics</div>
+                              <div style="color: #64748b; font-size: 11px;">Real-time sales, tax reporting & P&L intelligence.</div>
+                            </td>
+                            <td width="4%"></td>
+                            <td width="48%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; vertical-align: top;">
+                              <div style="font-weight: bold; color: #1e1b4b; font-size: 13px; margin-bottom: 3px;">👥 Staff Governance</div>
+                              <div style="color: #64748b; font-size: 11px;">Create, manage, and monitor live employee sessions.</div>
+                            </td>
+                          </tr>
+                          <tr><td height="8" colspan="3"></td></tr>
+                          <tr>
+                            <td width="48%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; vertical-align: top;">
+                              <div style="font-weight: bold; color: #1e1b4b; font-size: 13px; margin-bottom: 3px;">📦 Inventory Strategy</div>
+                              <div style="color: #64748b; font-size: 11px;">Stock procurement, price control & barcode generation.</div>
+                            </td>
+                            <td width="4%"></td>
+                            <td width="48%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; vertical-align: top;">
+                              <div style="font-weight: bold; color: #1e1b4b; font-size: 13px; margin-bottom: 3px;">🛡️ Security Audit Log</div>
+                              <div style="color: #64748b; font-size: 11px;">Complete traceability of all POS transactions.</div>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
 
-                </td>
-              </tr>
+                      <!-- MOTIVATIONAL LEADERSHIP QUOTE -->
+                      <div style="background: linear-gradient(135deg, #fefce8 0%, #fffbeb 100%); border-left: 4px solid #f59e0b; padding: 16px 18px; border-radius: 0 10px 10px 0; margin-top: 22px;">
+                        <div style="color: #92400e; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
+                          💡 Executive Leadership Motto:
+                        </div>
+                        <div style="color: #78350f; font-size: 13px; font-style: italic; line-height: 1.5;">
+                          "Leadership is not about being in charge. It is about taking care of those in your charge and guiding the entire enterprise toward enduring excellence."
+                        </div>
+                      </div>
 
-              <!-- CORPORATE FOOTER -->
-              <tr>
-                <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 30px; text-align: center;">
-                  <p style="margin: 0 0 6px 0; color: #64748b; font-size: 12px; font-weight: 600;">
-                    SuperMart Corporation • Retail Operations & POS Management System
-                  </p>
-                  <p style="margin: 0; color: #94a3b8; font-size: 11px;">
-                    123 Main Commercial Hub, Mumbai, MH • GSTIN: 27AABCU9603R1ZM
-                  </p>
-                  <p style="margin: 8px 0 0 0; color: #cbd5e1; font-size: 10px;">
-                    This is an automated administrative notification. Please do not reply directly to this email.
-                  </p>
-                </td>
-              </tr>
+                    </td>
+                  </tr>
 
-            </table>
-            <!-- END MAIN CARD CONTAINER -->
+                  <!-- CORPORATE FOOTER -->
+                  <tr>
+                    <td style="background-color: #0f172a; border-top: 1px solid #1e293b; padding: 24px 30px; text-align: center;">
+                      <p style="margin: 0 0 6px 0; color: #94a3b8; font-size: 12px; font-weight: 600;">
+                        SuperMart Corporation • Executive Board & Administrative Council
+                      </p>
+                      <p style="margin: 0; color: #64748b; font-size: 11px;">
+                        123 Main Commercial Hub, Mumbai, MH • GSTIN: 27AABCU9603R1ZM
+                      </p>
+                      <p style="margin: 8px 0 0 0; color: #475569; font-size: 10px;">
+                        Confidential Executive Communication. Authorized Personnel Only.
+                      </p>
+                    </td>
+                  </tr>
 
-          </td>
-        </tr>
-      </table>
+                </table>
 
-    </body>
-    </html>
-    """
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
+        """
+    else:
+        subject = f"🚀 Welcome to SuperMart! Official POS Access & Credentials for {name}"
+        body = (
+            f"Dear {name},\n\n"
+            f"WELCOME ABOARD THE SUPERMART FAMILY! 🚀🎉\n\n"
+            f"We are thrilled to officially welcome you to SuperMart as our newest {role.capitalize()}!\n\n"
+            f"Here are your official POS portal credentials to get started on your shift:\n"
+            f"------------------------------------------------------------\n"
+            f"🔑 Live Portal URL: https://billing-sys-beta.vercel.app\n"
+            f"👤 Staff Account: {name}\n"
+            f"📧 Login Email / Username: {receiver_email}\n"
+            f"🔒 Initial Password: {password}\n"
+            f"💼 Position: {role.capitalize()}\n"
+            f"------------------------------------------------------------\n\n"
+            f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
+            f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
+            f"If you have any questions, your Management Team and HR are here to support you.\n\n"
+            f"Warm regards,\n"
+            f"Executive Leadership & Operations Team\n"
+            f"SuperMart Corporation"
+        )
+        
+        role_badge_color = "#10b981"
+        role_badge_bg = "#ecfdf5"
+        
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Welcome to SuperMart POS</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 30px 10px;">
+            <tr>
+              <td align="center">
+                
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 620px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+                  
+                  <!-- HERO HEADER -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #047857 100%); padding: 35px 30px; text-align: center;">
+                      <div style="display: inline-block; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); padding: 6px 16px; border-radius: 20px; color: #34d399; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;">
+                        🛒 SUPERMART ENTERPRISE POS
+                      </div>
+                      <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">
+                        Welcome to the Team! 🚀🎉
+                      </h1>
+                      <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 14px;">
+                        Official Staff Account Credentials & Onboarding Access
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- BODY CONTENT -->
+                  <tr>
+                    <td style="padding: 32px 30px;">
+                      
+                      <p style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; line-height: 1.5;">
+                        Dear <strong style="color: #0f172a;">{name}</strong>,
+                      </p>
+                      <p style="margin: 0 0 24px 0; color: #475569; font-size: 14px; line-height: 1.6;">
+                        We are thrilled to officially welcome you to the <strong>SuperMart Family</strong>! Your corporate POS terminal profile has been created and is active for your upcoming sales and cashier shifts.
+                      </p>
+
+                      <!-- CREDENTIALS CARD -->
+                      <div style="background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 22px; margin-bottom: 25px;">
+                        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+                          <span style="color: #0f172a; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                            🔑 Shift Login Credentials
+                          </span>
+                        </div>
+
+                        <table width="100%" border="0" cellspacing="0" cellpadding="6">
+                          <tr>
+                            <td width="35%" style="color: #64748b; font-size: 13px; font-weight: 600;">Staff Account:</td>
+                            <td style="color: #0f172a; font-size: 14px; font-weight: bold;">{name}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Login Username:</td>
+                            <td style="color: #0f172a; font-size: 13px; font-family: monospace; font-weight: bold;">{receiver_email}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Initial Password:</td>
+                            <td>
+                              <span style="background-color: #e2e8f0; color: #0f172a; font-family: monospace; font-size: 15px; font-weight: bold; padding: 3px 10px; border-radius: 6px; border: 1px solid #cbd5e1; letter-spacing: 1px;">
+                                {password}
+                              </span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Assigned Role:</td>
+                            <td>
+                              <span style="background-color: {role_badge_bg}; color: {role_badge_color}; border: 1px solid {role_badge_color}40; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">
+                                {role}
+                              </span>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+
+                      <!-- PRIMARY ACTION BUTTON -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
+                        <tr>
+                          <td align="center">
+                            <a href="https://billing-sys-beta.vercel.app" target="_blank" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: bold; padding: 14px 34px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); letter-spacing: 0.3px;">
+                              🚀 Launch POS Terminal Shift →
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- CORPORATE FEATURE PILLS -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 25px; margin-bottom: 25px;">
+                        <tr>
+                          <td width="32%" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 10px; text-align: center;">
+                            <div style="font-size: 18px; margin-bottom: 4px;">⚡</div>
+                            <div style="color: #166534; font-size: 12px; font-weight: bold;">IoT Barcode Scan</div>
+                            <div style="color: #15803d; font-size: 10px; margin-top: 2px;">Instant item lookup</div>
+                          </td>
+                          <td width="2%"></td>
+                          <td width="32%" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 10px; text-align: center;">
+                            <div style="font-size: 18px; margin-bottom: 4px;">🧾</div>
+                            <div style="color: #1e40af; font-size: 12px; font-weight: bold;">GST Tax Invoices</div>
+                            <div style="color: #1d4ed8; font-size: 10px; margin-top: 2px;">Auto PDF & WhatsApp</div>
+                          </td>
+                          <td width="2%"></td>
+                          <td width="32%" style="background-color: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 12px 10px; text-align: center;">
+                            <div style="font-size: 18px; margin-bottom: 4px;">🟢</div>
+                            <div style="color: #6b21a8; font-size: 12px; font-weight: bold;">Live Multi-User</div>
+                            <div style="color: #7e22ce; font-size: 10px; margin-top: 2px;">Real-time sync</div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- MOTIVATIONAL PRO-TIP BOX -->
+                      <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-top: 20px;">
+                        <div style="color: #92400e; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
+                          💡 Pro Tip For Your First Shift:
+                        </div>
+                        <div style="color: #78350f; font-size: 13px; font-style: italic; line-height: 1.4;">
+                          "Excellence is not an act, but a habit. Go out there, make every customer smile, and let's conquer today's sales targets together!"
+                        </div>
+                      </div>
+
+                    </td>
+                  </tr>
+
+                  <!-- CORPORATE FOOTER -->
+                  <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 30px; text-align: center;">
+                      <p style="margin: 0 0 6px 0; color: #64748b; font-size: 12px; font-weight: 600;">
+                        SuperMart Corporation • Retail Operations & POS Management System
+                      </p>
+                      <p style="margin: 0; color: #94a3b8; font-size: 11px;">
+                        123 Main Commercial Hub, Mumbai, MH • GSTIN: 27AABCU9603R1ZM
+                      </p>
+                      <p style="margin: 8px 0 0 0; color: #cbd5e1; font-size: 10px;">
+                        This is an automated administrative notification. Please do not reply directly to this email.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
+        """
+
     success = send_email(receiver_email, subject, body, html)
     if success:
         log_activity(
@@ -294,6 +483,7 @@ def send_welcome_email(receiver_email, name, role, password):
             performed_by="System HR"
         )
     return success
+
 
 
 
