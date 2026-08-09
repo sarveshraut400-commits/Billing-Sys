@@ -52,5 +52,14 @@
         "lastLogin": "Never",
         "isOnline": false,
         "status": "offline"
+    },
+    {
+        "id": "c04c052d",
+        "name": "new",
+        "email": "sarveshraut400@gmail.com",
+        "role": "employee",
+        "lastLogin": "Never",
+        "isOnline": false,
+        "status": "offline"
     }
 ]

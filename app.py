@@ -34,23 +34,35 @@ os.makedirs(INVOICES_DIR, exist_ok=True)
 
 
 # ==========================================
-# EMAIL SETTINGS & ROBUST DISPATCH ENGINE
+# EMAIL SETTINGS & HIGH-DELIVERABILITY ENGINE
 # ==========================================
+from email.mime.multipart import MIMEMultipart
+from email.utils import formatdate, make_msgid
+
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "systemdefault96@gmail.com")
 SENDER_PASSWORD = os.environ.get("SENDER_PASSWORD", "zkav ukps jfeh uhqw").replace(" ", "").strip()
 
-def send_email(receiver_email, subject, body_text):
+def send_email(receiver_email, subject, body_text, html_content=None):
     if not receiver_email or not SENDER_EMAIL or not SENDER_PASSWORD:
         print("Email Dispatch Warning: Missing email credentials.")
         return False
 
     clean_pwd = SENDER_PASSWORD.replace(" ", "").strip()
-    msg = MIMEText(body_text, 'plain', 'utf-8')
+    
+    if html_content:
+        msg = MIMEMultipart('alternative')
+        msg.attach(MIMEText(body_text, 'plain', 'utf-8'))
+        msg.attach(MIMEText(html_content, 'html', 'utf-8'))
+    else:
+        msg = MIMEText(body_text, 'plain', 'utf-8')
+
     msg['Subject'] = subject
     msg['From'] = f"SuperMart POS <{SENDER_EMAIL}>"
     msg['To'] = receiver_email
+    msg['Date'] = formatdate(localtime=True)
+    msg['Message-ID'] = make_msgid(domain='gmail.com')
     
-    # Try Port 587 (TLS - Standard for Cloud Environments)
+    # Try Port 587 (TLS - High Deliverability)
     try:
         with smtplib.SMTP('smtp.gmail.com', 587, timeout=12) as server:
             server.starttls()
@@ -58,8 +70,7 @@ def send_email(receiver_email, subject, body_text):
             server.send_message(msg)
         return True
     except Exception as e587:
-        print(f"SMTP Port 587 Notice: {e587}. Retrying with Port 465 (SSL)...")
-        # Fallback to Port 465 (SSL)
+        print(f"SMTP Port 587 Notice: {e587}. Retrying Port 465 (SSL)...")
         try:
             with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=12) as server:
                 server.login(SENDER_EMAIL, clean_pwd)
@@ -75,34 +86,67 @@ def send_otp_email(receiver_email, otp):
         f"Hello,\n\n"
         f"Your SuperMart POS Security Verification OTP is:\n"
         f"🔑 {otp}\n\n"
-        f"This OTP is valid for security authorization. Do not share this code with anyone.\n\n"
+        f"This code is valid for 10 minutes. Do not share it with anyone.\n\n"
         f"Regards,\n"
         f"SuperMart Security & Operations"
     )
-    return send_email(receiver_email, subject, body)
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+      <h2 style="color: #10b981; margin-top: 0;">SuperMart Security Verification</h2>
+      <p style="color: #374151; font-size: 14px;">Use the following One-Time Password (OTP) to authorize your account action:</p>
+      <div style="background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #111827; margin: 20px 0;">
+        {otp}
+      </div>
+      <p style="color: #6b7280; font-size: 12px;">This OTP is valid for 10 minutes. If you did not request this code, please ignore this email.</p>
+    </div>
+    """
+    return send_email(receiver_email, subject, body, html)
 
 def send_welcome_email(receiver_email, name, role, password):
-    subject = f"🚀 Welcome to SuperMart! Onboarding & Portal Access, {name}"
+    subject = f"Welcome to SuperMart POS - Login Credentials for {name}"
     body = (
         f"Dear {name},\n\n"
-        f"WELCOME ABOARD THE SUPERMART FAMILY! 🚀🎉\n\n"
-        f"We are thrilled to officially welcome you to SuperMart as our newest {role.capitalize()}!\n\n"
-        f"Here are your official POS portal credentials to get started on your shift:\n"
+        f"WELCOME TO SUPERMART POS!\n\n"
+        f"Your staff account has been created successfully. Here are your portal login credentials:\n"
         f"------------------------------------------------------------\n"
-        f"🔑 Live Portal URL: https://billing-sys-beta.vercel.app\n"
-        f"👤 Staff Account: {name}\n"
-        f"📧 Login Email / Username: {receiver_email}\n"
+        f"🔑 Portal URL: https://billing-sys-beta.vercel.app\n"
+        f"👤 Account Name: {name}\n"
+        f"📧 Login Email: {receiver_email}\n"
         f"🔒 Initial Password: {password}\n"
-        f"💼 Position: {role.capitalize()}\n"
+        f"💼 Role: {role.capitalize()}\n"
         f"------------------------------------------------------------\n\n"
-        f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
-        f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
-        f"If you have any questions, your Management Team and HR are here to support you.\n\n"
         f"Warm regards,\n"
-        f"Executive Leadership & Operations Team\n"
-        f"SuperMart Corporation"
+        f"SuperMart Operations Team"
     )
-    success = send_email(receiver_email, subject, body)
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;">
+      <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 20px; text-align: center; border-radius: 8px; color: #ffffff;">
+        <h1 style="margin: 0; font-size: 22px;">Welcome to SuperMart POS!</h1>
+        <p style="margin: 6px 0 0 0; font-size: 13px; opacity: 0.95;">Official Staff Account Credentials</p>
+      </div>
+      <div style="padding: 20px 8px; color: #374151; font-size: 14px; line-height: 1.6;">
+        <p>Dear <strong>{name}</strong>,</p>
+        <p>Welcome to the SuperMart team! Your staff account has been created and is ready for your shift.</p>
+        
+        <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin: 20px 0;">
+          <h3 style="margin: 0 0 12px 0; color: #111827; font-size: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">🔑 Portal Login Details</h3>
+          <p style="margin: 6px 0;"><strong>Live Portal:</strong> <a href="https://billing-sys-beta.vercel.app" style="color: #10b981; font-weight: bold;">https://billing-sys-beta.vercel.app</a></p>
+          <p style="margin: 6px 0;"><strong>Username / Email:</strong> <span style="font-family: monospace; color: #1f2937;">{receiver_email}</span></p>
+          <p style="margin: 6px 0;"><strong>Initial Password:</strong> <code style="background-color: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #111827;">{password}</code></p>
+          <p style="margin: 6px 0;"><strong>Position:</strong> {role.capitalize()}</p>
+        </div>
+
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="https://billing-sys-beta.vercel.app" style="background-color: #10b981; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; display: inline-block;">Open SuperMart POS Portal →</a>
+        </div>
+
+        <p style="font-size: 12px; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 15px; margin-top: 25px; text-align: center;">
+          SuperMart Corporation • Retail Operations Management System
+        </p>
+      </div>
+    </div>
+    """
+    success = send_email(receiver_email, subject, body, html)
     if success:
         log_activity(
             category="Login/Checkout",
@@ -118,6 +162,7 @@ def send_welcome_email(receiver_email, name, role, password):
             performed_by="System HR"
         )
     return success
+
 
 
 # ==========================================
