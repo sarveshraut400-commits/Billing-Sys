@@ -713,8 +713,8 @@ def dispatch_automated_whatsapp_bill(phone, invoice_no, customer_name, total, pd
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     try:
-        data = request.get_json() or {}
-        role = data.get('role', 'employee')
+        data = request.get_json(force=True, silent=True) or {}
+        role = str(data.get('role') or 'employee').strip().lower()
         password = str(data.get('password') or '').strip()
         identifier = str(data.get('username') or data.get('email') or '').strip().lower()
         
@@ -727,55 +727,55 @@ def login():
         
         # 1. Admin Login Verification
         if role == 'admin':
-            admin_user = users_db.get('admin', {})
-            admin_pwd = admin_user.get('password', 'admin123')
-            admin_email = admin_user.get('email', 'systemdefault96@gmail.com').lower()
+            admin_user = users_db.get('admin', {}) if isinstance(users_db, dict) else {}
+            admin_pwd = str(admin_user.get('password', 'admin')).strip()
+            admin_email = str(admin_user.get('email', 'systemdefault96@gmail.com')).strip().lower()
             
-            is_root_admin = (identifier in ['admin', 'system', admin_email])
-            matched_admin_emp = next((e for e in employees_db if e.get('role') == 'admin' and (e.get('email', '').lower() == identifier or e.get('name', '').lower() == identifier)), None)
+            is_root_admin = (identifier in ['admin', 'system', 'system admin', admin_email])
+            matched_admin_emp = next((e for e in employees_db if e.get('role') == 'admin' and (e.get('email', '').strip().lower() == identifier or e.get('name', '').strip().lower() == identifier)), None)
             
             if not is_root_admin and not matched_admin_emp:
-                return jsonify({"error": f"Admin account '{identifier}' not found."}), 401
+                return jsonify({"error": f"Admin account '{identifier}' not found. Please check your username or email."}), 401
                 
-            expected_pwd = matched_admin_emp.get('password') if (matched_admin_emp and matched_admin_emp.get('password')) else admin_pwd
-            if password != expected_pwd and password != admin_pwd and password != 'admin123':
-                return jsonify({"error": "Incorrect admin password."}), 401
+            if matched_admin_emp:
+                expected_pwd = str(matched_admin_emp.get('password') or '123').strip()
+                if password != expected_pwd:
+                    return jsonify({"error": "Incorrect password for this admin account."}), 401
                 
-            emp_to_update = matched_admin_emp or next((e for e in employees_db if e.get('role') == 'admin'), None)
-            if emp_to_update:
-                emp_to_update['lastLogin'] = now_str
-                emp_to_update['lastActive'] = time.time()
-                emp_to_update['isOnline'] = True
-                emp_to_update['status'] = 'online'
+                matched_admin_emp['lastLogin'] = now_str
+                matched_admin_emp['lastActive'] = time.time()
+                matched_admin_emp['isOnline'] = True
+                matched_admin_emp['status'] = 'online'
                 save_employees()
                 user_data = {
-                    "id": emp_to_update.get('id', 'admin_1'),
-                    "name": emp_to_update.get('name', 'System Admin'),
-                    "email": emp_to_update.get('email', admin_email),
+                    "id": matched_admin_emp.get('id'),
+                    "name": matched_admin_emp.get('name'),
+                    "email": matched_admin_emp.get('email'),
                     "role": "admin"
                 }
             else:
-                user_data = {"role": "admin", "name": "System Admin", "email": admin_email}
+                if password != admin_pwd and password != 'admin' and password != 'admin123':
+                    return jsonify({"error": "Incorrect admin password."}), 401
+                    
+                user_data = {
+                    "id": "root_admin_1",
+                    "name": "System Admin",
+                    "email": admin_email,
+                    "role": "admin"
+                }
                 
             log_activity("Login/Checkout", "Admin Login", f"Administrator '{user_data['name']}' authenticated successfully", performed_by=user_data['name'])
             return jsonify({"success": True, "role": "admin", "user": user_data}), 200
 
         # 2. Employee Login Verification (Strict Account Match)
-        matched_emp = next((e for e in employees_db if e.get('email', '').lower() == identifier or e.get('name', '').lower() == identifier), None)
+        matched_emp = next((e for e in employees_db if (e.get('email', '').strip().lower() == identifier or e.get('name', '').strip().lower() == identifier)), None)
         
         if not matched_emp:
             return jsonify({"error": f"Employee account '{identifier}' not found. Please check your username or email."}), 401
             
-        emp_password = matched_emp.get('password')
-        default_emp_pwd = users_db.get('employee', {}).get('password', 'staff123')
+        emp_password = str(matched_emp.get('password') or '123').strip()
         
-        is_pwd_valid = False
-        if emp_password and password == str(emp_password):
-            is_pwd_valid = True
-        elif password == default_emp_pwd or password in ['1234', 'staff123', 'emp123']:
-            is_pwd_valid = True
-            
-        if not is_pwd_valid:
+        if password != emp_password:
             return jsonify({"error": "Incorrect password. Please try again."}), 401
             
         matched_emp['lastLogin'] = now_str
@@ -797,6 +797,7 @@ def login():
     except Exception as e:
         print(f"Login error: {e}")
         return jsonify({"error": "Authentication service error. Please try again."}), 500
+
 
 
 @app.route('/api/auth/logout', methods=['POST'])
@@ -1035,9 +1036,9 @@ def save_employees():
 @app.route('/api/auth/send-admin-otp', methods=['POST'])
 def send_admin_otp():
     try:
-        data = request.get_json() or {}
-        caller_email = (data.get('email') or data.get('admin_email') or '').strip().lower()
-        target_email = (data.get('target_email') or '').strip().lower()
+        data = request.get_json(force=True, silent=True) or {}
+        caller_email = str(data.get('email') or data.get('admin_email') or '').strip().lower()
+        target_email = str(data.get('target_email') or '').strip().lower()
         
         admin_user = users_db.get('admin') if isinstance(users_db, dict) else None
         if not admin_user:
@@ -1052,7 +1053,7 @@ def send_admin_otp():
         except Exception as su_err:
             print(f"save_users error: {su_err}")
         
-        # Collect all destination inboxes (System Admin, Logged-in Admin, Edited User)
+        # Collect all destination inboxes (System Admin, Logged-in Admin, Target Email)
         emails_to_notify = set()
         default_admin_mail = admin_user.get('email', 'systemdefault96@gmail.com')
         if default_admin_mail:
@@ -1090,7 +1091,7 @@ def get_employees():
         global employees_db
         if os.path.exists(EMPLOYEES_FILE):
             try:
-                with open(EMPLOYEES_FILE, 'r') as f:
+                with open(EMPLOYEES_FILE, 'r', encoding='utf-8') as f:
                     disk_data = json.load(f)
                     active_sessions = {str(e.get('id')): e.get('lastActive', 0) for e in employees_db}
                     for d in disk_data:
@@ -1123,11 +1124,11 @@ def get_employees():
 @app.route('/api/auth/employees', methods=['POST'])
 def add_employee():
     try:
-        data = request.get_json() or {}
-        name = data.get('name')
-        role = data.get('role', 'employee').lower()
-        email = data.get('email', '')
-        raw_password = data.get('password', '123')
+        data = request.get_json(force=True, silent=True) or {}
+        name = str(data.get('name') or '').strip()
+        role = str(data.get('role', 'employee')).strip().lower()
+        email = str(data.get('email', '')).strip()
+        raw_password = str(data.get('password', '123')).strip()
         
         if not name:
             return jsonify({"error": "Employee name is required"}), 400
@@ -1143,21 +1144,11 @@ def add_employee():
             "salesCount": 0,
             "totalSales": 0,
             "lastLogin": "Never",
-            "password": str(raw_password).strip()
+            "password": raw_password
         }
         
         employees_db.append(new_emp)
         save_employees()
-        
-        # Safely update login credentials
-        if isinstance(users_db, dict) and role in users_db:
-            if isinstance(users_db[role], dict):
-                users_db[role]['email'] = email
-                users_db[role]['password'] = raw_password
-            try:
-                save_users()
-            except Exception as su_err:
-                print(f"save_users error: {su_err}")
 
         if email:
             try:
@@ -1177,10 +1168,10 @@ def add_employee():
 @app.route('/api/auth/employees/<emp_id>', methods=['PUT'])
 def edit_employee(emp_id):
     try:
-        data = request.get_json() or {}
+        data = request.get_json(force=True, silent=True) or {}
         global employees_db
         
-        new_password = data.get('password')
+        new_password = str(data.get('password') or '').strip()
         if new_password:
             provided_otp = data.get('otp')
             admin_otp = users_db.get('admin', {}).get('otp') if isinstance(users_db, dict) else None
@@ -1196,26 +1187,17 @@ def edit_employee(emp_id):
         for emp in employees_db:
             if str(emp.get('id')) == str(emp_id):
                 old_role = emp.get('role')
-                emp['name'] = data.get('name', emp.get('name'))
-                emp['email'] = data.get('email', emp.get('email'))
+                emp['name'] = str(data.get('name', emp.get('name'))).strip()
+                emp['email'] = str(data.get('email', emp.get('email'))).strip()
                 
-                new_role = data.get('role', emp.get('role'))
+                new_role = str(data.get('role', emp.get('role'))).strip().lower()
                 emp['role'] = new_role
                 if new_password:
-                    emp['password'] = str(new_password).strip()
+                    emp['password'] = new_password
                 
-                if new_password and isinstance(users_db, dict) and new_role in users_db:
-                    if isinstance(users_db[new_role], dict):
-                        users_db[new_role]['password'] = new_password
-                        users_db[new_role]['email'] = emp['email']
-                    try:
-                        save_users()
-                    except Exception:
-                        pass
-                        
                 save_employees()
                 
-                # Send email update if promoted to Admin or password changed
+                # Send email update if promoted/demoted or password changed
                 if emp.get('email') and (new_password or old_role != new_role):
                     try:
                         email_executor.submit(
@@ -1223,7 +1205,7 @@ def edit_employee(emp_id):
                             emp['email'],
                             emp['name'],
                             emp['role'],
-                            new_password or 'Existing Password Retained'
+                            new_password or emp.get('password', 'Existing Password Retained')
                         )
                     except Exception as mail_err:
                         print(f"email_executor submit error on edit: {mail_err}")
