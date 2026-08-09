@@ -43,17 +43,25 @@ from email.utils import formatdate, make_msgid
 
 email_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="MailWorker")
 
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "systemdefault96@gmail.com").strip()
-raw_pwd = os.environ.get("SENDER_PASSWORD", "zkavukpsjfehuhqw")
-SENDER_PASSWORD = str(raw_pwd).replace(" ", "").replace('"', '').replace("'", "").strip()
+# Strict sanitization with guaranteed non-empty fallback
+_env_email = os.environ.get("SENDER_EMAIL", "").strip()
+SENDER_EMAIL = _env_email if _env_email else "systemdefault96@gmail.com"
+
+_env_pwd = str(os.environ.get("SENDER_PASSWORD", "")).replace(" ", "").replace('"', '').replace("'", "").strip()
+SENDER_PASSWORD = _env_pwd if _env_pwd else "zkavukpsjfehuhqw"
 
 def send_email(receiver_email, subject, body_text, html_content=None):
-    if not receiver_email or not SENDER_EMAIL or not SENDER_PASSWORD:
-        print(f"Email Dispatch Warning: Missing email credentials. receiver={receiver_email}")
+    if not receiver_email:
+        print("[EMAIL WARNING] No receiver email provided.")
         return False
 
-    clean_pwd = SENDER_PASSWORD.replace(" ", "").replace('"', '').replace("'", "").strip()
+    sender = SENDER_EMAIL
+    pwd = SENDER_PASSWORD
     
+    if not sender or not pwd:
+        print("[EMAIL WARNING] Missing sender email credentials.")
+        return False
+
     if html_content:
         msg = MIMEMultipart('alternative')
         msg.attach(MIMEText(body_text, 'plain', 'utf-8'))
@@ -62,37 +70,36 @@ def send_email(receiver_email, subject, body_text, html_content=None):
         msg = MIMEText(body_text, 'plain', 'utf-8')
 
     msg['Subject'] = subject
-    msg['From'] = f"SuperMart POS <{SENDER_EMAIL}>"
+    msg['From'] = f"SuperMart POS <{sender}>"
     msg['To'] = receiver_email
     msg['Date'] = formatdate(localtime=True)
     msg['Message-ID'] = make_msgid(domain='gmail.com')
     
-    # 1. Try Port 465 (Direct SSL - Cloud Optimized for Render/AWS)
+    # 1. Try Port 465 (Direct SSL - Cloud Optimized)
     try:
         context = ssl.create_default_context()
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=10) as server:
-            server.login(SENDER_EMAIL, clean_pwd)
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=8) as server:
+            server.login(sender, pwd)
             server.send_message(msg)
         print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 465 (SSL)")
         return True
     except Exception as e465:
         print(f"[SMTP Port 465 Notice] {e465}. Retrying Port 587 (TLS)...")
-        # 2. Fallback to Port 587 (TLS)
+        # 2. Fallback to Port 587 (STARTTLS)
         try:
             context = ssl.create_default_context()
-            with smtplib.SMTP('smtp.gmail.com', 587, timeout=10) as server:
+            with smtplib.SMTP('smtp.gmail.com', 587, timeout=8) as server:
                 server.ehlo()
                 server.starttls(context=context)
                 server.ehlo()
-                server.login(SENDER_EMAIL, clean_pwd)
+                server.login(sender, pwd)
                 server.send_message(msg)
             print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 587 (STARTTLS)")
             return True
         except Exception as e587:
             print(f"[SMTP Port 587 Error] {e587}")
+            log_activity("Settings", "Email Dispatch Error", f"Failed sending to {receiver_email}: {str(e465)} / {str(e587)}", performed_by="System Mailer")
             return False
-
-
 
 def send_otp_email(receiver_email, otp):
     subject = "SuperMart POS - Security Verification OTP"
@@ -105,41 +112,166 @@ def send_otp_email(receiver_email, otp):
         f"SuperMart Security & Operations"
     )
     html = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-      <h2 style="color: #0f172a; margin-top: 0; font-size: 18px;">SuperMart Security Verification</h2>
-      <p style="color: #475569; font-size: 14px;">Use the following One-Time Password (OTP) to authorize your account action:</p>
-      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; text-align: center; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #0f172a; margin: 20px 0;">
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 14px; background-color: #ffffff;">
+      <h2 style="color: #0f172a; margin-top: 0; font-size: 18px;">🔐 SuperMart Security Verification</h2>
+      <p style="color: #475569; font-size: 14px;">Use the following One-Time Password (OTP) to authorize your administrative action:</p>
+      <div style="background-color: #f8fafc; border: 1.5px solid #cbd5e1; padding: 18px; text-align: center; border-radius: 10px; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #0f172a; margin: 20px 0; font-family: monospace;">
         {otp}
       </div>
-      <p style="color: #94a3b8; font-size: 12px;">This OTP is valid for 10 minutes. If you did not request this code, please ignore this email.</p>
+      <p style="color: #94a3b8; font-size: 12px; margin-bottom: 0;">This OTP is valid for 10 minutes. If you did not request this code, please secure your account immediately.</p>
     </div>
     """
     return send_email(receiver_email, subject, body, html)
 
 def send_welcome_email(receiver_email, name, role, password):
-    is_admin = (role.lower() == 'admin')
+    is_admin = (str(role).strip().lower() == 'admin')
     
     if is_admin:
-        subject = f"SuperMart POS: Administrator Access Credentials for {name}"
+        # ==========================================
+        # DISTINCT EXECUTIVE ADMINISTRATOR EMAIL
+        # ==========================================
+        subject = f"👑 SuperMart Executive Console: Administrator Access Granted for {name}"
         body = (
-            f"Hello {name},\n\n"
-            f"Your SuperMart Administrator account is ready.\n\n"
-            f"ACCESS CREDENTIALS:\n"
+            f"Dear {name},\n\n"
+            f"EXECUTIVE ADMINISTRATOR APPOINTMENT & ACCESS CREDENTIALS\n\n"
+            f"You have been granted Full Administrator Authority over the SuperMart POS Enterprise System.\n\n"
+            f"EXECUTIVE CREDENTIALS:\n"
             f"• Portal URL: https://billing-sys-beta.vercel.app\n"
             f"• Login Email: {receiver_email}\n"
-            f"• Password: {password}\n"
-            f"• Role: Administrator (Full Access)\n\n"
-            f"Log in at the portal to access system analytics, inventory, and staff management.\n\n"
+            f"• Master Password: {password}\n"
+            f"• Authority Level: Root Administrator\n\n"
+            f"Your administrative capabilities include:\n"
+            f"1. Revenue & Real-time Fiscal Analytics\n"
+            f"2. Staff Management & Access Security\n"
+            f"3. Inventory Control & Barcode Management\n"
+            f"4. Live Security Audit Trail Inspection\n\n"
+            f"Access your executive console at https://billing-sys-beta.vercel.app\n\n"
             f"Regards,\n"
-            f"SuperMart Operations"
+            f"SuperMart Executive Operations"
         )
         
-        badge_text = "ADMINISTRATOR"
-        badge_bg = "#e0e7ff"
-        badge_color = "#3730a3"
-        accent_color = "#4f46e5"
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Executive Administrator Access</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0f172a; padding: 35px 12px;">
+            <tr>
+              <td align="center">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 580px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); border: 1px solid #334155;">
+                  
+                  <!-- EXECUTIVE HEADER -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%); padding: 32px 30px; text-align: center;">
+                      <div style="display: inline-block; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); padding: 5px 14px; border-radius: 20px; color: #fbbf24; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px;">
+                        👑 ROOT ADMINISTRATOR ACCESS
+                      </div>
+                      <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.3px;">
+                        Executive Console Credentials
+                      </h1>
+                      <p style="margin: 6px 0 0 0; color: #cbd5e1; font-size: 13px;">
+                        SuperMart Enterprise Management & Analytics
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- BODY -->
+                  <tr>
+                    <td style="padding: 28px 30px;">
+                      <p style="margin: 0 0 14px 0; color: #0f172a; font-size: 16px; font-weight: 600;">
+                        Hello {name},
+                      </p>
+                      <p style="margin: 0 0 20px 0; color: #475569; font-size: 14px; line-height: 1.5;">
+                        Your <strong>Executive Administrator</strong> account has been configured with full administrative privileges. Use the credentials below to log in:
+                      </p>
+
+                      <!-- CREDENTIALS BOX -->
+                      <div style="background-color: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 18px 20px; margin-bottom: 22px;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="6">
+                          <tr>
+                            <td width="38%" style="color: #64748b; font-size: 13px; font-weight: 600;">Console URL:</td>
+                            <td><a href="https://billing-sys-beta.vercel.app" style="color: #4f46e5; font-size: 13px; font-weight: 700; text-decoration: none;">https://billing-sys-beta.vercel.app</a></td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Admin Login:</td>
+                            <td style="color: #0f172a; font-size: 13px; font-family: monospace; font-weight: 700;">{receiver_email}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Master Password:</td>
+                            <td>
+                              <span style="background-color: #1e1b4b; color: #38bdf8; font-family: monospace; font-size: 14px; font-weight: 800; padding: 3px 10px; border-radius: 6px; letter-spacing: 1px;">
+                                {password}
+                              </span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Authority Tier:</td>
+                            <td>
+                              <span style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 12px;">
+                                FULL SYSTEM ACCESS
+                              </span>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+
+                      <!-- CTA BUTTON -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
+                        <tr>
+                          <td align="center">
+                            <a href="https://billing-sys-beta.vercel.app" target="_blank" style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; padding: 13px 32px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+                              🏛️ Launch Executive Admin Console →
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- EXECUTIVE DUTIES -->
+                      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;">
+                        <div style="font-size: 12px; font-weight: 800; color: #1e1b4b; text-transform: uppercase; margin-bottom: 8px;">
+                          📋 Executive Permissions:
+                        </div>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="4">
+                          <tr>
+                            <td style="font-size: 12px; color: #334155;">• <strong>Revenue Analytics:</strong> Real-time sales, tax reports & profit charts.</td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 12px; color: #334155;">• <strong>Staff Governance:</strong> Hire employees, manage roles & track shifts.</td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 12px; color: #334155;">• <strong>Inventory Operations:</strong> Price configuration & stock management.</td>
+                          </tr>
+                        </table>
+                      </div>
+
+                    </td>
+                  </tr>
+
+                  <!-- FOOTER -->
+                  <tr>
+                    <td style="background-color: #0f172a; border-top: 1px solid #1e293b; padding: 18px 30px; text-align: center;">
+                      <p style="margin: 0; color: #94a3b8; font-size: 11px;">
+                        SuperMart Enterprise POS • Administrative Executive Communication • GSTIN: 27AABCU9603R1ZM
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+        """
     else:
-        subject = f"SuperMart POS: Staff Account Details for {name}"
+        # ==========================================
+        # DISTINCT EMPLOYEE / STAFF ACCOUNT EMAIL
+        # ==========================================
+        subject = f"🛒 SuperMart POS: Staff Account & Shift Credentials for {name}"
         body = (
             f"Hello {name},\n\n"
             f"Your SuperMart POS staff account has been created.\n\n"
@@ -153,128 +285,120 @@ def send_welcome_email(receiver_email, name, role, password):
             f"SuperMart Operations"
         )
         
-        badge_text = "STAFF ACCOUNT"
-        badge_bg = "#dcfce7"
-        badge_color = "#166534"
-        accent_color = "#10b981"
-        
-    html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>SuperMart POS Access</title>
-    </head>
-    <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
-      
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 40px 15px;">
-        <tr>
-          <td align="center">
-            
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 540px; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);">
-              
-              <!-- BRAND HEADER -->
-              <tr>
-                <td style="padding: 28px 32px 20px 32px; border-bottom: 1px solid #f1f5f9;">
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                    <tr>
-                      <td align="left">
-                        <span style="font-size: 16px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">
-                          🛒 SuperMart<span style="color: {accent_color};">.</span>
-                        </span>
-                      </td>
-                      <td align="right">
-                        <span style="background-color: {badge_bg}; color: {badge_color}; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px;">
-                          {badge_text}
-                        </span>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>SuperMart Staff Access</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 35px 12px;">
+            <tr>
+              <td align="center">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 540px; background-color: #ffffff; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);">
+                  
+                  <!-- STAFF HEADER -->
+                  <tr>
+                    <td style="padding: 24px 28px 18px 28px; border-bottom: 1px solid #f1f5f9;">
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td align="left">
+                            <span style="font-size: 16px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">
+                              🛒 SuperMart<span style="color: #10b981;">.</span>
+                            </span>
+                          </td>
+                          <td align="right">
+                            <span style="background-color: #dcfce7; color: #166534; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px;">
+                              STAFF ACCOUNT
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
 
-              <!-- BODY -->
-              <tr>
-                <td style="padding: 28px 32px;">
-                  <h2 style="margin: 0 0 8px 0; color: #0f172a; font-size: 20px; font-weight: 700; letter-spacing: -0.4px;">
-                    Welcome to SuperMart POS
-                  </h2>
-                  <p style="margin: 0 0 22px 0; color: #64748b; font-size: 14px; line-height: 1.5;">
-                    Hello <strong>{name}</strong>, your account has been set up. Use the credentials below to log in:
-                  </p>
+                  <!-- BODY -->
+                  <tr>
+                    <td style="padding: 26px 28px;">
+                      <h2 style="margin: 0 0 6px 0; color: #0f172a; font-size: 18px; font-weight: 700;">
+                        Welcome to the POS Shift
+                      </h2>
+                      <p style="margin: 0 0 20px 0; color: #64748b; font-size: 14px; line-height: 1.5;">
+                        Hello <strong>{name}</strong>, your cashier and counter access has been set up. Use the credentials below to log in:
+                      </p>
 
-                  <!-- CREDENTIALS TABLE -->
-                  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 24px;">
-                    <table width="100%" border="0" cellspacing="0" cellpadding="6">
-                      <tr>
-                        <td width="36%" style="color: #64748b; font-size: 13px; font-weight: 600;">Portal URL:</td>
-                        <td><a href="https://billing-sys-beta.vercel.app" style="color: {accent_color}; font-size: 13px; font-weight: 600; text-decoration: none;">https://billing-sys-beta.vercel.app</a></td>
-                      </tr>
-                      <tr>
-                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Login Email:</td>
-                        <td style="color: #0f172a; font-size: 13px; font-family: monospace; font-weight: 600;">{receiver_email}</td>
-                      </tr>
-                      <tr>
-                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Password:</td>
-                        <td>
-                          <span style="background-color: #e2e8f0; color: #0f172a; font-family: monospace; font-size: 14px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">
-                            {password}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Role:</td>
-                        <td style="color: #0f172a; font-size: 13px; font-weight: 600;">{role.capitalize()}</td>
-                      </tr>
-                    </table>
-                  </div>
+                      <!-- CREDENTIALS TABLE -->
+                      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 22px;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="6">
+                          <tr>
+                            <td width="36%" style="color: #64748b; font-size: 13px; font-weight: 600;">Portal URL:</td>
+                            <td><a href="https://billing-sys-beta.vercel.app" style="color: #10b981; font-size: 13px; font-weight: 600; text-decoration: none;">https://billing-sys-beta.vercel.app</a></td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Login Email:</td>
+                            <td style="color: #0f172a; font-size: 13px; font-family: monospace; font-weight: 600;">{receiver_email}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Password:</td>
+                            <td>
+                              <span style="background-color: #e2e8f0; color: #0f172a; font-family: monospace; font-size: 14px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">
+                                {password}
+                              </span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="color: #64748b; font-size: 13px; font-weight: 600;">Role:</td>
+                            <td style="color: #0f172a; font-size: 13px; font-weight: 600;">{role.capitalize()}</td>
+                          </tr>
+                        </table>
+                      </div>
 
-                  <!-- CTA BUTTON -->
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
-                    <tr>
-                      <td align="left">
-                        <a href="https://billing-sys-beta.vercel.app" target="_blank" style="background-color: {accent_color}; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 11px 24px; border-radius: 8px; display: inline-block;">
-                          Log in to POS Portal →
-                        </a>
-                      </td>
-                    </tr>
-                  </table>
+                      <!-- CTA BUTTON -->
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 20px;">
+                        <tr>
+                          <td align="left">
+                            <a href="https://billing-sys-beta.vercel.app" target="_blank" style="background-color: #10b981; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 11px 24px; border-radius: 8px; display: inline-block;">
+                              🚀 Log in to POS Portal →
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
 
-                  <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.5;">
-                    If you did not expect this invitation or have questions, please contact your store administrator.
-                  </p>
-                </td>
-              </tr>
+                      <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                        Contact your store administrator if you need assistance with your credentials.
+                      </p>
+                    </td>
+                  </tr>
 
-              <!-- FOOTER -->
-              <tr>
-                <td style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 18px 32px; text-align: left;">
-                  <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                    SuperMart POS • Retail Operations System • GSTIN: 27AABCU9603R1ZM
-                  </p>
-                </td>
-              </tr>
+                  <!-- FOOTER -->
+                  <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 16px 28px; text-align: left;">
+                      <p style="margin: 0; color: #94a3b8; font-size: 11px;">
+                        SuperMart POS • Retail Operations System • GSTIN: 27AABCU9603R1ZM
+                      </p>
+                    </td>
+                  </tr>
 
-            </table>
-
-          </td>
-        </tr>
-      </table>
-
-    </body>
-    </html>
-    """
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+        """
 
     success = send_email(receiver_email, subject, body, html)
     if success:
         log_activity(
             category="Login/Checkout",
             action="Welcome Email Sent",
-            details=f"Sent portal access email to {name} ({receiver_email}) for role '{role}'",
+            details=f"Sent {'Administrator' if is_admin else 'Staff'} email to {name} ({receiver_email})",
             performed_by="System"
         )
     return success
+
 
 
 
