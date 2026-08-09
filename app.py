@@ -34,20 +34,25 @@ os.makedirs(INVOICES_DIR, exist_ok=True)
 
 
 # ==========================================
-# EMAIL SETTINGS & HIGH-DELIVERABILITY ENGINE
+# EMAIL SETTINGS & ROBUST DISPATCH ENGINE
 # ==========================================
+import ssl
+from concurrent.futures import ThreadPoolExecutor
 from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate, make_msgid
 
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "systemdefault96@gmail.com")
-SENDER_PASSWORD = os.environ.get("SENDER_PASSWORD", "zkav ukps jfeh uhqw").replace(" ", "").strip()
+email_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="MailWorker")
+
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "systemdefault96@gmail.com").strip()
+raw_pwd = os.environ.get("SENDER_PASSWORD", "zkavukpsjfehuhqw")
+SENDER_PASSWORD = str(raw_pwd).replace(" ", "").replace('"', '').replace("'", "").strip()
 
 def send_email(receiver_email, subject, body_text, html_content=None):
     if not receiver_email or not SENDER_EMAIL or not SENDER_PASSWORD:
-        print("Email Dispatch Warning: Missing email credentials.")
+        print(f"Email Dispatch Warning: Missing email credentials. receiver={receiver_email}")
         return False
 
-    clean_pwd = SENDER_PASSWORD.replace(" ", "").strip()
+    clean_pwd = SENDER_PASSWORD.replace(" ", "").replace('"', '').replace("'", "").strip()
     
     if html_content:
         msg = MIMEMultipart('alternative')
@@ -62,23 +67,30 @@ def send_email(receiver_email, subject, body_text, html_content=None):
     msg['Date'] = formatdate(localtime=True)
     msg['Message-ID'] = make_msgid(domain='gmail.com')
     
-    # Try Port 587 (TLS - High Deliverability)
+    # Try Port 587 (TLS with explicit SSL context & EHLO)
     try:
-        with smtplib.SMTP('smtp.gmail.com', 587, timeout=12) as server:
-            server.starttls()
+        context = ssl.create_default_context()
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as server:
+            server.ehlo()
+            server.starttls(context=context)
+            server.ehlo()
             server.login(SENDER_EMAIL, clean_pwd)
             server.send_message(msg)
+        print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 587 (STARTTLS)")
         return True
     except Exception as e587:
-        print(f"SMTP Port 587 Notice: {e587}. Retrying Port 465 (SSL)...")
+        print(f"[SMTP Port 587 Notice] {e587}. Retrying Port 465 (SSL)...")
         try:
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=12) as server:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=15) as server:
                 server.login(SENDER_EMAIL, clean_pwd)
                 server.send_message(msg)
+            print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 465 (SSL)")
             return True
         except Exception as e465:
-            print(f"SMTP Port 465 Error: {e465}")
+            print(f"[SMTP Port 465 Error] {e465}")
             return False
+
 
 def send_otp_email(receiver_email, otp):
     subject = "SuperMart POS - Security Verification OTP"
@@ -91,13 +103,13 @@ def send_otp_email(receiver_email, otp):
         f"SuperMart Security & Operations"
     )
     html = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
-      <h2 style="color: #10b981; margin-top: 0;">SuperMart Security Verification</h2>
-      <p style="color: #374151; font-size: 14px;">Use the following One-Time Password (OTP) to authorize your account action:</p>
-      <div style="background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #111827; margin: 20px 0;">
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+      <h2 style="color: #0f172a; margin-top: 0; font-size: 18px;">SuperMart Security Verification</h2>
+      <p style="color: #475569; font-size: 14px;">Use the following One-Time Password (OTP) to authorize your account action:</p>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; text-align: center; border-radius: 8px; font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #0f172a; margin: 20px 0;">
         {otp}
       </div>
-      <p style="color: #6b7280; font-size: 12px;">This OTP is valid for 10 minutes. If you did not request this code, please ignore this email.</p>
+      <p style="color: #94a3b8; font-size: 12px;">This OTP is valid for 10 minutes. If you did not request this code, please ignore this email.</p>
     </div>
     """
     return send_email(receiver_email, subject, body, html)
@@ -261,6 +273,8 @@ def send_welcome_email(receiver_email, name, role, password):
             performed_by="System"
         )
     return success
+
+
 
 
 
@@ -926,10 +940,10 @@ def send_admin_otp():
             if emp.get('role') == 'admin' and emp.get('email'):
                 emails_to_notify.add(emp.get('email').strip().lower())
                 
-        # Send OTP emails concurrently in daemon threads
+        # Send OTP emails concurrently via ThreadPoolExecutor
         for dest in emails_to_notify:
             try:
-                threading.Thread(target=send_otp_email, args=(dest, otp), daemon=True).start()
+                email_executor.submit(send_otp_email, dest, otp)
             except Exception as e:
                 print(f"Error dispatching OTP to {dest}: {e}")
         
@@ -984,26 +998,30 @@ def get_employees():
 def add_employee():
     try:
         data = request.get_json() or {}
-        raw_password = str(data.get('password', 'staff123')).strip()
-        email = (data.get('email') or '').strip()
-        name = (data.get('name') or 'New Employee').strip()
-        role = data.get('role', 'employee')
+        name = data.get('name')
+        role = data.get('role', 'employee').lower()
+        email = data.get('email', '')
+        raw_password = data.get('password', '123')
         
+        if not name:
+            return jsonify({"error": "Employee name is required"}), 400
+            
         new_emp = {
-            "id": str(uuid.uuid4())[:8],
+            "id": str(int(time.time() * 1000)),
             "name": name,
-            "email": email,
             "role": role,
-            "password": raw_password,
-            "lastLogin": "Never",
+            "email": email,
+            "status": "offline",
             "isOnline": False,
-            "status": "offline"
+            "lastActive": 0,
+            "salesCount": 0,
+            "totalSales": 0,
+            "lastLogin": "Never",
+            "password": str(raw_password).strip()
         }
+        
         employees_db.append(new_emp)
-        try:
-            save_employees()
-        except Exception as se_err:
-            print(f"save_employees error: {se_err}")
+        save_employees()
         
         # Safely update login credentials
         if isinstance(users_db, dict) and role in users_db:
@@ -1017,13 +1035,9 @@ def add_employee():
 
         if email:
             try:
-                threading.Thread(
-                    target=send_welcome_email,
-                    args=(email, name, role, raw_password),
-                    daemon=True
-                ).start()
+                email_executor.submit(send_welcome_email, email, name, role, raw_password)
             except Exception as mail_err:
-                print(f"threading email error: {mail_err}")
+                print(f"email_executor submit error: {mail_err}")
             
         log_activity("Login/Checkout", "Employee Registered", f"Added new employee '{name}' ({email}) with role '{role}'", performed_by="Admin")
         return jsonify(new_emp), 201
@@ -1078,13 +1092,15 @@ def edit_employee(emp_id):
                 # Send email update if promoted to Admin or password changed
                 if emp.get('email') and (new_password or old_role != new_role):
                     try:
-                        threading.Thread(
-                            target=send_welcome_email,
-                            args=(emp['email'], emp['name'], emp['role'], new_password or 'Existing Password Retained'),
-                            daemon=True
-                        ).start()
+                        email_executor.submit(
+                            send_welcome_email,
+                            emp['email'],
+                            emp['name'],
+                            emp['role'],
+                            new_password or 'Existing Password Retained'
+                        )
                     except Exception as mail_err:
-                        print(f"threading email error on edit: {mail_err}")
+                        print(f"email_executor submit error on edit: {mail_err}")
                         
                 log_activity("Login/Checkout", "Employee Updated", f"Modified employee '{emp['name']}' details (Role: {emp['role']})", performed_by="Admin")
                 return jsonify(emp), 200
@@ -1822,6 +1838,29 @@ def get_db_health():
         }), 200
 
 
+@app.route('/api/settings/test-email', methods=['POST'])
+def test_email_endpoint():
+    try:
+        data = request.get_json() or {}
+        target_email = (data.get('email') or 'sarveshraut400@gmail.com').strip()
+        print(f"[DIAGNOSTIC] Testing live email dispatch to {target_email}...")
+        success = send_welcome_email(target_email, "Test Recipient", "employee", "test1234")
+        if success:
+            return jsonify({
+                "success": True,
+                "message": f"Email successfully dispatched to {target_email} via Google SMTP (TLS 587/SSL 465)",
+                "sender": SENDER_EMAIL
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"Failed to deliver email to {target_email}. Check SMTP credentials or network connection."
+            }), 500
+    except Exception as e:
+        print(f"test_email_endpoint error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 if __name__ == '__main__':
     print("[SUCCESS] Backend is starting on http://127.0.0.1:5000")
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000)
