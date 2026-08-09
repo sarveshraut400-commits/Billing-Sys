@@ -934,40 +934,86 @@ def heartbeat():
 
 @app.route('/api/auth/forgot-password', methods=['POST'])
 def forgot_password():
-    data = request.get_json()
-    role = data.get('role')
+    data = request.get_json() or {}
+    role = data.get('role', 'employee')
+    identifier = (data.get('email') or data.get('username') or '').strip().lower()
     
-    user = users_db.get(role)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+    target_email = None
+    matched_emp = None
+    
+    if identifier:
+        matched_emp = next((e for e in employees_db if e.get('email', '').lower() == identifier or e.get('name', '').lower() == identifier), None)
+        if matched_emp and matched_emp.get('email'):
+            target_email = matched_emp.get('email')
+            
+    if not target_email and role and role in users_db:
+        target_email = users_db[role].get('email')
+        
+    if not target_email and identifier and '@' in identifier:
+        target_email = identifier
+
+    if not target_email:
+        target_email = users_db.get('admin', {}).get('email', 'systemdefault96@gmail.com')
         
     otp = str(random.randint(100000, 999999))
-    user['otp'] = otp
-    save_users() # Save OTP to file
     
-    email_sent = send_otp_email(user['email'], otp)
+    # Store OTP across records
+    if role and role in users_db:
+        users_db[role]['otp'] = otp
+        save_users()
+    if matched_emp:
+        matched_emp['otp'] = otp
+        save_employees()
+    if 'admin' in users_db:
+        users_db['admin']['otp'] = otp
+        save_users()
+        
+    email_sent = send_otp_email(target_email, otp)
     
     if email_sent:
-        masked_email = user['email'][0] + "***" + user['email'][user['email'].find('@'):]
-        log_activity("Login/Checkout", "Password Reset Requested", f"OTP sent to {masked_email} for role '{role}'", performed_by=role.capitalize())
+        masked_email = target_email[0] + "***" + target_email[target_email.find('@'):] if '@' in target_email else target_email
+        log_activity("Login/Checkout", "Password Reset Requested", f"OTP sent to {masked_email}", performed_by="System")
         return jsonify({"success": True, "message": f"OTP sent to {masked_email}"}), 200
     return jsonify({"error": "Failed to send email. Check backend credentials."}), 500
 
 @app.route('/api/auth/reset-password', methods=['POST'])
 def reset_password():
-    data = request.get_json()
-    role = data.get('role')
-    otp = data.get('otp')
-    new_password = data.get('newPassword')
+    data = request.get_json() or {}
+    role = data.get('role', 'employee')
+    otp = str(data.get('otp', '')).strip()
+    new_password = str(data.get('newPassword', '')).strip()
+    identifier = (data.get('email') or data.get('username') or '').strip().lower()
     
+    is_valid = False
+    
+    # Check users_db
     user = users_db.get(role)
-    if user and user['otp'] == otp:
+    if user and str(user.get('otp', '')).strip() == otp:
         user['password'] = new_password
         user['otp'] = None
-        save_users() # Save new password to file permanently!
-        log_activity("Login/Checkout", "Password Reset", f"Password successfully updated for role '{role}'", performed_by=role.capitalize())
+        save_users()
+        is_valid = True
+        
+    # Check admin OTP
+    admin_user = users_db.get('admin')
+    if admin_user and str(admin_user.get('otp', '')).strip() == otp:
+        admin_user['password'] = new_password
+        admin_user['otp'] = None
+        save_users()
+        is_valid = True
+        
+    # Check employees_db
+    for emp in employees_db:
+        if str(emp.get('otp', '')).strip() == otp or (identifier and (emp.get('email', '').lower() == identifier or emp.get('name', '').lower() == identifier)):
+            emp['password'] = new_password
+            emp['otp'] = None
+            save_employees()
+            is_valid = True
+            
+    if is_valid:
+        log_activity("Login/Checkout", "Password Reset", f"Password successfully updated for '{identifier or role}'", performed_by=role.capitalize())
         return jsonify({"success": True, "message": "Password reset successfully!"}), 200
-    return jsonify({"error": "Invalid OTP"}), 400
+    return jsonify({"error": "Invalid or expired OTP"}), 400
 
 
 # ==========================================
