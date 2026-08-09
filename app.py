@@ -103,48 +103,180 @@ def send_otp_email(receiver_email, otp):
     return send_email(receiver_email, subject, body, html)
 
 def send_welcome_email(receiver_email, name, role, password):
-    subject = f"Welcome to SuperMart POS - Login Credentials for {name}"
+    subject = f"🚀 Welcome to SuperMart! Official POS Access & Credentials for {name}"
     body = (
         f"Dear {name},\n\n"
-        f"WELCOME TO SUPERMART POS!\n\n"
-        f"Your staff account has been created successfully. Here are your portal login credentials:\n"
+        f"WELCOME ABOARD THE SUPERMART FAMILY! 🚀🎉\n\n"
+        f"We are thrilled to officially welcome you to SuperMart as our newest {role.capitalize()}!\n\n"
+        f"Here are your official POS portal credentials to get started on your shift:\n"
         f"------------------------------------------------------------\n"
-        f"🔑 Portal URL: https://billing-sys-beta.vercel.app\n"
-        f"👤 Account Name: {name}\n"
-        f"📧 Login Email: {receiver_email}\n"
+        f"🔑 Live Portal URL: https://billing-sys-beta.vercel.app\n"
+        f"👤 Staff Account: {name}\n"
+        f"📧 Login Email / Username: {receiver_email}\n"
         f"🔒 Initial Password: {password}\n"
-        f"💼 Role: {role.capitalize()}\n"
+        f"💼 Position: {role.capitalize()}\n"
         f"------------------------------------------------------------\n\n"
+        f"💡 PRO TIP FOR YOUR FIRST SHIFT:\n"
+        f"\"Excellence is not an act, but a habit. Go out there, make every customer smile, and let's achieve great milestones together!\"\n\n"
+        f"If you have any questions, your Management Team and HR are here to support you.\n\n"
         f"Warm regards,\n"
-        f"SuperMart Operations Team"
+        f"Executive Leadership & Operations Team\n"
+        f"SuperMart Corporation"
     )
+    
+    role_badge_color = "#10b981" if role.lower() == 'employee' else "#6366f1"
+    role_badge_bg = "#ecfdf5" if role.lower() == 'employee' else "#eef2ff"
+    
     html = f"""
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;">
-      <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 20px; text-align: center; border-radius: 8px; color: #ffffff;">
-        <h1 style="margin: 0; font-size: 22px;">Welcome to SuperMart POS!</h1>
-        <p style="margin: 6px 0 0 0; font-size: 13px; opacity: 0.95;">Official Staff Account Credentials</p>
-      </div>
-      <div style="padding: 20px 8px; color: #374151; font-size: 14px; line-height: 1.6;">
-        <p>Dear <strong>{name}</strong>,</p>
-        <p>Welcome to the SuperMart team! Your staff account has been created and is ready for your shift.</p>
-        
-        <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin: 20px 0;">
-          <h3 style="margin: 0 0 12px 0; color: #111827; font-size: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">🔑 Portal Login Details</h3>
-          <p style="margin: 6px 0;"><strong>Live Portal:</strong> <a href="https://billing-sys-beta.vercel.app" style="color: #10b981; font-weight: bold;">https://billing-sys-beta.vercel.app</a></p>
-          <p style="margin: 6px 0;"><strong>Username / Email:</strong> <span style="font-family: monospace; color: #1f2937;">{receiver_email}</span></p>
-          <p style="margin: 6px 0;"><strong>Initial Password:</strong> <code style="background-color: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #111827;">{password}</code></p>
-          <p style="margin: 6px 0;"><strong>Position:</strong> {role.capitalize()}</p>
-        </div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome to SuperMart POS</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 30px 10px;">
+        <tr>
+          <td align="center">
+            
+            <!-- MAIN CARD CONTAINER -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 620px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+              
+              <!-- CORPORATE HERO HEADER -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #047857 100%); padding: 35px 30px; text-align: center;">
+                  <div style="display: inline-block; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); padding: 6px 16px; border-radius: 20px; color: #34d399; font-size: 11px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;">
+                    🛒 SUPERMART ENTERPRISE POS
+                  </div>
+                  <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">
+                    Welcome to the Team! 🚀🎉
+                  </h1>
+                  <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 14px;">
+                    Official Staff Account Credentials & Onboarding Access
+                  </p>
+                </td>
+              </tr>
 
-        <div style="text-align: center; margin: 25px 0;">
-          <a href="https://billing-sys-beta.vercel.app" style="background-color: #10b981; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; display: inline-block;">Open SuperMart POS Portal →</a>
-        </div>
+              <!-- BODY CONTENT -->
+              <tr>
+                <td style="padding: 32px 30px;">
+                  
+                  <p style="margin: 0 0 16px 0; color: #1e293b; font-size: 16px; line-height: 1.5;">
+                    Dear <strong style="color: #0f172a;">{name}</strong>,
+                  </p>
+                  <p style="margin: 0 0 24px 0; color: #475569; font-size: 14px; line-height: 1.6;">
+                    We are thrilled to officially welcome you to the <strong>SuperMart Family</strong>! Your corporate POS terminal profile has been created and is active for your upcoming sales and cashier shifts.
+                  </p>
 
-        <p style="font-size: 12px; color: #9ca3af; border-top: 1px solid #f3f4f6; padding-top: 15px; margin-top: 25px; text-align: center;">
-          SuperMart Corporation • Retail Operations Management System
-        </p>
-      </div>
-    </div>
+                  <!-- CREDENTIALS CARD -->
+                  <div style="background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 22px; margin-bottom: 25px;">
+                    <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+                      <span style="color: #0f172a; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                        🔑 Shift Login Credentials
+                      </span>
+                    </div>
+
+                    <table width="100%" border="0" cellspacing="0" cellpadding="6">
+                      <tr>
+                        <td width="35%" style="color: #64748b; font-size: 13px; font-weight: 600;">Staff Account:</td>
+                        <td style="color: #0f172a; font-size: 14px; font-weight: bold;">{name}</td>
+                      </tr>
+                      <tr>
+                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Login Username:</td>
+                        <td style="color: #0f172a; font-size: 13px; font-family: monospace; font-weight: bold;">{receiver_email}</td>
+                      </tr>
+                      <tr>
+                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Initial Password:</td>
+                        <td>
+                          <span style="background-color: #e2e8f0; color: #0f172a; font-family: monospace; font-size: 15px; font-weight: bold; padding: 3px 10px; border-radius: 6px; border: 1px solid #cbd5e1; letter-spacing: 1px;">
+                            {password}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #64748b; font-size: 13px; font-weight: 600;">Assigned Role:</td>
+                        <td>
+                          <span style="background-color: {role_badge_bg}; color: {role_badge_color}; border: 1px solid {role_badge_color}40; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">
+                            {role}
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <!-- PRIMARY ACTION BUTTON -->
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin: 25px 0;">
+                    <tr>
+                      <td align="center">
+                        <a href="https://billing-sys-beta.vercel.app" target="_blank" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: bold; padding: 14px 34px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); letter-spacing: 0.3px;">
+                          🚀 Launch POS Terminal Shift →
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- CORPORATE FEATURE PILLS -->
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 25px; margin-bottom: 25px;">
+                    <tr>
+                      <td width="32%" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 10px; text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 4px;">⚡</div>
+                        <div style="color: #166534; font-size: 12px; font-weight: bold;">IoT Barcode Scan</div>
+                        <div style="color: #15803d; font-size: 10px; margin-top: 2px;">Instant item lookup</div>
+                      </td>
+                      <td width="2%"></td>
+                      <td width="32%" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 10px; text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 4px;">🧾</div>
+                        <div style="color: #1e40af; font-size: 12px; font-weight: bold;">GST Tax Invoices</div>
+                        <div style="color: #1d4ed8; font-size: 10px; margin-top: 2px;">Auto PDF & WhatsApp</div>
+                      </td>
+                      <td width="2%"></td>
+                      <td width="32%" style="background-color: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 12px 10px; text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 4px;">🟢</div>
+                        <div style="color: #6b21a8; font-size: 12px; font-weight: bold;">Live Multi-User</div>
+                        <div style="color: #7e22ce; font-size: 10px; margin-top: 2px;">Real-time sync</div>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- MOTIVATIONAL PRO-TIP BOX -->
+                  <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-top: 20px;">
+                    <div style="color: #92400e; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
+                      💡 Pro Tip For Your First Shift:
+                    </div>
+                    <div style="color: #78350f; font-size: 13px; font-style: italic; line-height: 1.4;">
+                      "Excellence is not an act, but a habit. Go out there, make every customer smile, and let's conquer today's sales targets together!"
+                    </div>
+                  </div>
+
+                </td>
+              </tr>
+
+              <!-- CORPORATE FOOTER -->
+              <tr>
+                <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 30px; text-align: center;">
+                  <p style="margin: 0 0 6px 0; color: #64748b; font-size: 12px; font-weight: 600;">
+                    SuperMart Corporation • Retail Operations & POS Management System
+                  </p>
+                  <p style="margin: 0; color: #94a3b8; font-size: 11px;">
+                    123 Main Commercial Hub, Mumbai, MH • GSTIN: 27AABCU9603R1ZM
+                  </p>
+                  <p style="margin: 8px 0 0 0; color: #cbd5e1; font-size: 10px;">
+                    This is an automated administrative notification. Please do not reply directly to this email.
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+            <!-- END MAIN CARD CONTAINER -->
+
+          </td>
+        </tr>
+      </table>
+
+    </body>
+    </html>
     """
     success = send_email(receiver_email, subject, body, html)
     if success:
@@ -162,6 +294,7 @@ def send_welcome_email(receiver_email, name, role, password):
             performed_by="System HR"
         )
     return success
+
 
 
 
