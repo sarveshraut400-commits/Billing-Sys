@@ -1172,17 +1172,6 @@ def edit_employee(emp_id):
         global employees_db
         
         new_password = str(data.get('password') or '').strip()
-        if new_password:
-            provided_otp = data.get('otp')
-            admin_otp = users_db.get('admin', {}).get('otp') if isinstance(users_db, dict) else None
-            if not provided_otp or (admin_otp and str(provided_otp).strip() != str(admin_otp).strip()):
-                return jsonify({"error": "Invalid or missing OTP for password change"}), 401
-            if isinstance(users_db, dict) and 'admin' in users_db:
-                users_db['admin']['otp'] = None
-                try:
-                    save_users()
-                except Exception:
-                    pass
         
         for emp in employees_db:
             if str(emp.get('id')) == str(emp_id):
@@ -1197,7 +1186,7 @@ def edit_employee(emp_id):
                 
                 save_employees()
                 
-                # Send email update if promoted/demoted or password changed
+                # Send email update if role changed or password changed
                 if emp.get('email') and (new_password or old_role != new_role):
                     try:
                         email_executor.submit(

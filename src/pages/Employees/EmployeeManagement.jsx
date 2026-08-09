@@ -119,15 +119,7 @@ export default function EmployeeManagement() {
     
     try {
       if (editingEmployee) {
-        if (formData.password && !isVerifyingOtp) {
-          const otpRes = await sendAdminOtp({ email: formData.email, target_email: formData.email });
-          setIsVerifyingOtp(true);
-          setIsSubmitting(false);
-          showToast(`🔑 Security OTP dispatched to admin email (${formData.email})!`);
-          return; 
-        }
-
-        await updateEmployee(editingEmployee.id, { ...formData, otp });
+        await updateEmployee(editingEmployee.id, formData);
         showToast('✅ Employee updated successfully.');
       } else {
         await addEmployee(formData);
@@ -380,22 +372,7 @@ export default function EmployeeManagement() {
                 </div>
               </div>
 
-              {/* OTP Verification Input if changing password */}
-              {isVerifyingOtp && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2 animate-in fade-in">
-                  <p className="text-xs font-bold text-amber-800 flex items-center gap-1">
-                    <ShieldCheck size={16} /> Admin Security Verification Required
-                  </p>
-                  <p className="text-xs text-amber-700">An OTP has been sent to Admin email. Enter it below to authorize this password change:</p>
-                  <input 
-                    type="text" required
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Enter 6-digit OTP"
-                    className="w-full p-2.5 bg-white border border-amber-300 rounded-lg text-sm font-mono tracking-widest text-center font-bold"
-                  />
-                </div>
-              )}
+
 
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition">
