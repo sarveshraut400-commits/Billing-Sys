@@ -67,29 +67,31 @@ def send_email(receiver_email, subject, body_text, html_content=None):
     msg['Date'] = formatdate(localtime=True)
     msg['Message-ID'] = make_msgid(domain='gmail.com')
     
-    # Try Port 587 (TLS with explicit SSL context & EHLO)
+    # 1. Try Port 465 (Direct SSL - Cloud Optimized for Render/AWS)
     try:
         context = ssl.create_default_context()
-        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as server:
-            server.ehlo()
-            server.starttls(context=context)
-            server.ehlo()
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=10) as server:
             server.login(SENDER_EMAIL, clean_pwd)
             server.send_message(msg)
-        print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 587 (STARTTLS)")
+        print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 465 (SSL)")
         return True
-    except Exception as e587:
-        print(f"[SMTP Port 587 Notice] {e587}. Retrying Port 465 (SSL)...")
+    except Exception as e465:
+        print(f"[SMTP Port 465 Notice] {e465}. Retrying Port 587 (TLS)...")
+        # 2. Fallback to Port 587 (TLS)
         try:
             context = ssl.create_default_context()
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=15) as server:
+            with smtplib.SMTP('smtp.gmail.com', 587, timeout=10) as server:
+                server.ehlo()
+                server.starttls(context=context)
+                server.ehlo()
                 server.login(SENDER_EMAIL, clean_pwd)
                 server.send_message(msg)
-            print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 465 (SSL)")
+            print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 587 (STARTTLS)")
             return True
-        except Exception as e465:
-            print(f"[SMTP Port 465 Error] {e465}")
+        except Exception as e587:
+            print(f"[SMTP Port 587 Error] {e587}")
             return False
+
 
 
 def send_otp_email(receiver_email, otp):
