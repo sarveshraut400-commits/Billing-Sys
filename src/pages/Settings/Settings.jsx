@@ -53,7 +53,7 @@ export default function Settings() {
     sessionTimeout: '60'
   });
 
-  useEffect(() => {
+  const loadSettings = () => {
     // Load from offline persistence on mount
     const savedShop = localStorage.getItem('pos_shop_settings');
     if (savedShop) setShopInfo(JSON.parse(savedShop));
