@@ -21,11 +21,8 @@ export default function App() {
   useEffect(() => {
     if (!currentUser) return;
     
-    // Immediate heartbeat ping on session start
-    sendHeartbeat(currentUser).catch(() => {});
-
-    // Periodic heartbeat every 10s to keep live online status active across all active users
-    const interval = setInterval(async () => {
+    // Auth check function
+    const checkAuth = async () => {
       try {
         const res = await sendHeartbeat(currentUser);
         if (res.data?.force_logout) {
@@ -36,9 +33,33 @@ export default function App() {
           setCurrentUser(null);
         }
       }
-    }, 10000);
+    };
 
-    return () => clearInterval(interval);
+    // Immediate heartbeat ping on session start
+    checkAuth();
+
+    // Periodic heartbeat every 10s
+    const interval = setInterval(checkAuth, 10000);
+
+    // Also check immediately when tab becomes visible or gains focus (crucial for mobile devices)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAuth();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', checkAuth);
+
+    const handleGlobalLogout = () => setCurrentUser(null);
+    window.addEventListener('force_logout_event', handleGlobalLogout);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', checkAuth);
+      window.removeEventListener('force_logout_event', handleGlobalLogout);
+    };
   }, [currentUser]);
 
   const handleLoginSuccess = (userData) => {

@@ -22,6 +22,16 @@ const api = axios.create({
   },
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.data?.force_logout) {
+      window.dispatchEvent(new Event('force_logout_event'));
+    }
+    return Promise.reject(error);
+  }
+);
+
 // ==========================================
 // 1. AUTHENTICATION & SECURITY
 // ==========================================
