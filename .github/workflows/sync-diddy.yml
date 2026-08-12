@@ -1,0 +1,22 @@
+name: Sync Diddy to Main
+
+on:
+  push:
+    branches:
+      - diddy
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Reset main to diddy
+        run: |
+          git config --global user.name "GitHub Action Sync"
+          git config --global user.email "action@github.com"
+          git reset --hard origin/diddy
+          git push origin main --force
