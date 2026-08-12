@@ -890,6 +890,13 @@ def heartbeat():
         matched_emp = next((e for e in employees_db if e.get('name', '').lower() == name), None)
 
     if matched_emp:
+        if matched_emp.get('force_logout') == True:
+            matched_emp['force_logout'] = False
+            matched_emp['isOnline'] = False
+            matched_emp['status'] = 'offline'
+            save_employees()
+            return jsonify({"success": False, "force_logout": True}), 401
+
         matched_emp['lastActive'] = time.time()
         matched_emp['isOnline'] = True
         matched_emp['status'] = 'online'
@@ -897,6 +904,25 @@ def heartbeat():
         return jsonify({"success": True, "status": "online", "name": matched_emp.get('name')}), 200
 
     return jsonify({"success": False, "message": "User not found"}), 404
+
+@app.route('/api/auth/force-logout-employee', methods=['POST'])
+def force_logout_employee():
+    data = request.get_json() or {}
+    emp_id = data.get('employee_id')
+    
+    if not emp_id:
+        return jsonify({"error": "Employee ID required"}), 400
+        
+    matched_emp = next((e for e in employees_db if str(e.get('id')) == str(emp_id)), None)
+    if matched_emp:
+        matched_emp['force_logout'] = True
+        matched_emp['isOnline'] = False
+        matched_emp['status'] = 'offline'
+        save_employees()
+        log_activity("Employee Management", "Forced Logout", f"Admin forcefully logged out employee '{matched_emp.get('name')}'", performed_by="Admin")
+        return jsonify({"success": True, "message": f"User {matched_emp.get('name')} logged out successfully."}), 200
+        
+    return jsonify({"error": "Employee not found"}), 404
 
 
 @app.route('/api/auth/forgot-password', methods=['POST'])

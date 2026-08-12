@@ -25,8 +25,17 @@ export default function App() {
     sendHeartbeat(currentUser).catch(() => {});
 
     // Periodic heartbeat every 10s to keep live online status active across all active users
-    const interval = setInterval(() => {
-      sendHeartbeat(currentUser).catch(() => {});
+    const interval = setInterval(async () => {
+      try {
+        const res = await sendHeartbeat(currentUser);
+        if (res.data?.force_logout) {
+          setCurrentUser(null);
+        }
+      } catch (err) {
+        if (err.response?.status === 401 || err.response?.data?.force_logout) {
+          setCurrentUser(null);
+        }
+      }
     }, 10000);
 
     return () => clearInterval(interval);

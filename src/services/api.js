@@ -40,6 +40,7 @@ export const addEmployee = (data) => api.post('/auth/employees', data);
 export const updateEmployee = (id, data) => api.put(`/auth/employees/${id}`, data);
 export const deleteEmployee = (id) => api.delete(`/auth/employees/${id}`);
 export const sendAdminOtp = (data = {}) => api.post('/auth/send-admin-otp', data);
+export const forceLogoutEmployee = (data) => api.post('/auth/force-logout-employee', data);
 // ==========================================
 // 3. INVENTORY MANAGEMENT
 // ==========================================

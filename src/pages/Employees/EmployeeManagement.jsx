@@ -3,7 +3,7 @@ import {
   UserPlus, Edit2, UserMinus, Shield, X, Loader2, CheckCircle, User, Mail, Lock, 
   RefreshCw, Clock, Activity, ShieldCheck, Wifi, WifiOff, KeyRound, LogIn, LogOut
 } from 'lucide-react';
-import { fetchEmployees, addEmployee, updateEmployee, deleteEmployee, sendAdminOtp, fetchReportsLogs } from '../../services/api';
+import { fetchEmployees, addEmployee, updateEmployee, deleteEmployee, sendAdminOtp, fetchReportsLogs, forceLogoutEmployee } from '../../services/api';
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState([]);
@@ -77,6 +77,18 @@ export default function EmployeeManagement() {
         showToast('Employee deleted successfully.');
       } catch (error) {
         console.warn("Failed to delete.");
+      }
+    }
+  };
+
+  const handleForceLogout = async (id, name) => {
+    if (window.confirm(`Are you sure you want to forcefully log out ${name}?`)) {
+      try {
+        await forceLogoutEmployee({ employee_id: id });
+        showToast(`✅ ${name} has been forcefully logged out.`);
+        loadLiveEmployeeData(true);
+      } catch (err) {
+        console.warn("Failed to force logout.", err);
       }
     }
   };
@@ -249,6 +261,7 @@ export default function EmployeeManagement() {
                   <span className="flex items-center gap-1"><Clock size={13} className="text-gray-400"/> {emp.lastLogin || 'Never'}</span>
                 </td>
                 <td className="p-4 flex justify-center gap-3">
+                  <button onClick={() => handleForceLogout(emp.id, emp.name)} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Force Log Out"><LogOut size={18} /></button>
                   <button onClick={() => openModal(emp)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit Employee"><Edit2 size={18} /></button>
                   <button onClick={() => handleDelete(emp.id)} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Remove Employee"><UserMinus size={18} /></button>
                 </td>
