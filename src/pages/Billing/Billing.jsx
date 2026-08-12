@@ -101,6 +101,7 @@ export default function Billing({ currentUser }) {
 
       // Build single-link WhatsApp direct deep-link URL (wa.me)
       let waUrl = res?.data?.whatsapp_url;
+      let waAutoSent = res?.data?.whatsapp_auto_sent;
       if (!waUrl && customer.phone) {
         const cleanPhone = customer.phone.replace(/\D/g, '');
         const formattedPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
@@ -116,7 +117,8 @@ export default function Billing({ currentUser }) {
         phone: customer.phone,
         total: total.toFixed(2),
         pdf_url: pdfViewUrl,
-        whatsapp_url: waUrl
+        whatsapp_url: waUrl,
+        whatsapp_auto_sent: waAutoSent
       });
 
     } catch (error) {
@@ -335,14 +337,20 @@ export default function Billing({ currentUser }) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4">
               {checkoutNotice.whatsapp_url && (
-                <a 
-                  href={checkoutNotice.whatsapp_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm"
-                >
-                  <MessageSquare size={14} /> WhatsApp
-                </a>
+                checkoutNotice.whatsapp_auto_sent ? (
+                  <div className="py-2.5 bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1 shadow-sm">
+                    <MessageSquare size={14} /> Auto-Sent to Customer
+                  </div>
+                ) : (
+                  <a 
+                    href={checkoutNotice.whatsapp_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm"
+                  >
+                    <MessageSquare size={14} /> Click to WhatsApp
+                  </a>
+                )
               )}
               <a 
                 href={checkoutNotice.pdf_url}

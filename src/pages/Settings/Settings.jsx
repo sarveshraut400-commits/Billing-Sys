@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Store, MessageCircle, Database, Percent, ShieldCheck, Save, CheckCircle2, 
-  Download, HardDrive, Cpu, RefreshCw, AlertCircle, FileText, Check
+  Store, MessageCircle, MessageSquare, Database, Percent, ShieldCheck, Save, CheckCircle2, 
+  Download, HardDrive, Cpu, RefreshCw, AlertCircle, FileText, Check, QrCode
 } from 'lucide-react';
 import { downloadDatabaseBackup, fetchDbHealth, fetchShopSettings, saveShopSettingsApi } from '../../services/api';
 
@@ -21,6 +21,11 @@ export default function Settings() {
     engine: 'SQLite 3'
   });
   const [isDownloadingBackup, setIsDownloadingBackup] = useState(false);
+
+  // WhatsApp Config state
+  const [waStatus, setWaStatus] = useState({ connected: false, hasQR: false });
+  const [waQR, setWaQR] = useState(null);
+  const [isFetchingWa, setIsFetchingWa] = useState(false);
 
   // 1. Shop Info State
   const [shopInfo, setShopInfo] = useState({
@@ -66,7 +71,44 @@ export default function Settings() {
     if (savedSec) setSecurityInfo(JSON.parse(savedSec));
 
     loadDbHealth();
-  }, []);
+  };
+
+  useEffect(() => {
+    loadSettings();
+    
+    // Auto-fetch WhatsApp state if on whatsapp tab
+    let waInterval;
+    if (activeTab === 'whatsapp') {
+      fetchWaStatus();
+      waInterval = setInterval(fetchWaStatus, 3000);
+    }
+    return () => clearInterval(waInterval);
+  }, [activeTab]);
+
+  const fetchWaStatus = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/wa/status');
+      const data = await res.json();
+      setWaStatus(data);
+      if (data.hasQR && !data.connected) {
+        fetchWaQR();
+      } else {
+        setWaQR(null);
+      }
+    } catch (e) {
+      setWaStatus({ connected: false, hasQR: false, error: 'Microservice Offline' });
+    }
+  };
+
+  const fetchWaQR = async () => {
+    try {
+      const res = await fetch('http://localhost:3001/api/wa/qr');
+      const data = await res.json();
+      if (data.qr) setWaQR(data.qr);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const loadDbHealth = async () => {
     try {
@@ -155,6 +197,7 @@ export default function Settings() {
             <TabButton icon={<Store size={18} />} label="Shop Profile & Branding" active={activeTab === 'shop'} onClick={() => setActiveTab('shop')} />
             <TabButton icon={<Percent size={18} />} label="GST & Tax Setup" active={activeTab === 'tax'} onClick={() => setActiveTab('tax')} />
             <TabButton icon={<Database size={18} />} label="Database & Backups" active={activeTab === 'database'} onClick={() => setActiveTab('database')} />
+            <TabButton icon={<MessageSquare size={18} />} label="WhatsApp Automation" active={activeTab === 'whatsapp'} onClick={() => setActiveTab('whatsapp')} />
             <TabButton icon={<ShieldCheck size={18} />} label="Security & Controls" active={activeTab === 'security'} onClick={() => setActiveTab('security')} />
           </nav>
         </div>
@@ -377,7 +420,66 @@ export default function Settings() {
             </div>
           )}
 
-          {/* TAB 4: SECURITY & NOTIFICATIONS */}
+          {/* TAB 4: WHATSAPP AUTOMATION */}
+          {activeTab === 'whatsapp' && (
+            <div className="animate-in fade-in duration-200">
+              <h2 className="text-xl font-bold text-gray-800 mb-1">WhatsApp Automation</h2>
+              <p className="text-xs text-gray-500 mb-6 border-b border-gray-100 pb-3">Link your store phone to enable 100% automated background PDF receipt dispatch.</p>
+
+              <div className="max-w-xl mx-auto mt-8 bg-gray-50 rounded-2xl border border-gray-200 p-8 text-center shadow-sm">
+                
+                {waStatus.error ? (
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
+                      <AlertCircle size={32} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-800">Bot Server Offline</h3>
+                      <p className="text-sm text-gray-500 mt-1">The Node.js WhatsApp microservice is not running. Please start it on port 3001.</p>
+                    </div>
+                  </div>
+                ) : waStatus.connected ? (
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-inner">
+                      <CheckCircle2 size={40} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-gray-800">WhatsApp Linked!</h3>
+                      <p className="text-sm text-gray-600 mt-2 font-medium">The system is actively sending background receipts.</p>
+                    </div>
+                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-emerald-700 shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Active & Listening
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center space-y-5">
+                    <div className="text-center">
+                      <h3 className="text-lg font-bold text-gray-800">Link Store Phone</h3>
+                      <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">Open WhatsApp on your store phone, tap <b>Linked Devices</b>, and scan this QR code.</p>
+                    </div>
+                    
+                    <div className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[220px] min-w-[220px] flex items-center justify-center">
+                      {waQR ? (
+                        <img src={waQR} alt="WhatsApp QR Code" className="w-48 h-48 rounded-lg" />
+                      ) : (
+                        <div className="flex flex-col items-center text-gray-400">
+                          <RefreshCw className="animate-spin mb-2" size={24} />
+                          <span className="text-xs font-semibold">Generating QR...</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="text-xs text-amber-600 bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 font-medium">
+                      ⚠️ Keep this page open until scanned.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: SECURITY & CONTROLS */}
           {activeTab === 'security' && (
             <div className="animate-in fade-in duration-200">
               <h2 className="text-xl font-bold text-gray-800 mb-1">Security & Access Policy Controls</h2>

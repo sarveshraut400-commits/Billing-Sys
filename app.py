@@ -740,14 +740,40 @@ def dispatch_automated_whatsapp_bill(phone, invoice_no, customer_name, total, pd
         )
 
         wa_url = f"https://wa.me/{clean_phone}?text={quote(text)}"
+        
+        # Try to send automatically via the local Node.js Baileys microservice
+        bot_sent = False
+        try:
+            import requests
+            resp = requests.post("http://localhost:3001/api/wa/send", json={
+                "phone": clean_phone,
+                "message": text
+            }, timeout=3)
+            
+            if resp.status_code == 200 and resp.json().get('success'):
+                bot_sent = True
+                log_activity(
+                    category="Billing",
+                    action="WhatsApp Auto-Receipt Sent",
+                    details=f"Automatically dispatched background WhatsApp bill for #{invoice_no} ({customer_name})",
+                    performed_by="POS System Bot"
+                )
+        except Exception as api_err:
+            print(f"[WA API Fallback] Microservice not reachable or error: {api_err}")
+            
+        if not bot_sent:
+            log_activity(
+                category="Billing",
+                action="WhatsApp Bill Link Generated",
+                details=f"Generated manual Click-to-Chat WhatsApp link for #{invoice_no} ({customer_name})",
+                performed_by="POS System"
+            )
 
-        log_activity(
-            category="Billing",
-            action="WhatsApp Bill Link Generated",
-            details=f"Generated single-link WhatsApp bill for #{invoice_no} ({customer_name})",
-            performed_by="POS System"
-        )
-        return wa_url
+        # Return the wa_url regardless. The frontend will display the button if it's returned.
+        # But wait, if it was sent automatically, we could return a flag so the frontend says "Sent" instead of "Send".
+        # Let's return the URL as the URL, and a flag indicating if it was auto-sent.
+        return {"url": wa_url, "auto_sent": bot_sent}
+        
     except Exception as e:
         print(f"WhatsApp URL error: {e}")
         return None
@@ -1473,23 +1499,28 @@ def checkout():
             print(f"PDF generation error: {pdf_err}")
 
         wa_url = None
+        wa_auto_sent = False
         if phone:
-            wa_url = dispatch_automated_whatsapp_bill(
+            wa_result = dispatch_automated_whatsapp_bill(
                 phone=phone,
                 invoice_no=invoice_number,
                 customer_name=customer_name,
                 total=total_bill,
                 pdf_url=pdf_url
             )
+            if wa_result:
+                wa_url = wa_result.get("url")
+                wa_auto_sent = wa_result.get("auto_sent")
 
         return jsonify({
             "success": True,
-            "message": "Bill generated and automated WhatsApp PDF Invoice dispatched!",
+            "message": "Bill generated successfully!",
             "invoice_number": invoice_number,
             "bill_id": bill_id,
             "total": total_bill,
             "pdf_url": pdf_url,
-            "whatsapp_url": wa_url
+            "whatsapp_url": wa_url,
+            "whatsapp_auto_sent": wa_auto_sent
         }), 201
 
     except Exception as e:
