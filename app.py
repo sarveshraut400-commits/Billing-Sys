@@ -114,44 +114,40 @@ def send_email(receiver_email, subject, body_text, html_content=None):
         print("[EMAIL WARNING] Missing sender email credentials.")
         return False
 
-    if html_content:
-        msg = MIMEMultipart('alternative')
-        msg.attach(MIMEText(body_text, 'plain', 'utf-8'))
-        msg.attach(MIMEText(html_content, 'html', 'utf-8'))
-    else:
-        msg = MIMEText(body_text, 'plain', 'utf-8')
-
-    msg['Subject'] = subject
-    msg['From'] = f"SuperMart POS <{sender}>"
-    msg['To'] = receiver_email
-    msg['Date'] = formatdate(localtime=True)
-    msg['Message-ID'] = make_msgid(domain='gmail.com')
+    payload = {
+        "sender": sender,
+        "password": pwd,
+        "to": receiver_email,
+        "subject": subject,
+        "text": body_text,
+        "html": html_content
+    }
     
-    # 1. Try Port 465 (Direct SSL with IPv4 force)
+    vercel_url = "https://billing-sys-beta.vercel.app"
     try:
-        context = ssl.create_default_context()
-        with IPv4SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=8) as server:
-            server.login(sender, pwd)
-            server.send_message(msg)
-        print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 465 (SSL)")
-        return True
-    except Exception as e465:
-        print(f"[SMTP Port 465 Notice] {e465}. Retrying Port 587 (TLS)...")
-        # 2. Fallback to Port 587 (STARTTLS with IPv4 force)
-        try:
-            context = ssl.create_default_context()
-            with IPv4SMTP('smtp.gmail.com', 587, timeout=8) as server:
-                server.ehlo()
-                server.starttls(context=context)
-                server.ehlo()
-                server.login(sender, pwd)
-                server.send_message(msg)
-            print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 587 (STARTTLS)")
+        from flask import request as flask_req
+        origin = flask_req.headers.get("Origin")
+        if origin and "vercel.app" in origin:
+            vercel_url = origin
+    except Exception:
+        pass
+        
+    api_url = f"{vercel_url}/api/send-email"
+    
+    try:
+        import requests
+        resp = requests.post(api_url, json=payload, timeout=10)
+        if resp.status_code == 200:
+            print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Vercel Proxy")
             return True
-        except Exception as e587:
-            print(f"[SMTP Port 587 Error] {e587}")
-            log_activity("Settings", "Email Dispatch Error", f"Failed sending to {receiver_email}: {str(e465)} / {str(e587)}", performed_by="System Mailer")
+        else:
+            print(f"[EMAIL PROXY ERROR] {resp.status_code}: {resp.text}")
+            log_activity("Settings", "Email Dispatch Error", f"Proxy failed {resp.status_code}", performed_by="System Mailer")
             return False
+    except Exception as proxy_err:
+        print(f"[SMTP Proxy Exception] {proxy_err}")
+        log_activity("Settings", "Email Dispatch Error", f"Proxy Exception: {str(proxy_err)}", performed_by="System Mailer")
+        return False
 
 def send_otp_email(receiver_email, otp):
     subject = "SuperMart POS - Security Verification OTP"
