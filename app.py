@@ -933,8 +933,11 @@ def force_logout_employee():
     return jsonify({"error": "Employee not found"}), 404
 
 
-@app.route('/api/auth/forgot-password', methods=['POST'])
+@app.route('/api/auth/forgot-password', methods=['POST', 'OPTIONS'])
 def forgot_password():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         data = request.get_json(force=True, silent=True) or {}
         role = str(data.get('role') or 'employee').strip().lower()
@@ -1000,8 +1003,11 @@ def forgot_password():
         print(f"forgot_password error: {err}")
         return jsonify({"error": f"Password reset service error: {str(err)}"}), 500
 
-@app.route('/api/auth/reset-password', methods=['POST'])
+@app.route('/api/auth/reset-password', methods=['POST', 'OPTIONS'])
 def reset_password():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         data = request.get_json(force=True, silent=True) or {}
         role = str(data.get('role') or 'employee').strip().lower()
@@ -1161,8 +1167,11 @@ def save_employees():
     with open(EMPLOYEES_FILE, 'w') as f:
         json.dump(employees_db, f, indent=4)
 
-@app.route('/api/auth/send-admin-otp', methods=['POST'])
-def send_admin_otp():
+@app.route('/api/auth/send-admin-otp', methods=['POST', 'OPTIONS'])
+def send_admin_otp_route():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     try:
         data = request.get_json(force=True, silent=True) or {}
         caller_email = str(data.get('email') or data.get('admin_email') or '').strip().lower()
