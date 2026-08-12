@@ -69,11 +69,15 @@ export default function Home({ onLogin }) {
     setError('');
     setIsLoading(true);
     try {
-      const response = await requestPasswordReset({ role: activeRole });
-      setSuccessMessage(response.data.message);
+      const response = await requestPasswordReset({ 
+        role: activeRole,
+        email: usernameOrEmail,
+        username: usernameOrEmail
+      });
+      setSuccessMessage(response.data.message || 'OTP dispatched to registered email!');
       setResetStep(2);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send OTP.');
+      setError(err.response?.data?.error || 'Failed to send OTP. Please check credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -84,11 +88,17 @@ export default function Home({ onLogin }) {
     setError('');
     setIsLoading(true);
     try {
-      await resetPassword({ role: activeRole, otp, newPassword });
+      await resetPassword({ 
+        role: activeRole, 
+        email: usernameOrEmail,
+        username: usernameOrEmail,
+        otp, 
+        newPassword 
+      });
       setSuccessMessage('Password reset successfully! Log in with your new password.');
       setTimeout(() => resetForms(), 2000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid OTP.');
+      setError(err.response?.data?.error || 'Invalid or expired OTP.');
     } finally {
       setIsLoading(false);
     }
@@ -333,11 +343,26 @@ export default function Home({ onLogin }) {
               <div className="space-y-4">
                 {resetStep === 1 ? (
                   <form onSubmit={handleRequestOTP} className="space-y-4">
-                    <p className="text-xs text-slate-500">An OTP will be sent to the registered email address for this role.</p>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">
+                        {activeRole === 'admin' ? 'Admin Username or Registered Email' : 'Staff Username or Registered Email'}
+                      </label>
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          placeholder={activeRole === 'admin' ? 'admin or yourname@gmail.com' : 'Pars, Kertick, or email...'}
+                          value={usernameOrEmail}
+                          onChange={(e) => setUsernameOrEmail(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-800"
+                        />
+                        <AtSign size={16} className="absolute left-3 top-3.5 text-slate-400" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500">A 6-digit security OTP will be dispatched to your registered email address.</p>
                     <button 
                       type="submit" 
                       disabled={isLoading}
-                      className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 transition"
+                      className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 transition flex items-center justify-center gap-2 shadow-sm"
                     >
                       {isLoading ? <Loader2 className="animate-spin inline" size={18} /> : 'Send OTP to Email'}
                     </button>

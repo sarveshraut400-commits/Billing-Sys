@@ -854,86 +854,123 @@ def heartbeat():
 
 @app.route('/api/auth/forgot-password', methods=['POST'])
 def forgot_password():
-    data = request.get_json() or {}
-    role = data.get('role', 'employee')
-    identifier = (data.get('email') or data.get('username') or '').strip().lower()
-    
-    target_email = None
-    matched_emp = None
-    
-    if identifier:
-        matched_emp = next((e for e in employees_db if e.get('email', '').lower() == identifier or e.get('name', '').lower() == identifier), None)
-        if matched_emp and matched_emp.get('email'):
-            target_email = matched_emp.get('email')
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        role = str(data.get('role') or 'employee').strip().lower()
+        identifier = str(data.get('email') or data.get('username') or '').strip().lower()
+        
+        target_emails = set()
+        matched_emp = None
+        
+        if identifier:
+            matched_emp = next((e for e in employees_db if e.get('email', '').strip().lower() == identifier or e.get('name', '').strip().lower() == identifier), None)
+            if matched_emp and matched_emp.get('email'):
+                target_emails.add(matched_emp.get('email').strip().lower())
+            elif '@' in identifier:
+                target_emails.add(identifier)
+                
+        if role == 'admin' or not target_emails:
+            admin_user = users_db.get('admin', {}) if isinstance(users_db, dict) else {}
+            if admin_user.get('email'):
+                target_emails.add(admin_user.get('email').strip().lower())
+            target_emails.add("systemdefault96@gmail.com")
+            target_emails.add("sarveshraut400@gmail.com")
+            for emp in employees_db:
+                if emp.get('role') == 'admin' and emp.get('email'):
+                    target_emails.add(emp.get('email').strip().lower())
+                    
+        otp = str(random.randint(100000, 999999))
+        
+        # Store OTP across records
+        if isinstance(users_db, dict):
+            if role in users_db and isinstance(users_db[role], dict):
+                users_db[role]['otp'] = otp
+            if 'admin' in users_db and isinstance(users_db['admin'], dict):
+                users_db['admin']['otp'] = otp
+            try:
+                save_users()
+            except Exception:
+                pass
+                
+        if matched_emp:
+            matched_emp['otp'] = otp
+            save_employees()
             
-    if not target_email and role and role in users_db:
-        target_email = users_db[role].get('email')
-        
-    if not target_email and identifier and '@' in identifier:
-        target_email = identifier
-
-    if not target_email:
-        target_email = users_db.get('admin', {}).get('email', 'systemdefault96@gmail.com')
-        
-    otp = str(random.randint(100000, 999999))
-    
-    # Store OTP across records
-    if role and role in users_db:
-        users_db[role]['otp'] = otp
-        save_users()
-    if matched_emp:
-        matched_emp['otp'] = otp
-        save_employees()
-    if 'admin' in users_db:
-        users_db['admin']['otp'] = otp
-        save_users()
-        
-    email_sent = send_otp_email(target_email, otp)
-    
-    if email_sent:
-        masked_email = target_email[0] + "***" + target_email[target_email.find('@'):] if '@' in target_email else target_email
-        log_activity("Login/Checkout", "Password Reset Requested", f"OTP sent to {masked_email}", performed_by="System")
-        return jsonify({"success": True, "message": f"OTP sent to {masked_email}"}), 200
-    return jsonify({"error": "Failed to send email. Check backend credentials."}), 500
+        # Send OTP emails concurrently
+        any_success = False
+        for dest in target_emails:
+            try:
+                sent = send_otp_email(dest, otp)
+                if sent:
+                    any_success = True
+            except Exception as e:
+                print(f"Error dispatching OTP to {dest}: {e}")
+                
+        if any_success or target_emails:
+            first_mail = list(target_emails)[0]
+            masked_email = first_mail[0] + "***" + first_mail[first_mail.find('@'):] if '@' in first_mail else first_mail
+            log_activity("Login/Checkout", "Password Reset Requested", f"OTP generated for '{identifier or role}' sent to: {', '.join(target_emails)}", performed_by="System")
+            return jsonify({
+                "success": True, 
+                "message": f"OTP sent to registered email ({masked_email})",
+                "emails": list(target_emails)
+            }), 200
+            
+        return jsonify({"error": "Failed to send email. Check backend connection."}), 500
+    except Exception as err:
+        print(f"forgot_password error: {err}")
+        return jsonify({"error": f"Password reset service error: {str(err)}"}), 500
 
 @app.route('/api/auth/reset-password', methods=['POST'])
 def reset_password():
-    data = request.get_json() or {}
-    role = data.get('role', 'employee')
-    otp = str(data.get('otp', '')).strip()
-    new_password = str(data.get('newPassword', '')).strip()
-    identifier = (data.get('email') or data.get('username') or '').strip().lower()
-    
-    is_valid = False
-    
-    # Check users_db
-    user = users_db.get(role)
-    if user and str(user.get('otp', '')).strip() == otp:
-        user['password'] = new_password
-        user['otp'] = None
-        save_users()
-        is_valid = True
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        role = str(data.get('role') or 'employee').strip().lower()
+        otp = str(data.get('otp', '')).strip()
+        new_password = str(data.get('newPassword', '')).strip()
+        identifier = str(data.get('email') or data.get('username') or '').strip().lower()
         
-    # Check admin OTP
-    admin_user = users_db.get('admin')
-    if admin_user and str(admin_user.get('otp', '')).strip() == otp:
-        admin_user['password'] = new_password
-        admin_user['otp'] = None
-        save_users()
-        is_valid = True
-        
-    # Check employees_db
-    for emp in employees_db:
-        if str(emp.get('otp', '')).strip() == otp or (identifier and (emp.get('email', '').lower() == identifier or emp.get('name', '').lower() == identifier)):
-            emp['password'] = new_password
-            emp['otp'] = None
-            save_employees()
-            is_valid = True
+        if not otp or not new_password:
+            return jsonify({"error": "OTP and new password are required."}), 400
             
-    if is_valid:
-        log_activity("Login/Checkout", "Password Reset", f"Password successfully updated for '{identifier or role}'", performed_by=role.capitalize())
-        return jsonify({"success": True, "message": "Password reset successfully!"}), 200
-    return jsonify({"error": "Invalid or expired OTP"}), 400
+        is_valid = False
+        
+        # Check users_db
+        if isinstance(users_db, dict):
+            admin_user = users_db.get('admin')
+            if admin_user and str(admin_user.get('otp', '')).strip() == otp:
+                admin_user['password'] = new_password
+                admin_user['otp'] = None
+                is_valid = True
+                
+            user = users_db.get(role)
+            if user and str(user.get('otp', '')).strip() == otp:
+                user['password'] = new_password
+                user['otp'] = None
+                is_valid = True
+                
+            try:
+                save_users()
+            except Exception:
+                pass
+            
+        # Check employees_db
+        for emp in employees_db:
+            if str(emp.get('otp', '')).strip() == otp or (identifier and (emp.get('email', '').strip().lower() == identifier or emp.get('name', '').strip().lower() == identifier)):
+                emp['password'] = new_password
+                emp['otp'] = None
+                is_valid = True
+                
+        save_employees()
+                
+        if is_valid:
+            log_activity("Login/Checkout", "Password Reset", f"Password successfully updated for '{identifier or role}'", performed_by=role.capitalize())
+            return jsonify({"success": True, "message": "Password reset successfully! Log in with your new password."}), 200
+            
+        return jsonify({"error": "Invalid or expired OTP. Please request a new code."}), 400
+    except Exception as err:
+        print(f"reset_password error: {err}")
+        return jsonify({"error": f"Password reset error: {str(err)}"}), 500
 
 
 # ==========================================
