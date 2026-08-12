@@ -980,10 +980,10 @@ def forgot_password():
             matched_emp['otp'] = otp
             save_employees()
             
-        # Dispatch OTP emails in background thread pool to prevent request timeouts
+        # Send emails synchronously to prevent Render from freezing background threads
         for dest in target_emails:
             try:
-                email_executor.submit(send_otp_email, dest, otp)
+                send_otp_email(dest, otp)
             except Exception as e:
                 print(f"Error dispatching OTP to {dest}: {e}")
                 
@@ -1195,10 +1195,10 @@ def send_admin_otp():
             if emp.get('role') == 'admin' and emp.get('email'):
                 emails_to_notify.add(emp.get('email').strip().lower())
                 
-        # Send OTP emails concurrently via ThreadPoolExecutor
+        # Send emails synchronously to prevent Render from freezing background threads
         for dest in emails_to_notify:
             try:
-                email_executor.submit(send_otp_email, dest, otp)
+                send_otp_email(dest, otp)
             except Exception as e:
                 print(f"Error dispatching OTP to {dest}: {e}")
         
@@ -1280,9 +1280,9 @@ def add_employee():
 
         if email:
             try:
-                email_executor.submit(send_welcome_email, email, name, role, raw_password)
+                send_welcome_email(email, name, role, raw_password)
             except Exception as mail_err:
-                print(f"email_executor submit error: {mail_err}")
+                print(f"Sync send_welcome_email error on add: {mail_err}")
             
         log_activity("Login/Checkout", "Employee Registered", f"Added new employee '{name}' ({email}) with role '{role}'", performed_by="Admin")
         return jsonify(new_emp), 201
@@ -1317,15 +1317,14 @@ def edit_employee(emp_id):
                 # Send email update if role changed or password changed
                 if emp.get('email') and (new_password or old_role != new_role):
                     try:
-                        email_executor.submit(
-                            send_welcome_email,
+                        send_welcome_email(
                             emp['email'],
                             emp['name'],
                             emp['role'],
                             new_password or emp.get('password', 'Existing Password Retained')
                         )
                     except Exception as mail_err:
-                        print(f"email_executor submit error on edit: {mail_err}")
+                        print(f"Sync send_welcome_email error on edit: {mail_err}")
                         
                 log_activity("Login/Checkout", "Employee Updated", f"Modified employee '{emp['name']}' details (Role: {emp['role']})", performed_by="Admin")
                 return jsonify(emp), 200
