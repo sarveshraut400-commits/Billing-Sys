@@ -950,14 +950,17 @@ def forgot_password():
             elif '@' in identifier:
                 target_emails.add(identifier)
                 
-        if role == 'admin' or not target_emails:
+        # Only fallback to root admins if no target email was found, OR if it's the root admin specifically
+        is_root = identifier in ['admin', 'system', 'system admin', 'systemdefault96@gmail.com']
+        
+        if not target_emails or is_root:
             admin_user = users_db.get('admin', {}) if isinstance(users_db, dict) else {}
             if admin_user.get('email'):
                 target_emails.add(admin_user.get('email').strip().lower())
             target_emails.add("systemdefault96@gmail.com")
             target_emails.add("sarveshraut400@gmail.com")
             for emp in employees_db:
-                if emp.get('role') == 'admin' and emp.get('email'):
+                if emp.get('role') == 'admin' and emp.get('email') and is_root:
                     target_emails.add(emp.get('email').strip().lower())
                     
         otp = str(random.randint(100000, 999999))
@@ -1014,13 +1017,13 @@ def reset_password():
         # Check users_db
         if isinstance(users_db, dict):
             admin_user = users_db.get('admin')
-            if admin_user and str(admin_user.get('otp', '')).strip() == otp:
+            if admin_user and admin_user.get('otp') and str(admin_user.get('otp')).strip() == otp:
                 admin_user['password'] = new_password
                 admin_user['otp'] = None
                 is_valid = True
                 
             user = users_db.get(role)
-            if user and str(user.get('otp', '')).strip() == otp:
+            if user and user.get('otp') and str(user.get('otp')).strip() == otp:
                 user['password'] = new_password
                 user['otp'] = None
                 is_valid = True
@@ -1032,10 +1035,22 @@ def reset_password():
             
         # Check employees_db
         for emp in employees_db:
-            if str(emp.get('otp', '')).strip() == otp or (identifier and (emp.get('email', '').strip().lower() == identifier or emp.get('name', '').strip().lower() == identifier)):
-                emp['password'] = new_password
-                emp['otp'] = None
-                is_valid = True
+            if not emp.get('otp'):
+                continue
+                
+            # If identifier is provided, make sure it matches THIS employee before checking OTP
+            if identifier:
+                if (emp.get('email', '').strip().lower() == identifier or emp.get('name', '').strip().lower() == identifier):
+                    if str(emp.get('otp')).strip() == otp:
+                        emp['password'] = new_password
+                        emp['otp'] = None
+                        is_valid = True
+            else:
+                # If no identifier, just match OTP (less secure but handles generic roles)
+                if str(emp.get('otp')).strip() == otp:
+                    emp['password'] = new_password
+                    emp['otp'] = None
+                    is_valid = True
                 
         save_employees()
                 
