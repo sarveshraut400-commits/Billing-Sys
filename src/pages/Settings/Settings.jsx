@@ -31,7 +31,7 @@ export default function Settings() {
   const [shopInfo, setShopInfo] = useState({
     name: 'SuperMart POS',
     phone: '+91 9876543210',
-    email: 'systemdefault96@gmail.com',
+    email: 'admin@supermart.com',
     gstin: '27AABCU9603R1ZM',
     address: '123 Main Commercial Hub, Mumbai, MH, India',
     receiptFooter: 'Thank you for shopping with us! Visit again.'

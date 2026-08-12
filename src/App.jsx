@@ -67,7 +67,7 @@ export default function App() {
       setCurrentUser({
         role: userData,
         name: userData === 'admin' ? 'System' : 'Employee',
-        email: userData === 'admin' ? 'systemdefault96@gmail.com' : 'employee@store.com'
+        email: userData === 'admin' ? 'admin@supermart.com' : 'employee@store.com'
       });
     } else {
       setCurrentUser(userData);

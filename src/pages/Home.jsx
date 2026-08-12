@@ -146,61 +146,20 @@ export default function Home({ onLogin }) {
               </p>
             </div>
 
-            {/* Informative Highlights & Capabilities Banner */}
-            <div className="bg-white border border-slate-200/90 p-4 sm:p-5 rounded-2xl max-w-3xl mx-auto shadow-sm">
-              <div className="flex items-center justify-between gap-2 mb-3 px-1">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles size={14} className="text-emerald-600" />
-                  Enterprise POS Capabilities
-                </span>
-                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  Ready for Retail Shift
-                </span>
+            {/* Informative System Guide */}
+            <div className="bg-white border border-slate-200/90 p-5 rounded-2xl max-w-3xl mx-auto shadow-sm flex items-start gap-4">
+              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
+                <ShieldCheck size={24} />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between hover:bg-emerald-50/50 hover:border-emerald-200/80 transition group">
-                  <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg w-fit mb-2 group-hover:scale-105 transition">
-                    <QrCode size={18} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Barcode Checkout</div>
-                    <div className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">Instant hardware & camera scanning</div>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between hover:bg-teal-50/50 hover:border-teal-200/80 transition group">
-                  <div className="p-2 bg-teal-100 text-teal-700 rounded-lg w-fit mb-2 group-hover:scale-105 transition">
-                    <Smartphone size={18} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">WhatsApp Invoicing</div>
-                    <div className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">Automated PDF receipts via link</div>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between hover:bg-indigo-50/50 hover:border-indigo-200/80 transition group">
-                  <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg w-fit mb-2 group-hover:scale-105 transition">
-                    <BarChart3 size={18} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Fiscal Analytics</div>
-                    <div className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">Live store revenue & profit tracking</div>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col justify-between hover:bg-amber-50/50 hover:border-amber-200/80 transition group">
-                  <div className="p-2 bg-amber-100 text-amber-700 rounded-lg w-fit mb-2 group-hover:scale-105 transition">
-                    <ShieldCheck size={18} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Role Security</div>
-                    <div className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5">Admin governance & shift audits</div>
-                  </div>
-                </div>
+              <div className="text-left">
+                <h3 className="text-sm font-bold text-slate-800">Secure Access Portal</h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Welcome to the centralized POS terminal. Please select your assigned role below to proceed. 
+                  All sessions are securely logged and monitored. If you have forgotten your password, use the 
+                  "Forgot Password" link on the login screen to receive an OTP via your registered email.
+                </p>
               </div>
-            </div>
-
-            {/* Role Cards Grid */}
+            </div>            {/* Role Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
               
               {/* Admin Card */}

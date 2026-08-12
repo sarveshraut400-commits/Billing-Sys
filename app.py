@@ -462,7 +462,7 @@ USERS_FILE = 'users.json'
 
 default_users = {
     "admin": {
-        "email": "systemdefault96@gmail.com", 
+        "email": "admin@supermart.com", 
         "password": "admin123", 
         "otp": None
     },
@@ -492,7 +492,7 @@ SHOP_SETTINGS_FILE = os.path.join(BASE_DIR, 'shop_settings.json')
 DEFAULT_SHOP_SETTINGS = {
     "name": "SuperMart POS",
     "phone": "+91 9876543210",
-    "email": "systemdefault96@gmail.com",
+    "email": "admin@supermart.com",
     "gstin": "27AABCU9603R1ZM",
     "address": "123 Main Commercial Hub, Mumbai, MH, India",
     "receiptFooter": "Thank you for shopping with us! Visit again."
@@ -548,7 +548,7 @@ def generate_pdf_invoice(invoice_no, customer_name, phone, total_amount, items, 
         shop = load_shop_settings()
         shop_name = str(shop.get('name', 'SuperMart POS')).strip()
         shop_phone = str(shop.get('phone', '+91 9876543210')).strip()
-        shop_email = str(shop.get('email', 'systemdefault96@gmail.com')).strip()
+        shop_email = str(shop.get('email', 'admin@supermart.com')).strip()
         shop_gstin = str(shop.get('gstin', '27AABCU9603R1ZM')).strip()
         shop_address = str(shop.get('address', '123 Main Commercial Hub, Mumbai, MH, India')).strip()
         receipt_footer = str(shop.get('receiptFooter', 'Thank you for shopping with us! Visit again.')).strip()
@@ -803,7 +803,7 @@ def login():
         if role == 'admin':
             admin_user = users_db.get('admin', {}) if isinstance(users_db, dict) else {}
             admin_pwd = str(admin_user.get('password', 'admin')).strip()
-            admin_email = str(admin_user.get('email', 'systemdefault96@gmail.com')).strip().lower()
+            admin_email = str(admin_user.get('email', 'admin@supermart.com')).strip().lower()
             
             is_root_admin = (identifier in ['admin', 'system', 'system admin', admin_email])
             matched_admin_emp = next((e for e in employees_db if e.get('role') == 'admin' and (e.get('email', '').strip().lower() == identifier or e.get('name', '').strip().lower() == identifier)), None)
@@ -965,28 +965,23 @@ def forgot_password():
         role = str(data.get('role') or 'employee').strip().lower()
         identifier = str(data.get('email') or data.get('username') or '').strip().lower()
         
+        admin_user = users_db.get('admin', {}) if isinstance(users_db, dict) else {}
+        admin_email = str(admin_user.get('email', 'admin@supermart.com')).strip().lower()
+        is_root = identifier in ['admin', 'system', 'system admin', admin_email]
+
         target_emails = set()
-        matched_emp = None
         
-        if identifier:
+        if is_root:
+            target_emails.add(admin_email)
+            for emp in employees_db:
+                if emp.get('role') == 'admin' and emp.get('email') and is_root:
+                    target_emails.add(emp.get('email').strip().lower())
+        else:
             matched_emp = next((e for e in employees_db if e.get('email', '').strip().lower() == identifier or e.get('name', '').strip().lower() == identifier), None)
             if matched_emp and matched_emp.get('email'):
                 target_emails.add(matched_emp.get('email').strip().lower())
             elif '@' in identifier:
                 target_emails.add(identifier)
-                
-        # Only fallback to root admins if no target email was found, OR if it's the root admin specifically
-        is_root = identifier in ['admin', 'system', 'system admin', 'systemdefault96@gmail.com']
-        
-        if not target_emails or is_root:
-            admin_user = users_db.get('admin', {}) if isinstance(users_db, dict) else {}
-            if admin_user.get('email'):
-                target_emails.add(admin_user.get('email').strip().lower())
-            target_emails.add("systemdefault96@gmail.com")
-            target_emails.add("sarveshraut400@gmail.com")
-            for emp in employees_db:
-                if emp.get('role') == 'admin' and emp.get('email') and is_root:
-                    target_emails.add(emp.get('email').strip().lower())
                     
         otp = str(random.randint(100000, 999999))
         
@@ -1173,7 +1168,7 @@ def delete_inventory(product_id):
 # ==========================================
 EMPLOYEES_FILE = 'employees.json'
 default_employees = [
-    {"id": "1", "name": "Admin", "email": "systemdefault96@gmail.com", "role": "admin", "lastLogin": "Today, 09:00 AM"},
+    {"id": "1", "name": "Admin", "email": "admin@supermart.com", "role": "admin", "lastLogin": "Today, 09:00 AM"},
     {"id": "2", "name": "Staff", "email": "staff@store.com", "role": "employee", "lastLogin": "Today, 10:15 AM"}
 ]
 
@@ -1201,7 +1196,7 @@ def send_admin_otp_route():
         
         admin_user = users_db.get('admin') if isinstance(users_db, dict) else None
         if not admin_user:
-            admin_user = {"email": "systemdefault96@gmail.com", "password": "admin"}
+            admin_user = {"email": "admin@supermart.com", "password": "admin"}
             if isinstance(users_db, dict):
                 users_db['admin'] = admin_user
 
@@ -1214,7 +1209,7 @@ def send_admin_otp_route():
         
         # Collect all destination inboxes (System Admin, Logged-in Admin, Target Email)
         emails_to_notify = set()
-        default_admin_mail = admin_user.get('email', 'systemdefault96@gmail.com')
+        default_admin_mail = admin_user.get('email', 'admin@supermart.com')
         if default_admin_mail:
             emails_to_notify.add(default_admin_mail.strip().lower())
         if caller_email:
