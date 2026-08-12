@@ -36,6 +36,7 @@ os.makedirs(INVOICES_DIR, exist_ok=True)
 # ==========================================
 # EMAIL SETTINGS & ROBUST DISPATCH ENGINE
 # ==========================================
+import socket
 import ssl
 from concurrent.futures import ThreadPoolExecutor
 from email.mime.multipart import MIMEMultipart
@@ -49,6 +50,45 @@ SENDER_EMAIL = _env_email if _env_email else "systemdefault96@gmail.com"
 
 _env_pwd = str(os.environ.get("SENDER_PASSWORD", "")).replace(" ", "").replace('"', '').replace("'", "").strip()
 SENDER_PASSWORD = _env_pwd if _env_pwd else "zkavukpsjfehuhqw"
+
+# Force IPv4 socket resolution to prevent Linux/Render [Errno 101] Network is unreachable IPv6 bugs
+class IPv4SMTP_SSL(smtplib.SMTP_SSL):
+    def _get_socket(self, host, port, timeout):
+        infos = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)
+        last_err = None
+        for res in infos:
+            af, socktype, proto, canonname, sa = res
+            s = None
+            try:
+                s = socket.socket(af, socktype, proto)
+                s.settimeout(timeout)
+                s.connect(sa)
+                return self.context.wrap_socket(s, server_hostname=self._host)
+            except Exception as e:
+                last_err = e
+                if s:
+                    s.close()
+        if last_err:
+            raise last_err
+
+class IPv4SMTP(smtplib.SMTP):
+    def _get_socket(self, host, port, timeout):
+        infos = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)
+        last_err = None
+        for res in infos:
+            af, socktype, proto, canonname, sa = res
+            s = None
+            try:
+                s = socket.socket(af, socktype, proto)
+                s.settimeout(timeout)
+                s.connect(sa)
+                return s
+            except Exception as e:
+                last_err = e
+                if s:
+                    s.close()
+        if last_err:
+            raise last_err
 
 def send_email(receiver_email, subject, body_text, html_content=None):
     if not receiver_email:
@@ -75,20 +115,20 @@ def send_email(receiver_email, subject, body_text, html_content=None):
     msg['Date'] = formatdate(localtime=True)
     msg['Message-ID'] = make_msgid(domain='gmail.com')
     
-    # 1. Try Port 465 (Direct SSL - Cloud Optimized)
+    # 1. Try Port 465 (Direct SSL with IPv4 force)
     try:
         context = ssl.create_default_context()
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=8) as server:
+        with IPv4SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=8) as server:
             server.login(sender, pwd)
             server.send_message(msg)
         print(f"[EMAIL SUCCESS] Delivered to {receiver_email} via Port 465 (SSL)")
         return True
     except Exception as e465:
         print(f"[SMTP Port 465 Notice] {e465}. Retrying Port 587 (TLS)...")
-        # 2. Fallback to Port 587 (STARTTLS)
+        # 2. Fallback to Port 587 (STARTTLS with IPv4 force)
         try:
             context = ssl.create_default_context()
-            with smtplib.SMTP('smtp.gmail.com', 587, timeout=8) as server:
+            with IPv4SMTP('smtp.gmail.com', 587, timeout=8) as server:
                 server.ehlo()
                 server.starttls(context=context)
                 server.ehlo()
