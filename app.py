@@ -33,6 +33,11 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,X-Requested-With'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    
+    # If this was an OPTIONS request and it failed (e.g. 405), forcefully return 200 OK for preflight
+    if request.method == 'OPTIONS' and response.status_code != 200:
+        response.status_code = 200
+        
     return response
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -905,8 +910,11 @@ def heartbeat():
 
     return jsonify({"success": False, "message": "User not found"}), 404
 
-@app.route('/api/auth/force-logout-employee', methods=['POST'])
+@app.route('/api/auth/force-logout-employee', methods=['POST', 'OPTIONS'])
 def force_logout_employee():
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+        
     data = request.get_json() or {}
     emp_id = data.get('employee_id')
     
