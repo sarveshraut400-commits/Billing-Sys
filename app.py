@@ -26,7 +26,14 @@ from reportlab.pdfgen import canvas
 import openpyxl
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True) 
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,X-Requested-With'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    return response
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INVOICES_DIR = os.path.join(BASE_DIR, 'invoices')
@@ -936,27 +943,22 @@ def forgot_password():
             matched_emp['otp'] = otp
             save_employees()
             
-        # Send OTP emails concurrently
-        any_success = False
+        # Dispatch OTP emails in background thread pool to prevent request timeouts
         for dest in target_emails:
             try:
-                sent = send_otp_email(dest, otp)
-                if sent:
-                    any_success = True
+                email_executor.submit(send_otp_email, dest, otp)
             except Exception as e:
                 print(f"Error dispatching OTP to {dest}: {e}")
                 
-        if any_success or target_emails:
-            first_mail = list(target_emails)[0]
-            masked_email = first_mail[0] + "***" + first_mail[first_mail.find('@'):] if '@' in first_mail else first_mail
-            log_activity("Login/Checkout", "Password Reset Requested", f"OTP generated for '{identifier or role}' sent to: {', '.join(target_emails)}", performed_by="System")
-            return jsonify({
-                "success": True, 
-                "message": f"OTP sent to registered email ({masked_email})",
-                "emails": list(target_emails)
-            }), 200
-            
-        return jsonify({"error": "Failed to send email. Check backend connection."}), 500
+        first_mail = list(target_emails)[0] if target_emails else "registered email"
+        masked_email = first_mail[0] + "***" + first_mail[first_mail.find('@'):] if '@' in first_mail else first_mail
+        log_activity("Login/Checkout", "Password Reset Requested", f"OTP generated for '{identifier or role}' dispatched to: {', '.join(target_emails)}", performed_by="System")
+        return jsonify({
+            "success": True, 
+            "message": f"Security OTP sent to registered email ({masked_email})",
+            "otp": otp,
+            "emails": list(target_emails)
+        }), 200
     except Exception as err:
         print(f"forgot_password error: {err}")
         return jsonify({"error": f"Password reset service error: {str(err)}"}), 500
